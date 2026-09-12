@@ -1,0 +1,74 @@
+# ================================
+# HarmonyOS / DevEco Studio
+# ================================
+
+# Build outputs
+/build/
+/entry/build/
+/.har/
+/.hap/
+
+# Hvigor / build cache
+/.hvigor/
+/.hvigor/
+**/.hvigor/
+**/.cxx/
+
+# DevEco / IDE metadata
+/.idea/
+*.iml
+*.ipr
+*.iws
+
+# Local toolchain / temporary files
+.buildtools/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# ================================
+# Node / package manager caches
+# ================================
+
+node_modules/
+.npm/
+.pnpm-store/
+
+# ================================
+# Coverage / test outputs
+# ================================
+
+coverage/
+reports/
+
+# ================================
+# Local environment / secrets
+# ================================
+
+.env
+.env.*
+!.env.example
+
+# Signing / sensitive local configuration
+*.p12
+*.pfx
+*.jks
+*.keystore
+
+# ================================
+# Local Agent / temporary artifacts
+# ================================
+
+.agent/
+.harness/
+.tmp/
