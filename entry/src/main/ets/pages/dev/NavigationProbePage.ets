@@ -10,19 +10,23 @@ const MODULE_TAG: string = 'NavigationProbePage';
  *
  * 职责：作为最小 NavDestination，验证唯一根 NavPathStack 的 push / pop 基础设施可用。
  * 约束：
- *  - 本页不创建 NavPathStack，统一 @Consume MainPage 通过 @Provide 注入的根栈。
+ *  - 本页严禁创建 NavPathStack；根栈统一在 onReady 生命周期中经
+ *    NavDestinationContext.pathStack 取得（该引用即 MainPage 创建的唯一根栈）。
+ *  - 本页严禁使用 @Consume 获取根栈：根栈在 MainPage 中是普通成员变量（非状态变量），
+ *    原因是 Navigation 会在渲染期内部写入该栈，若用 @Provide/@Consume 使其可观察，
+ *    将触发 "State variable 'navPathStack' has changed during render!" 渲染告警。
  *  - 本页不访问任何数据源，不承载业务逻辑。
- *  - 页面参数一律在 onReady 生命周期中经 NavDestinationContext 提取，禁止旧式 router.getParams()。
+ *  - 路由参数一律在 onReady 中经 NavDestinationContext 提取，禁止旧式 router.getParams()。
  * 移除时机：Milestone 2 落地 KnowledgeDetailPage（携带强类型 KnowledgeDetailParams）后，
  *          本页与 RouteConstants.NAV_PROBE 一并删除。
  */
 @Component
 export struct NavigationProbePage {
-  /** 全应用唯一根路由栈，由 MainPage 注入。 */
-  @Consume('NavPathStack') navPathStack: NavPathStack;
-
   /** 由 pageMap 透传的路由名称，仅用于发起二次 push。 */
   @Prop routeName: string = '';
+
+  /** 根路由栈引用，在 onReady 中由 NavDestinationContext 注入。 */
+  private rootStack: NavPathStack | null = null;
 
   /** onReady 提取到的路由名称，用于证明参数提取链路已生效。 */
   @State private receivedRoute: string = '';
@@ -49,7 +53,7 @@ export struct NavigationProbePage {
           .backgroundColor(AppColors.PRIMARY_LIGHT)
           .fontColor(AppColors.PRIMARY)
           .onClick(() => {
-            this.navPathStack.pop();
+            this.popSelf();
           })
       }
       .width('100%')
@@ -61,13 +65,30 @@ export struct NavigationProbePage {
     .title(AppStrings.NAV_PROBE_TITLE)
     .backgroundColor(AppColors.SURFACE)
     .onReady((context: NavDestinationContext) => {
+      // 只读取栈引用，不做任何栈操作，避免渲染期状态突变。
+      this.rootStack = context.pathStack;
       this.receivedRoute = context.pathInfo.name;
       Logger.info(MODULE_TAG, `onReady name=${this.receivedRoute}`);
     })
   }
 
-  /** 再次压入本页，验证重复 push 行为。 */
+  /** 再次压入本页，验证重复 push 行为（仅在用户点击事件中触发）。 */
   private pushSelfAgain(): void {
-    this.navPathStack.pushPathByName(this.receivedRoute, null);
+    const stack: NavPathStack | null = this.rootStack;
+    if (stack === null) {
+      Logger.error(MODULE_TAG, 'push skipped: root stack is not bound yet');
+      return;
+    }
+    stack.pushPathByName(this.routeName, null);
+  }
+
+  /** 弹出本页，验证 pop 行为（仅在用户点击事件中触发）。 */
+  private popSelf(): void {
+    const stack: NavPathStack | null = this.rootStack;
+    if (stack === null) {
+      Logger.error(MODULE_TAG, 'pop skipped: root stack is not bound yet');
+      return;
+    }
+    stack.pop();
   }
 }

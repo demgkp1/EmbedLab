@@ -4,6 +4,7 @@ import { ErrorCode } from '../models/common/ErrorCode';
 import { Failure, Result, Success } from '../models/common/Result';
 import { CodeSnippet } from '../models/knowledge/CodeSnippet';
 import { KnowledgeContent, KnowledgeItem } from '../models/knowledge/KnowledgeItem';
+import { KnowledgeIndex } from '../models/knowledge/KnowledgeIndex';
 import { KnowledgeMetadata } from '../models/knowledge/KnowledgeMetadata';
 
 /**
@@ -14,15 +15,6 @@ export interface SchemaVersion {
   schemaVersion: string;
   minAppVersion: string;
   maxAppVersion: string;
-}
-
-/**
- * 知识索引文件模型（对应 database/knowledge/index.json）。
- * 说明：属于资产文件的外层信封结构，仅用于本数据源解析，故就近声明于本文件。
- */
-export interface KnowledgeIndex {
-  schemaVersion: string;
-  items: KnowledgeMetadata[];
 }
 
 /**
@@ -134,12 +126,12 @@ export class RawFileAssetDataSource {
     if (text === undefined) {
       return RawFileAssetDataSource.toResultFailure<KnowledgeMetadata[]>(error);
     }
-    const items: KnowledgeMetadata[] | undefined =
+    const index: KnowledgeIndex | undefined =
       RawFileAssetDataSource.parseKnowledgeIndex(text, error);
-    if (items === undefined) {
+    if (index === undefined) {
       return RawFileAssetDataSource.toResultFailure<KnowledgeMetadata[]>(error);
     }
-    return RawFileAssetDataSource.success<KnowledgeMetadata[]>(items);
+    return RawFileAssetDataSource.success<KnowledgeMetadata[]>(index.items);
   }
 
   /**
@@ -204,8 +196,12 @@ export class RawFileAssetDataSource {
     return value;
   }
 
-  /** 解析知识索引文件，逐条校验元数据必填字段。 */
-  private static parseKnowledgeIndex(jsonText: string, error: DataSourceError): KnowledgeMetadata[] | undefined {
+  /**
+   * 解析知识索引文件，返回具名信封结构 KnowledgeIndex，并逐条校验元数据必填字段。
+   * 说明：信封类型统一取自 models/knowledge/KnowledgeIndex，本文件不再重复声明，
+   *      以保证 Repository 与 DataSource 共享同一份索引契约。
+   */
+  private static parseKnowledgeIndex(jsonText: string, error: DataSourceError): KnowledgeIndex | undefined {
     const record: Record<string, Object> | undefined = RawFileAssetDataSource.parseJsonObject(jsonText, error);
     if (record === undefined) {
       return undefined;
@@ -217,16 +213,26 @@ export class RawFileAssetDataSource {
       return undefined;
     }
     const rawItems: Object[] = RawFileAssetDataSource.asObjectArray(itemsValue);
-    const result: KnowledgeMetadata[] = [];
+    const items: KnowledgeMetadata[] = [];
     for (let index: number = 0; index < rawItems.length; index++) {
       const metadata: KnowledgeMetadata | undefined =
         RawFileAssetDataSource.parseMetadata(rawItems[index], error);
       if (metadata === undefined) {
         return undefined;
       }
-      result.push(metadata);
+      items.push(metadata);
     }
-    return result;
+    const schemaVersion: string | undefined = RawFileAssetDataSource.readString(record, 'schemaVersion');
+    if (schemaVersion === undefined) {
+      error.code = ErrorCode.FIELD_MISSING;
+      error.message = 'index.json schemaVersion is missing';
+      return undefined;
+    }
+    const envelope: KnowledgeIndex = {
+      schemaVersion: schemaVersion,
+      items: items
+    };
+    return envelope;
   }
 
   /** 解析单条知识元数据。 */
