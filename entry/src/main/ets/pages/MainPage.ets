@@ -29,7 +29,7 @@ struct MainPage {
       RootTabContainer()
     }
     .mode(NavigationMode.Stack)
-    .hideNavBar(true)
+    .hideTitleBar(true)
     .navDestination(this.pageMap)
     .width('100%')
     .height('100%')
@@ -44,15 +44,11 @@ struct MainPage {
    */
   @Builder
   pageMap(name: string, param: Object) {
-    Stack() {
-      if (name === RouteConstants.NAV_PROBE) {
-        NavigationProbePage({ routeName: name })
-      } else {
-        this.unregisteredRoute(name)
-      }
+    if (name === RouteConstants.NAV_PROBE) {
+      NavigationProbePage({ routeName: name })
+    } else {
+      this.unregisteredRoute(name)
     }
-    .width('100%')
-    .height('100%')
   }
 
   /** 未注册路由兜底：避免静默白屏，同时不掩盖真实缺失。 */

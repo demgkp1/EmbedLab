@@ -53,6 +53,26 @@ EmbedLab 是一个基于 HarmonyOS 原生技术开发的嵌入式系统体系化
 
 ---
 
+## 2.1 Agent 施工工序与验证门禁协议（Workflow & Verification Gate）
+
+为了杜绝大模型一次性盲目生成大批文件导致运行时故障，所有 AI Agent 必须遵守以下工程执行纪律：
+
+### 1. 微任务步进原则（Micro-Tasking）
+- 严禁单个指令跨越多个架构层级。每个任务只允许修改/新增 3~5 个强相关文件。
+- 执行节奏严格锁定为：【单点编码】 -> 【编译检查】 -> 【本地单测/模拟器点亮】 -> 【人类确认】 -> 【进入下一小步】。
+
+### 2. 真实性验证优先（API & Runtime Reality）
+- 静态编译通过（assembleHap）只是第一步。
+- 涉及 UI 变更时，必须提示人类进行真机/模拟器肉眼观察（确认无高度塌陷、无空白遮挡、无同色文字）。
+- 涉及逻辑变更时，必须通过 `src/test/` 单元测试输出事实日志（PASS/FAIL），禁止凭空宣称已验证。
+
+### 3. ArkUI 防御性编码红线
+- 严禁在页面根 Navigation 上滥用 `.hideNavBar(true)`，隐藏顶部栏只能使用 `.hideTitleBar(true)`。
+- 凡使用 `Tabs({ index: this.currentIndex })`，必须显式配对实现 `.onChange((index: number) => { this.currentIndex = index; })`。
+- 页面顶层容器必须显式声明 `.width('100%').height('100%')`。
+
+---
+
 ## 3. 当前开发任务
 
 ### 阶段目标：完成 EmbedLab V1.0 MVP
@@ -291,7 +311,7 @@ ViewModel 在接收到 Result.Failure 时，必须严格遵循以下状态映射
 
 #### 阶段 A：应用启动与 UserStore 状态水化（Hydration）
 1. 应用冷启动，MainPage 的 aboutToAppear() 生命周期触发。
-2. MainPage 通过 RepositoryProvider 获取 UserRepository 实例。
+2. MainPage 的 aboutToAppear() 触发 MainViewModel.initializeApp()，由 MainViewModel 调度 UserRepository。
 3. UserRepository 调用 PreferenceDataSource 读取本地持久化数据。
 4. 反序列化与格式校验成功后，UserRepository 调用 UserStore.initialize(loadedState) 将持久化状态注入内存单例。
 5. 全局状态就绪，后续所有页面均从 UserStore 获取响应式状态。

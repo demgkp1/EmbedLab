@@ -8,14 +8,6 @@ import { PracticePage } from '../pages/practice/PracticePage';
 import { ProfilePage } from '../pages/profile/ProfilePage';
 
 /**
- * 一级 Tab 描述项。
- */
-interface RootTabItem {
-  /** Tab 显示名称 */
-  label: string;
-}
-
-/**
  * 根 Tab 容器。
  *
  * 职责：承载 5 个一级 TabContent 的布局与组织，避免 MainPage 代码膨胀。
@@ -25,42 +17,33 @@ interface RootTabItem {
  */
 @Component
 export struct RootTabContainer {
-  /** 当前选中的 Tab 下标（组件内部私有 UI 状态） */
+  /** 当前选中的 Tab 下标 */
   @State currentIndex: number = 0;
-
-  /** 一级 Tab 清单，顺序即为底部栏展示顺序 */
-  private readonly tabItems: RootTabItem[] = [
-    { label: AppStrings.TAB_HOME },
-    { label: AppStrings.TAB_LEARN },
-    { label: AppStrings.TAB_PROJECTS },
-    { label: AppStrings.TAB_PRACTICE },
-    { label: AppStrings.TAB_PROFILE }
-  ];
 
   build() {
     Tabs({ barPosition: BarPosition.End, index: this.currentIndex }) {
       TabContent() {
-        this.homeTab()
+        HomePage()
       }
       .tabBar(this.tabBarBuilder(0, AppStrings.TAB_HOME))
 
       TabContent() {
-        this.learnTab()
+        LearnPage()
       }
       .tabBar(this.tabBarBuilder(1, AppStrings.TAB_LEARN))
 
       TabContent() {
-        this.projectsTab()
+        ProjectsPage()
       }
       .tabBar(this.tabBarBuilder(2, AppStrings.TAB_PROJECTS))
 
       TabContent() {
-        this.practiceTab()
+        PracticePage()
       }
       .tabBar(this.tabBarBuilder(3, AppStrings.TAB_PRACTICE))
 
       TabContent() {
-        this.profileTab()
+        ProfilePage()
       }
       .tabBar(this.tabBarBuilder(4, AppStrings.TAB_PROFILE))
     }
@@ -71,9 +54,13 @@ export struct RootTabContainer {
     .animationDuration(0)
     .width('100%')
     .height('100%')
+    // 补上核心事件：同步真实切换的 index，保证文字高亮响应式刷新
+    .onChange((index: number) => {
+      this.currentIndex = index;
+    })
   }
 
-  /** 底部 Tab 项：V1 仅文字标签，图形图标资源后续按设计补充。 */
+  /** 底部 Tab 项 */
   @Builder
   tabBarBuilder(index: number, label: string) {
     Column() {
@@ -85,30 +72,5 @@ export struct RootTabContainer {
     .width('100%')
     .height('100%')
     .justifyContent(FlexAlign.Center)
-  }
-
-  @Builder
-  homeTab() {
-    HomePage()
-  }
-
-  @Builder
-  learnTab() {
-    LearnPage()
-  }
-
-  @Builder
-  projectsTab() {
-    ProjectsPage()
-  }
-
-  @Builder
-  practiceTab() {
-    PracticePage()
-  }
-
-  @Builder
-  profileTab() {
-    ProfilePage()
   }
 }
