@@ -32,7 +32,7 @@ EmbedLab 是一个基于 HarmonyOS 原生技术开发的嵌入式系统体系化
 ### 原则二：严格单向分层与静态依赖注入（DI）
 - 数据链路严格保持 4 层：UI (Page/Component) → ViewModel → Repository → DataSource。
 - 依赖注入（DI）规范：严禁 ViewModel 内部直接 new Repository()，严禁 Repository 内部直接 new DataSource()。统一通过 utils/providers/ 下的 RepositoryProvider 与 DataSourceProvider 静态工厂获取依赖实例，确保未来数据源无缝切换（如替换为 SQLite）且便于单元测试。
-- 容器职责拆解：MainPage 仅负责持有全局 Navigation 容器并通过状态提供机制向下注入 NavPathStack；Tabs 的布局与 TabContent 的组织交由 RootTabContainer 组件管理，防止入口页面代码膨胀。
+- 容器职责拆解：MainPage 仅负责创建并私有持有全局 Navigation 容器与根 NavPathStack（不使用状态装饰器暴露）；Tabs 的布局与 TabContent 的组织交由 RootTabContainer 组件管理，防止入口页面代码膨胀。子页面按「导航防踩坑铁律」所述方式取栈。
 - ViewModel 职责边界：ViewModel 严禁直接持有任何 UI Component 或 PageController 引用。ViewModel 仅负责 UI 状态维护、用户交互响应、状态流转与调度 Repository，绝对不参与 UI 布局渲染与组件生命周期管理。
 - UserStore 定位与生命周期：UserStore 仅作为内存态的响应式状态中心，不直接与底层 I/O 交互。App 启动时，由 MainPage 生命周期驱动 UserRepository 读取 Preferences，并通过 UserStore.initialize(state) 完成内存注水。
 - Profile 数据防腐：Profile 页面展示收藏内容时，必须由 ProfileViewModel 调用 UserRepository 获取 ID 集合，再经由 KnowledgeRepository 批量聚合为展示实体，禁止 UI 层自行遍历查询。
@@ -104,7 +104,7 @@ MainPage（入口骨架）
             └── TabContent(Profile - 我的)：★ V1 包含：收藏列表、阅读历史
 
 ### 导航防踩坑铁律（V1 单栈与生命周期约束）
-- 栈生命周期管理：NavPathStack 实例由 MainPage 创建，通过 @Provide('NavPathStack') 向下提供；子组件通过 @Consume('NavPathStack') 获取。
+- 栈生命周期管理：NavPathStack 实例由 MainPage 创建，并以**普通私有成员变量**持有（`private navPathStack: NavPathStack`）。**严禁**用 @Provide / @State / @Link 等状态装饰器修饰该成员——NavPathStack 是 Navigation 组件在渲染期内部会写入的可变控制器，一旦被状态系统观察，即触发 ArkUI 告警 `State variable 'navPathStack' has changed during render!`。子页面/子组件获取根栈统一采用以下两种方式之一：① 在 `NavDestination` 的 onReady 回调中经 `NavDestinationContext.pathStack` 取得；② 在自定义组件内调用 `this.queryNavigationInfo()?.pathStack` 取得。两种方式返回的都是 MainPage 创建的那一个根栈实例。
 - 严禁在任何子组件、子页面内部执行 new NavPathStack()，严禁在任何 TabContent 内部嵌套独立 Navigation 容器。
 - 路由参数必须通过 Navigation/NavPathStack 的官方参数机制获取，并在 NavDestination 生命周期中完成解析和校验；具体 API 调用方式必须以当前 SDK 官方 API 为准，严禁调用已废弃的 router.getParams()，严禁传递匿名对象。
 - 二级页面（如 KnowledgeDetailPage）通过根路由栈的 pushPathByName() 调起，由 NavDestination 承载，压入根栈并全屏覆盖底部 Tabs。

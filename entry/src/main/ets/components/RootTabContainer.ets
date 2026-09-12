@@ -1,6 +1,7 @@
 import { AppColors } from '../constants/AppColors';
 import { AppDimens } from '../constants/AppDimens';
 import { AppStrings } from '../constants/AppStrings';
+import { LearnPage } from '../pages/learn/LearnPage';
 
 /**
  * 根 Tab 容器。
@@ -12,8 +13,8 @@ import { AppStrings } from '../constants/AppStrings';
  * 性能约定（对齐 @performance/avoid-overusing-custom-component-check）：
  *  - 骨架阶段的 Tab 内容统一使用 @Builder 函数渲染，不引入自定义组件，
  *    避免在 FrameNode 节点树上产生多余节点、拖慢首屏渲染。
- *  - 待 Milestone 2/3 各页面具备真实业务内容与独立状态后，再改为挂载页面组件
- *    （pages/ 下 5 个占位页面文件当前保留，供后续里程碑填充真实实现）。
+ *  - Learn 页已在 Milestone 2.1 具备真实 ViewModel 与业务内容，故改为挂载真实页面组件；
+ *    其余 4 个 Tab 仍保持 @Builder 占位，待各自里程碑落地后再切换。
  */
 @Component
 export struct RootTabContainer {
@@ -28,7 +29,7 @@ export struct RootTabContainer {
       .tabBar(this.tabBarBuilder(0, AppStrings.TAB_HOME))
 
       TabContent() {
-        this.tabPlaceholder(AppStrings.LEARN_PLACEHOLDER_TITLE, AppStrings.LEARN_PLACEHOLDER_DESC)
+        LearnPage()
       }
       .tabBar(this.tabBarBuilder(1, AppStrings.TAB_LEARN))
 
