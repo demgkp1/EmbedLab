@@ -212,7 +212,7 @@ DataSource 初始化时必须严格执行双向版本判定：若 App 版本 < m
 #### V1 内容规模与素材引用规范
 - 知识文章数量上限：V1 阶段总篇数 ≤ 100 篇。
 - 单篇 JSON 大小上限：单文件 ≤ 500KB。
-- 单张图片素材上限：单张图片大小 ≤ 500KB，格式严格限制为 PNG / JPG / WebP，严禁以 Base64 内联在 JSON 中。
+- 单张图片素材上限：单张图片大小 ≤ 2MB（2048KB），格式严格限制为 PNG / JPG / WebP，严禁以 Base64 内联在 JSON 中。
 - 素材引用规范：图片以相对路径数组统一维护在 images: string[] 字段中（如 ["knowledge/gpio/pinmode.png"]），对应实体放置在 resources/base/media/ 下。
 - 代码格式原则：代码示例以纯文本结合 CodeSnippet 结构存储。
 

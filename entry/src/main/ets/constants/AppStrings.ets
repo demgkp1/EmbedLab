@@ -19,12 +19,9 @@ export class AppStrings {
   static readonly TAB_PRACTICE: string = '练习';
   static readonly TAB_PROFILE: string = '我的';
 
-  /** 各一级 Tab 占位说明 */
+  /** 一级 Tab 文案 */
   static readonly HOME_PLACEHOLDER_TITLE: string = '首页';
   static readonly HOME_PLACEHOLDER_DESC: string = 'V1 仅保留学习状态入口，后续接入学习进度展示。';
-
-  static readonly LEARN_PLACEHOLDER_TITLE: string = '学习';
-  static readonly LEARN_PLACEHOLDER_DESC: string = 'V1 核心模块：分类浏览与知识列表，将在 Milestone 2 点亮。';
 
   static readonly PROJECTS_PLACEHOLDER_TITLE: string = '项目';
   static readonly PROJECTS_PLACEHOLDER_DESC: string = '硬件案例库，V1 阶段保持静态占位。';

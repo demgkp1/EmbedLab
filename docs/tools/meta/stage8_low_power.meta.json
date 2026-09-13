@@ -1,0 +1,19 @@
+{
+  "id": "stage8_low_power",
+  "title": "25. 低功耗",
+  "category": "Stage 8: 构建 / 调试 / 驱动 / 架构",
+  "level": "Medium",
+  "tags": [
+    "低功耗设计 (Low-Power Design)",
+    "平均功耗",
+    "动态功耗",
+    "静态功耗与漏电流",
+    "时钟门控 (Clock Gating)",
+    "电源门控 (Power Gating)",
+    "深度睡眠 (Stop)",
+    "实时时钟 (RTC)",
+    "占空比 (Duty Cycle)",
+    "GPIO 漏电流"
+  ],
+  "summary": "本章讲解低功耗设计如何在实时性与省电间取舍：动态功耗取决于时钟翻转、静态功耗来自漏电流，可用时钟门控与电源门控降低；并介绍从 Active 到 Standby 的多级低功耗模式、RTC 与外部中断唤醒的占空比架构，以及 GPIO 漏电流与调试器阻碍休眠等陷阱。"
+}

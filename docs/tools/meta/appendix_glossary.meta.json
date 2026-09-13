@@ -1,0 +1,19 @@
+{
+  "id": "appendix_glossary",
+  "title": "34. 常用术语表",
+  "category": "附录: 学习路线与术语表",
+  "level": "Basic",
+  "tags": [
+    "MCU",
+    "GPIO",
+    "RTOS",
+    "DMA",
+    "HAL",
+    "Toolchain",
+    "JTAG",
+    "SWD",
+    "OTA",
+    "FPU"
+  ],
+  "summary": "按芯片与核心硬件、通信总线与外围接口、系统架构与底层软件、开发编译与调试工具四类，汇总 MCU、DMA、HAL、OTA 等常用缩写的英文全称与工程含义，并辨析易混淆概念。"
+}

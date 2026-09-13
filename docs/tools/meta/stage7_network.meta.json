@@ -1,0 +1,18 @@
+{
+  "id": "stage7_network",
+  "title": "19. 网络通信",
+  "category": "Stage 7: 网络 / MQTT / 嵌入式 Linux / Bootloader",
+  "level": "Medium",
+  "tags": [
+    "TCP/IP 协议栈",
+    "TCP",
+    "UDP",
+    "LwIP",
+    "MAC 地址",
+    "IP 地址",
+    "端口号",
+    "TLS",
+    "心跳包 (Keep-Alive)"
+  ],
+  "summary": "本章讲解嵌入式设备如何借助 MAC/PHY 与 TCP/IP 协议栈接入网络，说明 MAC、IP 与端口三级寻址、TCP 与 UDP 的工程权衡、LwIP 软件协议栈与 W5500 等硬件协议栈的取舍，并分析 TLS 加密耗内存、阻塞 Socket 导致假死、半连接等排错陷阱。"
+}

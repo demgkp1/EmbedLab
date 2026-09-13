@@ -1,0 +1,17 @@
+{
+  "id": "stage2_c_language",
+  "title": "6. C 语言与嵌入式 C",
+  "category": "Stage 2: 计算机 / CPU / Memory / C",
+  "level": "Medium",
+  "tags": [
+    "指针",
+    "volatile",
+    "内存对齐",
+    "Padding",
+    "回调函数",
+    "函数指针",
+    "显式序列化",
+    "读-改-写 (RMW)"
+  ],
+  "summary": "说明嵌入式为何以 C 为主，并讲清用带类型的指针读写固定硬件寄存器地址、volatile 阻止编译器优化掉必要访问却不等同原子性与同步，以及结构体对齐填充决定的布局问题和回调函数机制。"
+}

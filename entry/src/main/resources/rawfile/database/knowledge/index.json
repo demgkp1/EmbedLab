@@ -18,6 +18,95 @@
       "summary": "嵌入式系统是为完成特定应用功能而设计的专用计算机系统，通常隐藏在更大的机械或电气系统内部，其本质是用代码定义系统行为：让 CPU 通过传感器感知世界、通过执行器改变世界。"
     },
     {
+      "id": "stage1_computer",
+      "title": "2. 计算机基础",
+      "category": "Stage 1: 认识嵌入式世界",
+      "level": "Basic",
+      "tags": [
+        "二进制",
+        "位 (Bit)",
+        "字节 (Byte)",
+        "十六进制",
+        "位运算",
+        "寄存器",
+        "掩码",
+        "读-改-写 (RMW)",
+        "未定义行为 (UB)"
+      ],
+      "summary": "计算机内部只有 0 与 1 两种电信号状态，8 位组成一个字节，十六进制则是二进制的紧凑写法；嵌入式开发依靠位运算（移位、按位或、按位与取反、异或）对寄存器做“只改一位、不动其余位”的精确操作，同时必须警惕移位超过位宽的未定义行为，以及 REG |= (1 << n) 这种读-改-写序列并非原子操作所带来的竞争风险。"
+    },
+    {
+      "id": "stage1_digital_circuit",
+      "title": "3. 数字电路基础",
+      "category": "Stage 1: 认识嵌入式世界",
+      "level": "Basic",
+      "tags": [
+        "逻辑电平",
+        "上拉电阻",
+        "下拉电阻",
+        "高阻态",
+        "Active-Low",
+        "VCC",
+        "GND",
+        "去耦电容",
+        "短路"
+      ],
+      "summary": "从供电 VCC/GND 与逻辑电平讲起，说明 0 与 1 如何用电压区间表示、低电平有效设计，并介绍悬空引脚的高阻态与上拉/下拉电阻、LDO 与 Buck 及去耦电容的作用，最后澄清共地、悬空输入等常见工程误区。"
+    },
+    {
+      "id": "stage1_mcu_soc",
+      "title": "4. MCU 与 SoC：认识嵌入式世界的大脑",
+      "category": "Stage 1: 认识嵌入式世界",
+      "level": "Basic",
+      "tags": [
+        "MCU",
+        "SoC",
+        "MPU",
+        "Flash",
+        "SRAM",
+        "GPIO",
+        "外设",
+        "MMU",
+        "NPU"
+      ],
+      "summary": "解释 MCU、MPU、SoC 三者的含义与差异：MCU 把 CPU 核心、片上 Flash/SRAM 与常用外设集成在一颗芯片中，MPU 侧重高性能核心并依赖外接 DDR，SoC 强调系统级集成；并给出对比表与常见误区。"
+    },
+    {
+      "id": "stage2_cpu",
+      "title": "5. CPU、内存与启动",
+      "category": "Stage 2: 计算机 / CPU / Memory / C",
+      "level": "Basic",
+      "tags": [
+        "CPU",
+        "取指 → 译码 → 执行",
+        "Flash",
+        "SRAM",
+        "栈",
+        "堆",
+        "栈溢出",
+        "XIP",
+        "Reset_Handler"
+      ],
+      "summary": "讲解 CPU 的取指、译码、执行循环与时钟频率、CPI、流水线的关系，Flash 与 SRAM 的差别，栈的自动管理与堆的手动管理及栈溢出、内存泄漏风险，最后梳理单片机上电后从复位向量到 main() 的启动流程。"
+    },
+    {
+      "id": "stage2_c_language",
+      "title": "6. C 语言与嵌入式 C",
+      "category": "Stage 2: 计算机 / CPU / Memory / C",
+      "level": "Medium",
+      "tags": [
+        "指针",
+        "volatile",
+        "内存对齐",
+        "Padding",
+        "回调函数",
+        "函数指针",
+        "显式序列化",
+        "读-改-写 (RMW)"
+      ],
+      "summary": "说明嵌入式为何以 C 为主，并讲清用带类型的指针读写固定硬件寄存器地址、volatile 阻止编译器优化掉必要访问却不等同原子性与同步，以及结构体对齐填充决定的布局问题和回调函数机制。"
+    },
+    {
       "id": "stage3_gpio",
       "title": "7. GPIO",
       "category": "Stage 3: GPIO / 中断 / 定时器",
@@ -33,6 +122,500 @@
         "电平兼容"
       ],
       "summary": "GPIO 是单片机上的通用输入输出外设，引脚可由软件配置为输入、推挽 / 开漏输出、复用功能或模拟模式；点灯与读键只是入门，真正的难点在于认清引脚的固定用途与电流、电压、电平兼容等电气约束，具体能力一律以 Datasheet 与 Reference Manual 为准。"
+    },
+    {
+      "id": "stage3_interrupt",
+      "title": "8. 中断",
+      "category": "Stage 3: GPIO / 中断 / 定时器",
+      "level": "Medium",
+      "tags": [
+        "中断",
+        "ISR",
+        "轮询",
+        "中断标志",
+        "中断优先级",
+        "NVIC",
+        "中断嵌套",
+        "抢占优先级",
+        "中断延迟"
+      ],
+      "summary": "讲解轮询会占用 CPU 并漏掉外设事件的缺陷，梳理外设事件、中断标志、中断控制器到 ISR 的响应链路与 ISR 定义，强调 ISR 应短、确定、非阻塞，并说明中断标志清除方式、中断优先级与 NVIC 抢占/响应优先级等常见陷阱。"
+    },
+    {
+      "id": "stage3_timer_pwm",
+      "title": "9. 定时器与 PWM",
+      "category": "Stage 3: GPIO / 中断 / 定时器",
+      "level": "Medium",
+      "tags": [
+        "硬件定时器",
+        "PWM",
+        "占空比",
+        "预分频器",
+        "自动重装载值",
+        "输出比较",
+        "输入捕获",
+        "分辨率",
+        "硬件PWM"
+      ],
+      "summary": "讲解软件延时阻塞系统且精度差的缺陷，说明硬件定时器的时钟源、预分频器、计数器与自动重装载值原理，并解析 PWM 的频率、占空比、分辨率三大参数及 LED、直流电机、舵机的选频与硬件 PWM 选型实践。"
+    },
+    {
+      "id": "stage4_uart",
+      "title": "10. UART",
+      "category": "Stage 4: UART / I2C / SPI",
+      "level": "Basic",
+      "tags": [
+        "UART",
+        "波特率",
+        "数据帧",
+        "起始位",
+        "停止位",
+        "奇偶校验位",
+        "异步",
+        "共地",
+        "RS-232"
+      ],
+      "summary": "讲解 UART 的异步串行通信原理：三线交叉连接与共地要求、波特率约定以及由起始位、数据位、校验位、停止位组成的数据帧，并给出乱码、收不到数据、RS-232 电平损坏与轮询阻塞发送的排查要点。"
+    },
+    {
+      "id": "stage4_i2c",
+      "title": "11. I2C",
+      "category": "Stage 4: UART / I2C / SPI",
+      "level": "Medium",
+      "tags": [
+        "I2C",
+        "开漏输出",
+        "上拉电阻",
+        "线与",
+        "设备地址",
+        "ACK",
+        "NACK",
+        "总线死锁",
+        "I2C Scanner"
+      ],
+      "summary": "讲解 I2C 两线制同步半双工多主多从总线的开漏输出加上拉电阻与线与逻辑，说明 7 位设备地址寻址与第 9 个时钟的 ACK/NACK 应答机制，并排查上拉电阻缺失、地址左移与复位引起的总线死锁问题。"
+    },
+    {
+      "id": "stage4_spi",
+      "title": "12. SPI",
+      "category": "Stage 4: UART / I2C / SPI",
+      "level": "Medium",
+      "tags": [
+        "SPI",
+        "全双工",
+        "移位寄存器",
+        "CPOL",
+        "CPHA",
+        "片选",
+        "推挽输出",
+        "Dummy Byte",
+        "高阻态"
+      ],
+      "summary": "讲解 SPI 四线制同步全双工总线的推挽输出与片选机制，说明移位寄存器强制数据交换、读取数据须发送 Dummy Byte 产生时钟的原理，并解析 CPOL/CPHA 四种模式、CS 软件控制与 MISO 高阻态等工程陷阱。"
+    },
+    {
+      "id": "stage5_adc_sensor",
+      "title": "13. ADC、DAC 与传感器",
+      "category": "Stage 5: ADC / DMA",
+      "level": "Medium",
+      "tags": [
+        "ADC",
+        "DAC",
+        "参考电压",
+        "分辨率",
+        "采样率",
+        "数字传感器",
+        "PWM",
+        "滑动平均滤波"
+      ],
+      "summary": "介绍 ADC 与 DAC 的定义、参考电压、分辨率与采样率等关键参数，对比 PWM 与 DAC 的本质差异，分析模拟与数字传感器的工程形态，并给出基准漂移、噪声滤波与输入阻抗匹配的排错对策。"
+    },
+    {
+      "id": "stage5_dma",
+      "title": "14. DMA",
+      "category": "Stage 5: ADC / DMA",
+      "level": "Hard",
+      "tags": [
+        "DMA",
+        "双缓冲",
+        "半传输完成中断 HT",
+        "传输完成中断 TC",
+        "Cache 一致性",
+        "周期窃取",
+        "地址自增模式",
+        "总线竞争"
+      ],
+      "summary": "介绍 DMA 绕过 CPU 在外设与内存间搬运数据的硬件机制，说明它如何解决轮询阻塞与频繁中断的开销，讲解双缓冲乒乓操作，并给出 Cache 一致性、缓冲区生命周期与总线竞争的排错要点。"
+    },
+    {
+      "id": "stage6_watchdog",
+      "title": "15. 看门狗与系统可靠性",
+      "category": "Stage 6: 看门狗 / Flash / RTOS / 并发",
+      "level": "Medium",
+      "tags": [
+        "看门狗定时器",
+        "喂狗",
+        "独立看门狗 IWDG",
+        "窗口看门狗 WWDG",
+        "硬件复位",
+        "死锁",
+        "看门狗监测任务",
+        "DBGMCU"
+      ],
+      "summary": "说明看门狗定时器靠定期喂狗清零、超时即强制硬件复位的可靠性机制，区分防范严重故障的独立看门狗与检测时序异常的窗口看门狗，并给出不在中断喂狗、主循环与 RTOS 监控任务喂狗及调试冻结等排错对策。"
+    },
+    {
+      "id": "stage6_flash",
+      "title": "16. Flash、EEPROM 与文件系统",
+      "category": "Stage 6: 看门狗 / Flash / RTOS / 并发",
+      "level": "Medium",
+      "tags": [
+        "Flash",
+        "EEPROM",
+        "擦除而后写",
+        "扇区擦除",
+        "擦写寿命",
+        "磨损均衡",
+        "掉电安全",
+        "LittleFS",
+        "NVS",
+        "A/B 双区备份"
+      ],
+      "summary": "对比 EEPROM 与 Flash 的读写粒度、寿命与成本差异，讲解 Flash 只能把 1 写成 0、必须按扇区擦除的物理约束，介绍 NVS、FATFS、LittleFS 等存储抽象层，并给出写入频率、总线阻塞与掉电原子性的工程对策。"
+    },
+    {
+      "id": "stage6_rtos",
+      "title": "17. RTOS 与 FreeRTOS",
+      "category": "Stage 6: 看门狗 / Flash / RTOS / 并发",
+      "level": "Hard",
+      "tags": [
+        "RTOS",
+        "FreeRTOS",
+        "任务 Task",
+        "上下文切换",
+        "抢占式调度",
+        "任务栈",
+        "阻塞态",
+        "优先级反转",
+        "优先级继承",
+        "栈溢出"
+      ],
+      "summary": "从裸机前后台系统的时序耦合痛点引入 RTOS，讲解任务的概念与运行、就绪、阻塞三态流转，说明上下文切换与独立任务栈的保存现场机制和基于优先级的抢占式调度，并给出系统延时、栈大小评估与 ISR 调用限制等工程要点。"
+    },
+    {
+      "id": "stage6_concurrency",
+      "title": "18. 并发、同步与互斥",
+      "category": "Stage 6: 看门狗 / Flash / RTOS / 并发",
+      "level": "Hard",
+      "tags": [
+        "数据竞争",
+        "Read-Modify-Write",
+        "临界区",
+        "互斥锁 Mutex",
+        "优先级继承",
+        "信号量",
+        "消息队列",
+        "死锁",
+        "关中断",
+        "环形缓冲区"
+      ],
+      "summary": "说明并发下语句非原子的读-改-写过程如何引发数据竞争，讲解关中断、互斥锁、信号量与消息队列等临界区保护与同步手段，并给出区分互斥与同步、统一加锁顺序避免死锁、中断中禁用阻塞 API 的工程原则。"
+    },
+    {
+      "id": "stage7_network",
+      "title": "19. 网络通信",
+      "category": "Stage 7: 网络 / MQTT / 嵌入式 Linux / Bootloader",
+      "level": "Medium",
+      "tags": [
+        "TCP/IP 协议栈",
+        "TCP",
+        "UDP",
+        "LwIP",
+        "MAC 地址",
+        "IP 地址",
+        "端口号",
+        "TLS",
+        "心跳包 (Keep-Alive)"
+      ],
+      "summary": "本章讲解嵌入式设备如何借助 MAC/PHY 与 TCP/IP 协议栈接入网络，说明 MAC、IP 与端口三级寻址、TCP 与 UDP 的工程权衡、LwIP 软件协议栈与 W5500 等硬件协议栈的取舍，并分析 TLS 加密耗内存、阻塞 Socket 导致假死、半连接等排错陷阱。"
+    },
+    {
+      "id": "stage7_mqtt",
+      "title": "20. MQTT",
+      "category": "Stage 7: 网络 / MQTT / 嵌入式 Linux / Bootloader",
+      "level": "Medium",
+      "tags": [
+        "MQTT",
+        "发布/订阅 (Pub/Sub)",
+        "Broker",
+        "Topic 主题",
+        "QoS",
+        "Keep Alive",
+        "遗嘱 (LWT)",
+        "通配符",
+        "Payload"
+      ],
+      "summary": "本章讲解基于发布/订阅模式的轻量级物联网协议 MQTT，涵盖 Broker 转发、Topic 与通配符寻址、QoS 三级送达保证、Keep Alive 心跳保活与遗嘱机制，并给出主循环阻塞导致心跳超时、滥用通配符撑爆 RAM、混淆协议与载荷格式等工程陷阱的对策。"
+    },
+    {
+      "id": "stage7_linux",
+      "title": "21. 嵌入式 Linux",
+      "category": "Stage 7: 网络 / MQTT / 嵌入式 Linux / Bootloader",
+      "level": "Hard",
+      "tags": [
+        "嵌入式 Linux",
+        "MMU",
+        "虚拟内存",
+        "进程隔离",
+        "RootFS",
+        "设备树",
+        "交叉编译",
+        "PREEMPT_RT",
+        "内核态"
+      ],
+      "summary": "本章介绍面向 MPU/SoC 裁剪定制的嵌入式 Linux，拆解引导程序、内核与设备树、根文件系统、应用四大件，重点说明 MMU 与虚拟内存带来的进程隔离，对比 RTOS 与 Linux 在实时性、成本、启动时间上的权衡，并提示驱动开发、实时补丁与交叉编译等要点。"
+    },
+    {
+      "id": "stage7_bootloader",
+      "title": "22. Bootloader",
+      "category": "Stage 7: 网络 / MQTT / 嵌入式 Linux / Bootloader",
+      "level": "Hard",
+      "tags": [
+        "Bootloader",
+        "OTA",
+        "双区备份 (Dual-Bank)",
+        "中断向量表",
+        "VTOR",
+        "Boot ROM",
+        "链接脚本",
+        "CRC32 校验",
+        "防变砖"
+      ],
+      "summary": "本章讲解系统复位后第一段代码 Bootloader 的硬件初始化、固件校验、升级与跳转职责，给出 Boot ROM 到 Bootloader 再到 Application 的启动链路，重点说明 A/B 双区 OTA 升级与版本回退、中断向量表重定向，以及跳转前清理中断、CRC 校验、链接脚本地址划分等陷阱。"
+    },
+    {
+      "id": "stage8_build",
+      "title": "23. 编译、链接与烧录",
+      "category": "Stage 8: 构建 / 调试 / 驱动 / 架构",
+      "level": "Medium",
+      "tags": [
+        "交叉编译工具链",
+        "链接脚本",
+        "链接器",
+        "目标文件",
+        "段 (Section)",
+        "Map 文件",
+        "未定义引用",
+        "多重定义",
+        "JTAG/SWD",
+        "烧录"
+      ],
+      "summary": "本章拆解从 C 源码到芯片 Flash 的构建流水线（预处理、编译、汇编、链接与格式转换），说明链接脚本如何划定 Flash/RAM 边界并分配 .text、.rodata、.data、.bss 段，介绍 JTAG/SWD 等烧录方式，并辨析编译错误与链接错误、多重定义及 Map 文件排错方法。"
+    },
+    {
+      "id": "stage8_debug",
+      "title": "24. 调试方法",
+      "category": "Stage 8: 构建 / 调试 / 驱动 / 架构",
+      "level": "Medium",
+      "tags": [
+        "调试 (Debugging)",
+        "HardFault",
+        "逻辑分析仪",
+        "示波器",
+        "断点 (Breakpoint)",
+        "JTAG / SWD",
+        "串口日志",
+        "断言 (Assertion)",
+        "海森堡 Bug (Heisenbug)",
+        "数据竞争"
+      ],
+      "summary": "本章讲解嵌入式系统的系统级调试方法：用串口日志与断言观测软件状态，用 JTAG/SWD 断点与单步查看内存寄存器，用逻辑分析仪和示波器排查数字与模拟信号异常，并分析 HardFault 的调用栈与故障寄存器定位方法。"
+    },
+    {
+      "id": "stage8_low_power",
+      "title": "25. 低功耗",
+      "category": "Stage 8: 构建 / 调试 / 驱动 / 架构",
+      "level": "Medium",
+      "tags": [
+        "低功耗设计 (Low-Power Design)",
+        "平均功耗",
+        "动态功耗",
+        "静态功耗与漏电流",
+        "时钟门控 (Clock Gating)",
+        "电源门控 (Power Gating)",
+        "深度睡眠 (Stop)",
+        "实时时钟 (RTC)",
+        "占空比 (Duty Cycle)",
+        "GPIO 漏电流"
+      ],
+      "summary": "本章讲解低功耗设计如何在实时性与省电间取舍：动态功耗取决于时钟翻转、静态功耗来自漏电流，可用时钟门控与电源门控降低；并介绍从 Active 到 Standby 的多级低功耗模式、RTC 与外部中断唤醒的占空比架构，以及 GPIO 漏电流与调试器阻碍休眠等陷阱。"
+    },
+    {
+      "id": "stage8_driver",
+      "title": "26. 设备驱动",
+      "category": "Stage 8: 构建 / 调试 / 驱动 / 架构",
+      "level": "Hard",
+      "tags": [
+        "设备驱动 (Device Driver)",
+        "硬件抽象",
+        "分层架构",
+        "HAL (硬件抽象层)",
+        "BSP (板级支持包)",
+        "上下文句柄 (Handle)",
+        "函数指针",
+        "超时机制 (Timeout)",
+        "非阻塞状态机",
+        "错误码返回"
+      ],
+      "summary": "本章讲解设备驱动如何以硬件抽象把寄存器与时序细节封装成标准化 API，通过驱动层与 HAL/BSP 分层解耦业务与芯片，并用上下文句柄和函数指针实现可移植驱动，同时给出忙等无超时、滥用延时和吞没错误码三类陷阱的对策。"
+    },
+    {
+      "id": "stage8_architecture",
+      "title": "27. 嵌入式软件架构",
+      "category": "Stage 8: 构建 / 调试 / 驱动 / 架构",
+      "level": "Hard",
+      "tags": [
+        "嵌入式软件架构",
+        "分层架构",
+        "有限状态机 (FSM)",
+        "轮询架构 (Super Loop)",
+        "时间触发架构 (TTA)",
+        "RTOS 多任务",
+        "非阻塞延时",
+        "消息队列",
+        "数据隐藏",
+        "中间件层"
+      ],
+      "summary": "本章讲解嵌入式软件架构如何划分组件职责：用应用层、中间件层、驱动层与 HAL 构成的分层架构实现可移植，比较轮询、时间触发 TTA 与 RTOS 抢占三种执行模型，并强调以有限状态机替代忙等延时、避免全局变量与过度设计。"
+    },
+    {
+      "id": "stage9_sensors",
+      "title": "28. 常见传感器",
+      "category": "Stage 9: 传感器 / 机器人 / AI / 项目",
+      "level": "Medium",
+      "tags": [
+        "传感器 (Sensor)",
+        "MEMS",
+        "IMU (惯性测量单元)",
+        "加速度计",
+        "陀螺仪",
+        "传感器融合 (Sensor Fusion)",
+        "互补滤波",
+        "PPG (光电容积脉搏波)",
+        "数字滤波",
+        "信号向量模 (SVM)"
+      ],
+      "summary": "本章讲解传感器如何把物理量转换为电信号：介绍 MEMS 的集成形态，以 MPU6050 说明加速度计受震动干扰、陀螺仪存在积分漂移并需传感器融合，以 MAX30102 说明 PPG 的干扰约束，并给出数字滤波、信号向量模与量程换算、采样定理等要点。"
+    },
+    {
+      "id": "stage9_robotics",
+      "title": "29. 机器人与嵌入式",
+      "category": "Stage 9: 传感器 / 机器人 / AI / 项目",
+      "level": "Hard",
+      "tags": [
+        "异构计算",
+        "PID",
+        "闭环控制",
+        "硬实时",
+        "心跳包",
+        "CAN 总线",
+        "ROS2",
+        "Jitter",
+        "MCU"
+      ],
+      "summary": "介绍现代机器人采用的 MPU(Linux) 与 MCU(RTOS) 异构双脑架构，解释软实时与硬实时冲突下的主从分工，并给出 PID 闭环控制、心跳断联急停与 CAN 总线通信的工程陷阱与对策。"
+    },
+    {
+      "id": "stage9_tinyml",
+      "title": "30. AI + 嵌入式 / TinyML",
+      "category": "Stage 9: 传感器 / 机器人 / AI / 项目",
+      "level": "Hard",
+      "tags": [
+        "TinyML",
+        "模型量化",
+        "推理",
+        "模型剪枝",
+        "Tensor Arena",
+        "特征提取",
+        "神经网络",
+        "TensorFlow Lite",
+        "int8"
+      ],
+      "summary": "介绍 TinyML 如何把云端训练的神经网络经量化与剪枝压缩后部署到资源受限的 MCU 上，使单片机只做本地推理，并剖析 Tensor Arena 内存溢出与特征提取开销等常见陷阱。"
+    },
+    {
+      "id": "stage9_project",
+      "title": "31. 项目开发方法",
+      "category": "Stage 9: 传感器 / 机器人 / AI / 项目",
+      "level": "Medium",
+      "tags": [
+        "最小可行程序",
+        "增量验证",
+        "大爆炸集成",
+        "Git",
+        "分层架构",
+        "BSP",
+        "编译警告",
+        "版本控制",
+        "过早优化"
+      ],
+      "summary": "讲解嵌入式项目开发方法：用 MVP 与自底向上的增量验证替代大爆炸集成，给出分层目录结构与 Git 版本控制实践，并强调把编译警告纳入构建门禁、拒绝迷信式编程与过早优化。"
+    },
+    {
+      "id": "stage9_troubleshooting",
+      "title": "32. 常见问题排查",
+      "category": "Stage 9: 传感器 / 机器人 / AI / 项目",
+      "level": "Hard",
+      "tags": [
+        "漏斗模型",
+        "HardFault",
+        "栈溢出",
+        "数据竞争",
+        "野指针",
+        "逻辑分析仪",
+        "上拉电阻",
+        "共地",
+        "看门狗",
+        "Boot 引脚"
+      ],
+      "summary": "提出从物理电气层到应用逻辑层自底向上的漏斗排查模型，针对系统不复位、总线通信失败与偶发 HardFault 给出排查链路，并强调借助示波器与逻辑分析仪定位根因。"
+    },
+    {
+      "id": "appendix_learning_path",
+      "title": "33. 学习路线",
+      "category": "附录: 学习路线与术语表",
+      "level": "Basic",
+      "tags": [
+        "螺旋式上升",
+        "MVP",
+        "RTOS",
+        "Reference Manual",
+        "Datasheet",
+        "裸机驱动",
+        "软硬协同",
+        "API 包装工",
+        "嵌入式 Linux"
+      ],
+      "summary": "给出嵌入式学习的螺旋式上升路线，按 Level 0 至 Level 4 划分计算机与电子基础、裸机外设驱动、RTOS 并发、物联网系统工程与异构计算各阶段目标，并指出常见学习陷阱。"
+    },
+    {
+      "id": "appendix_glossary",
+      "title": "34. 常用术语表",
+      "category": "附录: 学习路线与术语表",
+      "level": "Basic",
+      "tags": [
+        "MCU",
+        "GPIO",
+        "RTOS",
+        "DMA",
+        "HAL",
+        "Toolchain",
+        "JTAG",
+        "SWD",
+        "OTA",
+        "FPU"
+      ],
+      "summary": "按芯片与核心硬件、通信总线与外围接口、系统架构与底层软件、开发编译与调试工具四类，汇总 MCU、DMA、HAL、OTA 等常用缩写的英文全称与工程含义，并辨析易混淆概念。"
     }
   ]
 }

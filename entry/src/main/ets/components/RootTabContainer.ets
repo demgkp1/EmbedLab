@@ -2,6 +2,7 @@ import { AppColors } from '../constants/AppColors';
 import { AppDimens } from '../constants/AppDimens';
 import { AppStrings } from '../constants/AppStrings';
 import { LearnPage } from '../pages/learn/LearnPage';
+import { ProfilePage } from '../pages/profile/ProfilePage';
 
 /**
  * 根 Tab 容器。
@@ -14,12 +15,29 @@ import { LearnPage } from '../pages/learn/LearnPage';
  *  - 骨架阶段的 Tab 内容统一使用 @Builder 函数渲染，不引入自定义组件，
  *    避免在 FrameNode 节点树上产生多余节点、拖慢首屏渲染。
  *  - Learn 页已在 Milestone 2.1 具备真实 ViewModel 与业务内容，故改为挂载真实页面组件；
- *    其余 4 个 Tab 仍保持 @Builder 占位，待各自里程碑落地后再切换。
+ *    Profile 页已在 Milestone 3.4 具备收藏 / 历史展示，同样改为挂载真实页面组件；
+ *    Home / Projects / Practice 三个 Tab 仍保持 @Builder 占位，待各自里程碑落地后再切换。
+ * 跨 Tab 刷新广播（Milestone 3.4-fix）：
+ *  - TabContent 切换是 Tabs 内部状态，**不会触发子页面的 onPageShow**；
+ *    而详情页返回时子页面同样不感知，导致 Profile 收藏/历史与 Learn 星标不刷新。
+ *  - 故由本组件通过 @Provide('rootTabIndex') 广播当前下标，
+ *    子页面以 @Consume + @Watch 监听并在切回自身时执行刷新。
+ *  - 严禁改用 AppStorage / EventHub 等替代机制（V1 阶段不引入）。
  */
 @Component
 export struct RootTabContainer {
   /** 当前选中的 Tab 下标 */
   @State currentIndex: number = 0;
+  /**
+   * 跨 Tab 刷新广播源（与 currentIndex 同步）。
+   * 说明：本变量由 Tabs.onChange 回调写入，属于页面私有 UI 状态，
+   *      与 NavPathStack 的情形不同（后者由 Navigation 在渲染期内部写入，故严禁装饰），
+   *      此处使用 @Provide 是安全且必要的。
+   * ⚠️ 变量名刻意不取 tabIndex —— 该名字与 ArkUI CustomComponent 基类内置属性冲突，
+   *    会导致编译报错 "Property 'tabIndex' is not assignable to the same property in base type"。
+   * 广播键固定为 'rootTabIndex'，子页面以同名键 @Consume。
+   */
+  @Provide('rootTabIndex') broadcastTabIndex: number = 0;
 
   build() {
     Tabs({ barPosition: BarPosition.End, index: this.currentIndex }) {
@@ -44,7 +62,7 @@ export struct RootTabContainer {
       .tabBar(this.tabBarBuilder(3, AppStrings.TAB_PRACTICE))
 
       TabContent() {
-        this.tabPlaceholder(AppStrings.PROFILE_PLACEHOLDER_TITLE, AppStrings.PROFILE_PLACEHOLDER_DESC)
+        ProfilePage()
       }
       .tabBar(this.tabBarBuilder(4, AppStrings.TAB_PROFILE))
     }
@@ -55,9 +73,10 @@ export struct RootTabContainer {
     .animationDuration(0)
     .width('100%')
     .height('100%')
-    // 同步真实切换的 index，保证文字高亮响应式刷新
+    // 同步真实切换的 index，保证文字高亮响应式刷新；同时广播给子页面触发跨 Tab 刷新
     .onChange((index: number) => {
       this.currentIndex = index;
+      this.broadcastTabIndex = index;
     })
   }
 

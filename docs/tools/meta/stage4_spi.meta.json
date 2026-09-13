@@ -1,0 +1,18 @@
+{
+  "id": "stage4_spi",
+  "title": "12. SPI",
+  "category": "Stage 4: UART / I2C / SPI",
+  "level": "Medium",
+  "tags": [
+    "SPI",
+    "全双工",
+    "移位寄存器",
+    "CPOL",
+    "CPHA",
+    "片选",
+    "推挽输出",
+    "Dummy Byte",
+    "高阻态"
+  ],
+  "summary": "讲解 SPI 四线制同步全双工总线的推挽输出与片选机制，说明移位寄存器强制数据交换、读取数据须发送 Dummy Byte 产生时钟的原理，并解析 CPOL/CPHA 四种模式、CS 软件控制与 MISO 高阻态等工程陷阱。"
+}

@@ -1,0 +1,18 @@
+{
+  "id": "stage2_cpu",
+  "title": "5. CPU、内存与启动",
+  "category": "Stage 2: 计算机 / CPU / Memory / C",
+  "level": "Basic",
+  "tags": [
+    "CPU",
+    "取指 → 译码 → 执行",
+    "Flash",
+    "SRAM",
+    "栈",
+    "堆",
+    "栈溢出",
+    "XIP",
+    "Reset_Handler"
+  ],
+  "summary": "讲解 CPU 的取指、译码、执行循环与时钟频率、CPI、流水线的关系，Flash 与 SRAM 的差别，栈的自动管理与堆的手动管理及栈溢出、内存泄漏风险，最后梳理单片机上电后从复位向量到 main() 的启动流程。"
+}

@@ -1,0 +1,53 @@
+/**
+ * 生产路径验证用例（Milestone 3.3 恢复挂载）。
+ *
+ * 历史：本文件曾在 ohosTest 中因
+ *   "Parameter error. The context is invalid."
+ * 而 FAIL，并被定性为「ohosTest 进程的 getAppContext() 返回应用级 BaseContext，
+ * 无 module sandbox 绑定，Preferences 服务运行时拒绝」，遂降级为 guard 保留。
+ *
+ * Milestone 3.3 恢复挂载后重验：MainPage.aboutToAppear 经 getUIContext().getHostContext()
+ * 完成 DataSourceProvider.initialize，真实启动链路已打通；
+ * 本用例继续以 getAppContext() 直接验证 Preferences 生产读写是否可用。
+ */
+import { describe, it, expect } from '@ohos/hypium';
+import { common } from '@kit.AbilityKit';
+import { abilityDelegatorRegistry } from '@kit.TestKit';
+import { Result } from '../../../main/ets/models/common/Result';
+import { PreferenceDataSource } from '../../../main/ets/datasources/PreferenceDataSource';
+
+/**
+ * PreferenceDataSource 生产路径验证用例。
+ *
+ * 与 PreferenceDataSource.test.ets 的区别：
+ *  - 本文件**不注入** PreferencesLike，直接 new PreferenceDataSource(context)，
+ *    完整走「preferences.getPreferences → putSync → flush → getSync」真实链路；
+ *  - 因此本用例只能在具备模块 sandbox 的上下文中运行。
+ *
+ * 用例：真实写入 3 个 ID → 真实读出 → 断言内容一致。
+ */
+export default function preferenceDataSourceProductionTest() {
+  describe('PreferenceDataSourceProductionTest', () => {
+    it('realPreferences_ShouldRoundTrip_ViaProductionPath', 0, async () => {
+      const context: common.Context = abilityDelegatorRegistry.getAbilityDelegator().getAppContext();
+      const dataSource: PreferenceDataSource = new PreferenceDataSource(context);
+
+      const written: string[] = ['itg_a', 'itg_b', 'itg_c'];
+      const saved: Result<void> = await dataSource.saveFavorites(written);
+      expect(saved.success).assertTrue();
+      if (!saved.success) {
+        return;
+      }
+
+      const loaded: Result<string[]> = await dataSource.loadFavorites();
+      expect(loaded.success).assertTrue();
+      if (!loaded.success) {
+        return;
+      }
+      expect(loaded.data.length).assertEqual(3);
+      expect(loaded.data[0]).assertEqual('itg_a');
+      expect(loaded.data[1]).assertEqual('itg_b');
+      expect(loaded.data[2]).assertEqual('itg_c');
+    });
+  });
+}

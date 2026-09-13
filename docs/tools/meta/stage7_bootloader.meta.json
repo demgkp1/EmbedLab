@@ -1,0 +1,18 @@
+{
+  "id": "stage7_bootloader",
+  "title": "22. Bootloader",
+  "category": "Stage 7: 网络 / MQTT / 嵌入式 Linux / Bootloader",
+  "level": "Hard",
+  "tags": [
+    "Bootloader",
+    "OTA",
+    "双区备份 (Dual-Bank)",
+    "中断向量表",
+    "VTOR",
+    "Boot ROM",
+    "链接脚本",
+    "CRC32 校验",
+    "防变砖"
+  ],
+  "summary": "本章讲解系统复位后第一段代码 Bootloader 的硬件初始化、固件校验、升级与跳转职责，给出 Boot ROM 到 Bootloader 再到 Application 的启动链路，重点说明 A/B 双区 OTA 升级与版本回退、中断向量表重定向，以及跳转前清理中断、CRC 校验、链接脚本地址划分等陷阱。"
+}

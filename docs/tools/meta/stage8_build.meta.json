@@ -1,0 +1,19 @@
+{
+  "id": "stage8_build",
+  "title": "23. 编译、链接与烧录",
+  "category": "Stage 8: 构建 / 调试 / 驱动 / 架构",
+  "level": "Medium",
+  "tags": [
+    "交叉编译工具链",
+    "链接脚本",
+    "链接器",
+    "目标文件",
+    "段 (Section)",
+    "Map 文件",
+    "未定义引用",
+    "多重定义",
+    "JTAG/SWD",
+    "烧录"
+  ],
+  "summary": "本章拆解从 C 源码到芯片 Flash 的构建流水线（预处理、编译、汇编、链接与格式转换），说明链接脚本如何划定 Flash/RAM 边界并分配 .text、.rodata、.data、.bss 段，介绍 JTAG/SWD 等烧录方式，并辨析编译错误与链接错误、多重定义及 Map 文件排错方法。"
+}

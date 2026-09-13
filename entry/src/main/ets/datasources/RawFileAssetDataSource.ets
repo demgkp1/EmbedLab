@@ -2,8 +2,7 @@ import resourceManager from '@ohos.resourceManager';
 import { util } from '@kit.ArkTS';
 import { ErrorCode } from '../models/common/ErrorCode';
 import { Failure, Result, Success } from '../models/common/Result';
-import { CodeSnippet } from '../models/knowledge/CodeSnippet';
-import { KnowledgeContent, KnowledgeItem } from '../models/knowledge/KnowledgeItem';
+import { ContentBlock, KnowledgeItem } from '../models/knowledge/KnowledgeItem';
 import { KnowledgeIndex } from '../models/knowledge/KnowledgeIndex';
 import { KnowledgeMetadata } from '../models/knowledge/KnowledgeMetadata';
 
@@ -287,15 +286,15 @@ export class RawFileAssetDataSource {
       error.message = 'knowledge detail misses required fields';
       return undefined;
     }
-    const contentValue: Object | undefined = record.content;
-    if (contentValue === undefined || !RawFileAssetDataSource.isRecord(contentValue)) {
+    const blocksValue: Object | undefined = record.contentBlocks;
+    if (blocksValue === undefined || !Array.isArray(blocksValue)) {
       error.code = ErrorCode.FIELD_MISSING;
-      error.message = 'knowledge detail content is not an object';
+      error.message = 'knowledge detail contentBlocks is missing or not an array';
       return undefined;
     }
-    const content: KnowledgeContent | undefined =
-      RawFileAssetDataSource.parseContent(contentValue as Record<string, Object>, error);
-    if (content === undefined) {
+    const contentBlocks: ContentBlock[] | undefined =
+      RawFileAssetDataSource.parseContentBlocks(blocksValue, error);
+    if (contentBlocks === undefined) {
       return undefined;
     }
     const item: KnowledgeItem = {
@@ -307,83 +306,97 @@ export class RawFileAssetDataSource {
       summary: summary,
       images: images,
       relatedProjectIds: relatedProjectIds,
-      content: content
+      contentBlocks: contentBlocks
     };
     return item;
   }
 
-  /** 解析教材化正文结构，example 复合字段必须齐备 language/code/description。 */
-  private static parseContent(value: Record<string, Object>, error: DataSourceError): KnowledgeContent | undefined {
-    const prerequisite: string | undefined = RawFileAssetDataSource.readString(value, 'prerequisite');
-    const objective: string | undefined = RawFileAssetDataSource.readString(value, 'objective');
-    const concept: string | undefined = RawFileAssetDataSource.readString(value, 'concept');
-    const principle: string | undefined = RawFileAssetDataSource.readString(value, 'principle');
-    const experiment: string | undefined = RawFileAssetDataSource.readString(value, 'experiment');
-    const tips: string | undefined = RawFileAssetDataSource.readString(value, 'tips');
-    const commonErrors: string | undefined = RawFileAssetDataSource.readString(value, 'commonErrors');
-    const keyPoints: string[] | undefined = RawFileAssetDataSource.readStringArray(value, 'keyPoints');
-    if (prerequisite === undefined || objective === undefined || concept === undefined || principle === undefined
-      || experiment === undefined || tips === undefined || commonErrors === undefined || keyPoints === undefined) {
-      error.code = ErrorCode.FIELD_MISSING;
-      error.message = 'knowledge content misses required fields';
-      return undefined;
-    }
-    const exampleValue: Object | undefined = value.example;
-    if (exampleValue === undefined || !RawFileAssetDataSource.isRecord(exampleValue)) {
-      error.code = ErrorCode.FIELD_MISSING;
-      error.message = 'knowledge content example is not an object';
-      return undefined;
-    }
-    const example: CodeSnippet | undefined =
-      RawFileAssetDataSource.parseCodeSnippet(exampleValue as Record<string, Object>, error);
-    if (example === undefined) {
-      return undefined;
-    }
-    const content: KnowledgeContent = {
-      prerequisite: prerequisite,
-      objective: objective,
-      concept: concept,
-      principle: principle,
-      example: example,
-      experiment: experiment,
-      tips: tips,
-      commonErrors: commonErrors,
-      keyPoints: keyPoints
-    };
-    return content;
-  }
-
-  /** 解析代码片段；highlightLines 为可选字段，缺失时不视为校验失败。 */
-  private static parseCodeSnippet(value: Record<string, Object>, error: DataSourceError): CodeSnippet | undefined {
-    const language: string | undefined = RawFileAssetDataSource.readString(value, 'language');
-    const code: string | undefined = RawFileAssetDataSource.readString(value, 'code');
-    const description: string | undefined = RawFileAssetDataSource.readString(value, 'description');
-    if (language === undefined || code === undefined || description === undefined) {
-      error.code = ErrorCode.FIELD_MISSING;
-      error.message = 'code snippet misses language/code/description';
-      return undefined;
-    }
-    const outcome: NumberArrayOutcome =
-      RawFileAssetDataSource.readNumberArray(value, 'highlightLines', error);
-    if (!outcome.present) {
-      if (error.code === ErrorCode.FIELD_MISSING) {
+  /**
+   * 解析并严格校验动态富文本正文块序列。
+   *
+   * 校验规则（脏数据一律拦截，禁止进入 UI 层）：
+   *  - contentBlocks 缺失或非数组 → FIELD_MISSING（由调用方前置判定）
+   *  - 单个 block 非对象、type/content 缺失 → FIELD_MISSING
+   *  - type 不属于 5 种枚举 → JSON_INVALID
+   *  - content 非 string → JSON_INVALID
+   *  - type !== 'code' 却携带 language 字段 → JSON_INVALID（非法结构）
+   *  - language 存在但非 string → JSON_INVALID
+   */
+  private static parseContentBlocks(value: Object, error: DataSourceError): ContentBlock[] | undefined {
+    const rawBlocks: Object[] = RawFileAssetDataSource.asObjectArray(value);
+    const result: ContentBlock[] = [];
+    for (let index: number = 0; index < rawBlocks.length; index++) {
+      const raw: Object = rawBlocks[index];
+      if (!RawFileAssetDataSource.isRecord(raw)) {
+        error.code = ErrorCode.FIELD_MISSING;
+        error.message = `contentBlocks[${index}] is not an object`;
         return undefined;
       }
-      const plain: CodeSnippet = { language: language, code: code, description: description };
-      return plain;
+      const blockRecord: Record<string, Object> = raw as Record<string, Object>;
+
+      const typeValue: Object | undefined = blockRecord.type;
+      if (typeValue === undefined || typeof typeValue !== 'string') {
+        error.code = ErrorCode.FIELD_MISSING;
+        error.message = `contentBlocks[${index}].type is missing or not a string`;
+        return undefined;
+      }
+      const contentType: string = typeValue;
+
+      const contentValue: Object | undefined = blockRecord.content;
+      if (contentValue === undefined) {
+        error.code = ErrorCode.FIELD_MISSING;
+        error.message = `contentBlocks[${index}].content is missing`;
+        return undefined;
+      }
+      if (typeof contentValue !== 'string') {
+        error.code = ErrorCode.JSON_INVALID;
+        error.message = `contentBlocks[${index}].content is not a string`;
+        return undefined;
+      }
+      const content: string = contentValue;
+
+      if (!RawFileAssetDataSource.isBlockType(contentType)) {
+        error.code = ErrorCode.JSON_INVALID;
+        error.message = `contentBlocks[${index}].type is not one of the 5 allowed values: ${contentType}`;
+        return undefined;
+      }
+
+      const languageValue: Object | undefined = blockRecord.language;
+      if (contentType !== 'code' && languageValue !== undefined) {
+        error.code = ErrorCode.JSON_INVALID;
+        error.message = `contentBlocks[${index}] carries language but type is not code`;
+        return undefined;
+      }
+      if (languageValue !== undefined && typeof languageValue !== 'string') {
+        error.code = ErrorCode.JSON_INVALID;
+        error.message = `contentBlocks[${index}].language is not a string`;
+        return undefined;
+      }
+      // ArkTS 不对 typeof 判定做跨语句收窄，故此处显式重建 string 局部量
+      let language: string | undefined = undefined;
+      if (typeof languageValue === 'string') {
+        const languageText: string = languageValue;
+        language = languageText;
+      }
+
+      // 强制将 type 收窄为联合类型（已通过 isBlockType 校验）
+      const blockType: 'header' | 'text' | 'image' | 'code' | 'warning' =
+        contentType as 'header' | 'text' | 'image' | 'code' | 'warning';
+      if (language !== undefined) {
+        const codeBlock: ContentBlock = { type: blockType, content: content, language: language };
+        result.push(codeBlock);
+      } else {
+        const plainBlock: ContentBlock = { type: blockType, content: content };
+        result.push(plainBlock);
+      }
     }
-    const highlightLines: number[] | undefined = outcome.values;
-    if (highlightLines === undefined) {
-      const plain: CodeSnippet = { language: language, code: code, description: description };
-      return plain;
-    }
-    const highlighted: CodeSnippet = {
-      language: language,
-      code: code,
-      description: description,
-      highlightLines: highlightLines
-    };
-    return highlighted;
+    return result;
+  }
+
+  /** 判定字符串是否为合法的 5 种内容块类型之一。 */
+  private static isBlockType(value: string): boolean {
+    return value === 'header' || value === 'text' || value === 'image'
+      || value === 'code' || value === 'warning';
   }
 
   /** 将 JSON 文本解析为可按键索引的对象，非对象结构一律判定为 JSON_INVALID。 */

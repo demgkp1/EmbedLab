@@ -1,0 +1,853 @@
+{
+  "generatedAt": "2026-09-13T11:48:35.105Z",
+  "ruleVersion": "verify_chapter v2.1 (frozen)",
+  "summary": {
+    "liveImages": 26,
+    "liveBytes": 2854567,
+    "liveMB": 2.72,
+    "deletedImages": 3,
+    "deletedBytes": 309016,
+    "maxBytes": 193567,
+    "overLimitCount": 0,
+    "pendingDecision": [
+      "stage8_build"
+    ]
+  },
+  "deleted": [
+    {
+      "file": "stage1_intro_diagram.png",
+      "chapter": 1,
+      "id": "stage1_intro",
+      "reason": "人工增强章节，原文无 mermaid 围栏可替换（该章 image 块仍指向上一轮人工插图 database/images/mcu_board_top.png），渲染产物无任何 JSON 引用",
+      "bytes": 125661,
+      "deletedAt": "2026-09-13T10:43:13.947Z",
+      "deleted": true
+    },
+    {
+      "file": "stage3_gpio_diagram.png",
+      "chapter": 7,
+      "id": "stage3_gpio",
+      "reason": "人工增强章节，原文无 mermaid 围栏可替换（该章 image 块仍指向上一轮人工插图 database/images/gpio/gpio_led_sch.png），渲染产物无任何 JSON 引用",
+      "bytes": 50104,
+      "deletedAt": "2026-09-13T10:43:13.947Z",
+      "deleted": true
+    },
+    {
+      "file": "_SAMPLE.png",
+      "chapter": null,
+      "id": "_SAMPLE",
+      "reason": "阶段 1 目视样图，阶段 2 已收口，使命结束（架构师裁决 3）",
+      "bytes": 133251,
+      "deletedAt": "2026-09-13T10:43:13.948Z",
+      "deleted": true
+    }
+  ],
+  "items": [
+    {
+      "chapter": 4,
+      "id": "stage1_mcu_soc",
+      "out": "database/images/diagrams/stage1_mcu_soc_diagram.png",
+      "bytes": 61644,
+      "width": 1568,
+      "height": 390,
+      "referencedBy": "details/stage1_mcu_soc.json",
+      "source": "mermaid-cli 11.17.0 -t neutral -b white -s 2 -c mermaid_config.json (fontSize 20px, padding 8, useMaxWidth true)",
+      "previous": {
+        "bytes": 63909,
+        "width": 1568,
+        "height": 380
+      },
+      "baseline16px": {
+        "bytes": 48786,
+        "width": 1568,
+        "height": 374
+      },
+      "aspectDeltaPct": {
+        "width": 0,
+        "height": 2.6
+      },
+      "vsBaseline": {
+        "aspectRatioDeltaPct": -4.1,
+        "relativeFontBefore": 0.0204,
+        "relativeFontAfter": 0.0255,
+        "relativeFontDeltaPct": 25
+      }
+    },
+    {
+      "chapter": 5,
+      "id": "stage2_cpu",
+      "out": "database/images/diagrams/stage2_cpu_diagram.png",
+      "bytes": 60414,
+      "width": 496,
+      "height": 1210,
+      "referencedBy": "details/stage2_cpu.json",
+      "source": "mermaid-cli 11.17.0 -t neutral -b white -s 2 -c mermaid_config.json (fontSize 18px, padding 8, useMaxWidth true)",
+      "previous": {
+        "bytes": 66450,
+        "width": 496,
+        "height": 1504
+      },
+      "baseline16px": {
+        "bytes": 56030,
+        "width": 552,
+        "height": 1276
+      },
+      "aspectDeltaPct": {
+        "width": 0,
+        "height": -19.5
+      },
+      "vsBaseline": {
+        "aspectRatioDeltaPct": -5.2,
+        "relativeFontBefore": 0.058,
+        "relativeFontAfter": 0.0726,
+        "relativeFontDeltaPct": 25.2
+      }
+    },
+    {
+      "chapter": 8,
+      "id": "stage3_interrupt",
+      "out": "database/images/diagrams/stage3_interrupt_diagram.png",
+      "bytes": 75685,
+      "width": 1568,
+      "height": 910,
+      "referencedBy": "details/stage3_interrupt.json",
+      "source": "mermaid-cli 11.17.0 -t neutral -b white -s 2 -c mermaid_config.json (fontSize 20px, padding 8, useMaxWidth true)",
+      "previous": {
+        "bytes": 75685,
+        "width": 1568,
+        "height": 910
+      },
+      "baseline16px": {
+        "bytes": 77599,
+        "width": 1568,
+        "height": 910
+      },
+      "aspectDeltaPct": {
+        "width": 0,
+        "height": 0
+      },
+      "vsBaseline": {
+        "aspectRatioDeltaPct": 0,
+        "relativeFontBefore": 0.0204,
+        "relativeFontAfter": 0.0255,
+        "relativeFontDeltaPct": 25
+      }
+    },
+    {
+      "chapter": 9,
+      "id": "stage3_timer_pwm",
+      "out": "database/images/diagrams/stage3_timer_pwm_diagram.png",
+      "bytes": 91245,
+      "width": 496,
+      "height": 1742,
+      "referencedBy": "details/stage3_timer_pwm.json",
+      "source": "mermaid-cli 11.17.0 -t neutral -b white -s 2 -c mermaid_config.json (fontSize 20px, padding 8, useMaxWidth true)",
+      "previous": {
+        "bytes": 90541,
+        "width": 496,
+        "height": 1662
+      },
+      "baseline16px": {
+        "bytes": 77085,
+        "width": 526,
+        "height": 1554
+      },
+      "aspectDeltaPct": {
+        "width": 0,
+        "height": 4.8
+      },
+      "vsBaseline": {
+        "aspectRatioDeltaPct": -15.9,
+        "relativeFontBefore": 0.0608,
+        "relativeFontAfter": 0.0806,
+        "relativeFontDeltaPct": 32.6
+      }
+    },
+    {
+      "chapter": 10,
+      "id": "stage4_uart",
+      "out": "database/images/diagrams/stage4_uart_diagram.png",
+      "bytes": 66290,
+      "width": 890,
+      "height": 920,
+      "referencedBy": "details/stage4_uart.json",
+      "source": "mermaid-cli 11.17.0 -t neutral -b white -s 2 -c mermaid_config.json (fontSize 20px, padding 8, useMaxWidth true)",
+      "previous": {
+        "bytes": 61792,
+        "width": 850,
+        "height": 760
+      },
+      "baseline16px": {
+        "bytes": 58344,
+        "width": 886,
+        "height": 984
+      },
+      "aspectDeltaPct": {
+        "width": 4.7,
+        "height": 21.1
+      },
+      "vsBaseline": {
+        "aspectRatioDeltaPct": 7.4,
+        "relativeFontBefore": 0.0361,
+        "relativeFontAfter": 0.0449,
+        "relativeFontDeltaPct": 24.4
+      }
+    },
+    {
+      "chapter": 11,
+      "id": "stage4_i2c",
+      "out": "database/images/diagrams/stage4_i2c_diagram.png",
+      "bytes": 99326,
+      "width": 1522,
+      "height": 1162,
+      "referencedBy": "details/stage4_i2c.json",
+      "source": "mermaid-cli 11.17.0 -t neutral -b white -s 2 -c mermaid_config.json (fontSize 20px, padding 8, useMaxWidth true)",
+      "previous": {
+        "bytes": 92264,
+        "width": 1362,
+        "height": 1042
+      },
+      "baseline16px": {
+        "bytes": 87910,
+        "width": 1568,
+        "height": 1158
+      },
+      "aspectDeltaPct": {
+        "width": 11.7,
+        "height": 11.5
+      },
+      "vsBaseline": {
+        "aspectRatioDeltaPct": -3.3,
+        "relativeFontBefore": 0.0204,
+        "relativeFontAfter": 0.0263,
+        "relativeFontDeltaPct": 28.9
+      }
+    },
+    {
+      "chapter": 12,
+      "id": "stage4_spi",
+      "out": "database/images/diagrams/stage4_spi_diagram.png",
+      "bytes": 40658,
+      "width": 1568,
+      "height": 312,
+      "referencedBy": "details/stage4_spi.json",
+      "source": "mermaid-cli 11.17.0 -t neutral -b white -s 2 -c mermaid_config.json (fontSize 20px, padding 8, useMaxWidth true)",
+      "previous": {
+        "bytes": 42279,
+        "width": 1568,
+        "height": 314
+      },
+      "baseline16px": {
+        "bytes": 35838,
+        "width": 1568,
+        "height": 316
+      },
+      "aspectDeltaPct": {
+        "width": 0,
+        "height": -0.6
+      },
+      "vsBaseline": {
+        "aspectRatioDeltaPct": 1.3,
+        "relativeFontBefore": 0.0204,
+        "relativeFontAfter": 0.0255,
+        "relativeFontDeltaPct": 25
+      }
+    },
+    {
+      "chapter": 13,
+      "id": "stage5_adc_sensor",
+      "out": "database/images/diagrams/stage5_adc_sensor_diagram.png",
+      "bytes": 38628,
+      "width": 1568,
+      "height": 130,
+      "referencedBy": "details/stage5_adc_sensor.json",
+      "source": "mermaid-cli 11.17.0 -t neutral -b white -s 2 -c mermaid_config.json (fontSize 20px, padding 8, useMaxWidth true)",
+      "previous": {
+        "bytes": 40501,
+        "width": 1568,
+        "height": 120
+      },
+      "baseline16px": {
+        "bytes": 31553,
+        "width": 1568,
+        "height": 132
+      },
+      "aspectDeltaPct": {
+        "width": 0,
+        "height": 8.3
+      },
+      "vsBaseline": {
+        "aspectRatioDeltaPct": 1.5,
+        "relativeFontBefore": 0.0204,
+        "relativeFontAfter": 0.0255,
+        "relativeFontDeltaPct": 25
+      }
+    },
+    {
+      "chapter": 14,
+      "id": "stage5_dma",
+      "out": "database/images/diagrams/stage5_dma_diagram.png",
+      "bytes": 112034,
+      "width": 1166,
+      "height": 1244,
+      "referencedBy": "details/stage5_dma.json",
+      "source": "mermaid-cli 11.17.0 -t neutral -b white -s 2 -c mermaid_config.json (fontSize 20px, padding 8, useMaxWidth true)",
+      "previous": {
+        "bytes": 107665,
+        "width": 1096,
+        "height": 1144
+      },
+      "baseline16px": {
+        "bytes": 93764,
+        "width": 1072,
+        "height": 1172
+      },
+      "aspectDeltaPct": {
+        "width": 6.4,
+        "height": 8.7
+      },
+      "vsBaseline": {
+        "aspectRatioDeltaPct": 2.5,
+        "relativeFontBefore": 0.0299,
+        "relativeFontAfter": 0.0343,
+        "relativeFontDeltaPct": 14.7
+      }
+    },
+    {
+      "chapter": 15,
+      "id": "stage6_watchdog",
+      "out": "database/images/diagrams/stage6_watchdog_diagram.png",
+      "bytes": 125747,
+      "width": 1568,
+      "height": 1566,
+      "referencedBy": "details/stage6_watchdog.json",
+      "source": "mermaid-cli 11.17.0 -t neutral -b white -s 2 -c mermaid_config.json (fontSize 20px, padding 8, useMaxWidth true)",
+      "previous": {
+        "bytes": 128140,
+        "width": 1568,
+        "height": 1574
+      },
+      "baseline16px": {
+        "bytes": 111294,
+        "width": 1568,
+        "height": 1502
+      },
+      "aspectDeltaPct": {
+        "width": 0,
+        "height": -0.5
+      },
+      "vsBaseline": {
+        "aspectRatioDeltaPct": -4.1,
+        "relativeFontBefore": 0.0204,
+        "relativeFontAfter": 0.0255,
+        "relativeFontDeltaPct": 25
+      }
+    },
+    {
+      "chapter": 16,
+      "id": "stage6_flash",
+      "out": "database/images/diagrams/stage6_flash_diagram.png",
+      "bytes": 142479,
+      "width": 1568,
+      "height": 1152,
+      "referencedBy": "details/stage6_flash.json",
+      "source": "mermaid-cli 11.17.0 -t neutral -b white -s 2 -c mermaid_config.json (fontSize 20px, padding 8, useMaxWidth true)",
+      "previous": {
+        "bytes": 146141,
+        "width": 1568,
+        "height": 1140
+      },
+      "baseline16px": {
+        "bytes": 113477,
+        "width": 1568,
+        "height": 1090
+      },
+      "aspectDeltaPct": {
+        "width": 0,
+        "height": 1.1
+      },
+      "vsBaseline": {
+        "aspectRatioDeltaPct": -5.4,
+        "relativeFontBefore": 0.0204,
+        "relativeFontAfter": 0.0255,
+        "relativeFontDeltaPct": 25
+      }
+    },
+    {
+      "chapter": 17,
+      "id": "stage6_rtos",
+      "out": "database/images/diagrams/stage6_rtos_diagram.png",
+      "bytes": 87799,
+      "width": 1172,
+      "height": 1000,
+      "referencedBy": "details/stage6_rtos.json",
+      "source": "mermaid-cli 11.17.0 -t neutral -b white -s 2 -c mermaid_config.json (fontSize 20px, padding 8, useMaxWidth true)",
+      "previous": {
+        "bytes": 86662,
+        "width": 1162,
+        "height": 940
+      },
+      "baseline16px": {
+        "bytes": 73111,
+        "width": 1038,
+        "height": 956
+      },
+      "aspectDeltaPct": {
+        "width": 0.9,
+        "height": 6.4
+      },
+      "vsBaseline": {
+        "aspectRatioDeltaPct": 7.9,
+        "relativeFontBefore": 0.0308,
+        "relativeFontAfter": 0.0341,
+        "relativeFontDeltaPct": 10.7
+      }
+    },
+    {
+      "chapter": 18,
+      "id": "stage6_concurrency",
+      "out": "database/images/diagrams/stage6_concurrency_diagram.png",
+      "bytes": 61069,
+      "width": 1568,
+      "height": 626,
+      "referencedBy": "details/stage6_concurrency.json",
+      "source": "mermaid-cli 11.17.0 -t neutral -b white -s 2 -c mermaid_config.json (fontSize 18px, padding 8, useMaxWidth true)",
+      "previous": {
+        "bytes": 68392,
+        "width": 1568,
+        "height": 692
+      },
+      "baseline16px": {
+        "bytes": 52760,
+        "width": 1568,
+        "height": 528
+      },
+      "aspectDeltaPct": {
+        "width": 0,
+        "height": -9.5
+      },
+      "vsBaseline": {
+        "aspectRatioDeltaPct": -15.7,
+        "relativeFontBefore": 0.0204,
+        "relativeFontAfter": 0.023,
+        "relativeFontDeltaPct": 12.7
+      }
+    },
+    {
+      "chapter": 19,
+      "id": "stage7_network",
+      "out": "database/images/diagrams/stage7_network_diagram.png",
+      "bytes": 125520,
+      "width": 636,
+      "height": 2658,
+      "referencedBy": "details/stage7_network.json",
+      "source": "mermaid-cli 11.17.0 -t neutral -b white -s 2 -c mermaid_config.json (fontSize 20px, padding 8, useMaxWidth true)",
+      "previous": {
+        "bytes": 123085,
+        "width": 616,
+        "height": 2258
+      },
+      "baseline16px": {
+        "bytes": 105953,
+        "width": 620,
+        "height": 2708
+      },
+      "aspectDeltaPct": {
+        "width": 3.2,
+        "height": 17.7
+      },
+      "vsBaseline": {
+        "aspectRatioDeltaPct": 4.5,
+        "relativeFontBefore": 0.0516,
+        "relativeFontAfter": 0.0629,
+        "relativeFontDeltaPct": 21.9
+      }
+    },
+    {
+      "chapter": 20,
+      "id": "stage7_mqtt",
+      "out": "database/images/diagrams/stage7_mqtt_diagram.png",
+      "bytes": 92556,
+      "width": 1568,
+      "height": 1182,
+      "referencedBy": "details/stage7_mqtt.json",
+      "source": "mermaid-cli 11.17.0 -t neutral -b white -s 2 -c mermaid_config.json (fontSize 20px, padding 8, useMaxWidth true)",
+      "previous": {
+        "bytes": 88441,
+        "width": 1568,
+        "height": 1136
+      },
+      "baseline16px": {
+        "bytes": 80507,
+        "width": 1568,
+        "height": 1152
+      },
+      "aspectDeltaPct": {
+        "width": 0,
+        "height": 4
+      },
+      "vsBaseline": {
+        "aspectRatioDeltaPct": -2.5,
+        "relativeFontBefore": 0.0204,
+        "relativeFontAfter": 0.0255,
+        "relativeFontDeltaPct": 25
+      }
+    },
+    {
+      "chapter": 21,
+      "id": "stage7_linux",
+      "out": "database/images/diagrams/stage7_linux_diagram.png",
+      "bytes": 178124,
+      "width": 1260,
+      "height": 2262,
+      "referencedBy": "details/stage7_linux.json",
+      "source": "mermaid-cli 11.17.0 -t neutral -b white -s 2 -c mermaid_config.json (fontSize 20px, padding 8, useMaxWidth true)",
+      "previous": {
+        "bytes": 173118,
+        "width": 1220,
+        "height": 2002
+      },
+      "baseline16px": {
+        "bytes": 150057,
+        "width": 1292,
+        "height": 2132
+      },
+      "aspectDeltaPct": {
+        "width": 3.3,
+        "height": 13
+      },
+      "vsBaseline": {
+        "aspectRatioDeltaPct": -8.1,
+        "relativeFontBefore": 0.0248,
+        "relativeFontAfter": 0.0317,
+        "relativeFontDeltaPct": 27.8
+      }
+    },
+    {
+      "chapter": 22,
+      "id": "stage7_bootloader",
+      "out": "database/images/diagrams/stage7_bootloader_diagram.png",
+      "bytes": 152182,
+      "width": 838,
+      "height": 2224,
+      "referencedBy": "details/stage7_bootloader.json",
+      "source": "mermaid-cli 11.17.0 -t neutral -b white -s 2 -c mermaid_config.json (fontSize 20px, padding 8, useMaxWidth true)",
+      "previous": {
+        "bytes": 142432,
+        "width": 788,
+        "height": 2064
+      },
+      "baseline16px": {
+        "bytes": 129993,
+        "width": 900,
+        "height": 2056
+      },
+      "aspectDeltaPct": {
+        "width": 6.3,
+        "height": 7.8
+      },
+      "vsBaseline": {
+        "aspectRatioDeltaPct": -13.9,
+        "relativeFontBefore": 0.0356,
+        "relativeFontAfter": 0.0477,
+        "relativeFontDeltaPct": 34
+      }
+    },
+    {
+      "chapter": 23,
+      "id": "stage8_build",
+      "out": "database/images/diagrams/stage8_build_diagram.png",
+      "bytes": 177828,
+      "width": 1568,
+      "height": 2046,
+      "referencedBy": "details/stage8_build.json",
+      "source": "mermaid-cli 11.17.0 -t neutral -b white -s 2 -c mermaid_config.json (fontSize 20px, padding 8, useMaxWidth true)",
+      "previous": {
+        "bytes": 182266,
+        "width": 1568,
+        "height": 2006
+      },
+      "baseline16px": {
+        "bytes": 146910,
+        "width": 1568,
+        "height": 1892
+      },
+      "aspectDeltaPct": {
+        "width": 0,
+        "height": 2
+      },
+      "vsBaseline": {
+        "aspectRatioDeltaPct": -7.5,
+        "relativeFontBefore": 0.0204,
+        "relativeFontAfter": 0.0255,
+        "relativeFontDeltaPct": 25
+      }
+    },
+    {
+      "chapter": 24,
+      "id": "stage8_debug",
+      "out": "database/images/diagrams/stage8_debug_diagram.png",
+      "bytes": 113991,
+      "width": 1568,
+      "height": 1034,
+      "referencedBy": "details/stage8_debug.json",
+      "source": "mermaid-cli 11.17.0 -t neutral -b white -s 2 -c mermaid_config.json (fontSize 20px, padding 8, useMaxWidth true)",
+      "previous": {
+        "bytes": 117741,
+        "width": 1568,
+        "height": 1032
+      },
+      "baseline16px": {
+        "bytes": 92082,
+        "width": 1568,
+        "height": 908
+      },
+      "aspectDeltaPct": {
+        "width": 0,
+        "height": 0.2
+      },
+      "vsBaseline": {
+        "aspectRatioDeltaPct": -12.2,
+        "relativeFontBefore": 0.0204,
+        "relativeFontAfter": 0.0255,
+        "relativeFontDeltaPct": 25
+      }
+    },
+    {
+      "chapter": 25,
+      "id": "stage8_low_power",
+      "out": "database/images/diagrams/stage8_low_power_diagram.png",
+      "bytes": 82933,
+      "width": 894,
+      "height": 1268,
+      "referencedBy": "details/stage8_low_power.json",
+      "source": "mermaid-cli 11.17.0 -t neutral -b white -s 2 -c mermaid_config.json (fontSize 20px, padding 8, useMaxWidth true)",
+      "previous": {
+        "bytes": 80861,
+        "width": 874,
+        "height": 1228
+      },
+      "baseline16px": {
+        "bytes": 68019,
+        "width": 758,
+        "height": 1154
+      },
+      "aspectDeltaPct": {
+        "width": 2.3,
+        "height": 3.3
+      },
+      "vsBaseline": {
+        "aspectRatioDeltaPct": 7.3,
+        "relativeFontBefore": 0.0422,
+        "relativeFontAfter": 0.0447,
+        "relativeFontDeltaPct": 5.9
+      }
+    },
+    {
+      "chapter": 27,
+      "id": "stage8_architecture",
+      "out": "database/images/diagrams/stage8_architecture_diagram.png",
+      "bytes": 151628,
+      "width": 1276,
+      "height": 1864,
+      "referencedBy": "details/stage8_architecture.json",
+      "source": "mermaid-cli 11.17.0 -t neutral -b white -s 2 -c mermaid_config.json (fontSize 20px, padding 8, useMaxWidth true)",
+      "previous": {
+        "bytes": 146036,
+        "width": 1216,
+        "height": 1612
+      },
+      "baseline16px": {
+        "bytes": 125150,
+        "width": 1180,
+        "height": 1840
+      },
+      "aspectDeltaPct": {
+        "width": 4.9,
+        "height": 15.6
+      },
+      "vsBaseline": {
+        "aspectRatioDeltaPct": 6.7,
+        "relativeFontBefore": 0.0271,
+        "relativeFontAfter": 0.0313,
+        "relativeFontDeltaPct": 15.5
+      }
+    },
+    {
+      "chapter": 29,
+      "id": "stage9_robotics",
+      "out": "database/images/diagrams/stage9_robotics_diagram.png",
+      "bytes": 159328,
+      "width": 1568,
+      "height": 2304,
+      "referencedBy": "details/stage9_robotics.json",
+      "source": "mermaid-cli 11.17.0 -t neutral -b white -s 2 -c mermaid_config.json (fontSize 20px, padding 8, useMaxWidth true)",
+      "previous": {
+        "bytes": 150017,
+        "width": 1464,
+        "height": 2116
+      },
+      "baseline16px": {
+        "bytes": 133251,
+        "width": 1568,
+        "height": 2112
+      },
+      "aspectDeltaPct": {
+        "width": 7.1,
+        "height": 8.9
+      },
+      "vsBaseline": {
+        "aspectRatioDeltaPct": -8.3,
+        "relativeFontBefore": 0.0204,
+        "relativeFontAfter": 0.0255,
+        "relativeFontDeltaPct": 25
+      }
+    },
+    {
+      "chapter": 30,
+      "id": "stage9_tinyml",
+      "out": "database/images/diagrams/stage9_tinyml_diagram.png",
+      "bytes": 41482,
+      "width": 1568,
+      "height": 176,
+      "referencedBy": "details/stage9_tinyml.json",
+      "source": "mermaid-cli 11.17.0 -t neutral -b white -s 2 -c mermaid_config.json (fontSize 20px, padding 8, useMaxWidth true)",
+      "previous": {
+        "bytes": 44238,
+        "width": 1568,
+        "height": 170
+      },
+      "baseline16px": {
+        "bytes": 33461,
+        "width": 1568,
+        "height": 164
+      },
+      "aspectDeltaPct": {
+        "width": 0,
+        "height": 3.5
+      },
+      "vsBaseline": {
+        "aspectRatioDeltaPct": -6.8,
+        "relativeFontBefore": 0.0204,
+        "relativeFontAfter": 0.0255,
+        "relativeFontDeltaPct": 25
+      }
+    },
+    {
+      "chapter": 31,
+      "id": "stage9_project",
+      "out": "database/images/diagrams/stage9_project_diagram.png",
+      "bytes": 157941,
+      "width": 680,
+      "height": 2160,
+      "referencedBy": "details/stage9_project.json",
+      "source": "mermaid-cli 11.17.0 -t neutral -b white -s 2 -c mermaid_config.json (fontSize 20px, padding 8, useMaxWidth true)",
+      "previous": {
+        "bytes": 156359,
+        "width": 680,
+        "height": 1940
+      },
+      "baseline16px": {
+        "bytes": 130414,
+        "width": 702,
+        "height": 1900
+      },
+      "aspectDeltaPct": {
+        "width": 0,
+        "height": 11.3
+      },
+      "vsBaseline": {
+        "aspectRatioDeltaPct": -14.8,
+        "relativeFontBefore": 0.0456,
+        "relativeFontAfter": 0.0588,
+        "relativeFontDeltaPct": 28.9
+      }
+    },
+    {
+      "chapter": 32,
+      "id": "stage9_troubleshooting",
+      "out": "database/images/diagrams/stage9_troubleshooting_diagram.png",
+      "bytes": 164469,
+      "width": 836,
+      "height": 2312,
+      "referencedBy": "details/stage9_troubleshooting.json",
+      "source": "mermaid-cli 11.17.0 -t neutral -b white -s 2 -c mermaid_config.json (fontSize 20px, padding 8, useMaxWidth true)",
+      "previous": {
+        "bytes": 162150,
+        "width": 836,
+        "height": 2032
+      },
+      "baseline16px": {
+        "bytes": 130067,
+        "width": 702,
+        "height": 2104
+      },
+      "aspectDeltaPct": {
+        "width": 0,
+        "height": 13.8
+      },
+      "vsBaseline": {
+        "aspectRatioDeltaPct": 8.4,
+        "relativeFontBefore": 0.0456,
+        "relativeFontAfter": 0.0478,
+        "relativeFontDeltaPct": 4.8
+      }
+    },
+    {
+      "chapter": 33,
+      "id": "appendix_learning_path",
+      "out": "database/images/diagrams/appendix_learning_path_diagram.png",
+      "bytes": 193567,
+      "width": 770,
+      "height": 2352,
+      "referencedBy": "details/appendix_learning_path.json",
+      "source": "mermaid-cli 11.17.0 -t neutral -b white -s 2 -c mermaid_config.json (fontSize 20px, padding 8, useMaxWidth true)",
+      "previous": {
+        "bytes": 182792,
+        "width": 770,
+        "height": 2172
+      },
+      "baseline16px": {
+        "bytes": 158843,
+        "width": 692,
+        "height": 2144
+      },
+      "aspectDeltaPct": {
+        "width": 0,
+        "height": 8.3
+      },
+      "vsBaseline": {
+        "aspectRatioDeltaPct": 1.4,
+        "relativeFontBefore": 0.0462,
+        "relativeFontAfter": 0.0519,
+        "relativeFontDeltaPct": 12.3
+      }
+    }
+  ],
+  "renderParams": {
+    "renderer": "@mermaid-js/mermaid-cli 11.17.0",
+    "theme": "neutral",
+    "background": "white",
+    "scale": 2,
+    "configFile": "docs/pipeline/mermaid_config.json",
+    "config": {
+      "theme": "neutral",
+      "themeVariables": {
+        "fontSize": "18px",
+        "fontFamily": "sans-serif"
+      },
+      "flowchart": {
+        "nodeSpacing": 50,
+        "rankSpacing": 50,
+        "padding": 8,
+        "useMaxWidth": true
+      },
+      "sequence": {
+        "actorFontSize": 18,
+        "noteFontSize": 18,
+        "messageFontSize": 16
+      }
+    },
+    "edgeLabelQuoting": "渲染层归一化（源 .md 未改动）"
+  }
+}

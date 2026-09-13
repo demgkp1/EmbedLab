@@ -1,0 +1,18 @@
+{
+  "id": "appendix_learning_path",
+  "title": "33. 学习路线",
+  "category": "附录: 学习路线与术语表",
+  "level": "Basic",
+  "tags": [
+    "螺旋式上升",
+    "MVP",
+    "RTOS",
+    "Reference Manual",
+    "Datasheet",
+    "裸机驱动",
+    "软硬协同",
+    "API 包装工",
+    "嵌入式 Linux"
+  ],
+  "summary": "给出嵌入式学习的螺旋式上升路线，按 Level 0 至 Level 4 划分计算机与电子基础、裸机外设驱动、RTOS 并发、物联网系统工程与异构计算各阶段目标，并指出常见学习陷阱。"
+}

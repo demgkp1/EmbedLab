@@ -1,0 +1,18 @@
+{
+  "id": "stage9_tinyml",
+  "title": "30. AI + 嵌入式 / TinyML",
+  "category": "Stage 9: 传感器 / 机器人 / AI / 项目",
+  "level": "Hard",
+  "tags": [
+    "TinyML",
+    "模型量化",
+    "推理",
+    "模型剪枝",
+    "Tensor Arena",
+    "特征提取",
+    "神经网络",
+    "TensorFlow Lite",
+    "int8"
+  ],
+  "summary": "介绍 TinyML 如何把云端训练的神经网络经量化与剪枝压缩后部署到资源受限的 MCU 上，使单片机只做本地推理，并剖析 Tensor Arena 内存溢出与特征提取开销等常见陷阱。"
+}

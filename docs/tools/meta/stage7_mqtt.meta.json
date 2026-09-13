@@ -1,0 +1,18 @@
+{
+  "id": "stage7_mqtt",
+  "title": "20. MQTT",
+  "category": "Stage 7: 网络 / MQTT / 嵌入式 Linux / Bootloader",
+  "level": "Medium",
+  "tags": [
+    "MQTT",
+    "发布/订阅 (Pub/Sub)",
+    "Broker",
+    "Topic 主题",
+    "QoS",
+    "Keep Alive",
+    "遗嘱 (LWT)",
+    "通配符",
+    "Payload"
+  ],
+  "summary": "本章讲解基于发布/订阅模式的轻量级物联网协议 MQTT，涵盖 Broker 转发、Topic 与通配符寻址、QoS 三级送达保证、Keep Alive 心跳保活与遗嘱机制，并给出主循环阻塞导致心跳超时、滥用通配符撑爆 RAM、混淆协议与载荷格式等工程陷阱的对策。"
+}

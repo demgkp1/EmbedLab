@@ -21,4 +21,6 @@ export class AppColors {
   static readonly TEXT_TERTIARY: string = '#8C8C8C';
   /** 分割线 / 边框颜色 */
   static readonly DIVIDER: string = '#E5E5E5';
+  /** 收藏激活色（金色）：详情页星标已收藏态、Learn 列表收藏标记 */
+  static readonly FAVORITE_ACTIVE: string = '#F5A623';
 }

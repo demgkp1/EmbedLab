@@ -1,0 +1,17 @@
+{
+  "id": "stage3_gpio",
+  "title": "7. GPIO",
+  "category": "Stage 3: GPIO / 中断 / 定时器",
+  "level": "Basic",
+  "tags": [
+    "GPIO",
+    "推挽输出",
+    "开漏输出",
+    "上拉输入",
+    "下拉输入",
+    "复用功能",
+    "Datasheet",
+    "电平兼容"
+  ],
+  "summary": "GPIO 是单片机上的通用输入输出外设，引脚可由软件配置为输入、推挽 / 开漏输出、复用功能或模拟模式；点灯与读键只是入门，真正的难点在于认清引脚的固定用途与电流、电压、电平兼容等电气约束，具体能力一律以 Datasheet 与 Reference Manual 为准。"
+}

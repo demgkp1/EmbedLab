@@ -1,8 +1,14 @@
 import { AppColors } from '../constants/AppColors';
 import { AppStrings } from '../constants/AppStrings';
-import { RouteConstants } from '../constants/RouteConstants';
+import { ROUTE_KNOWLEDGE_DETAIL } from '../constants/RouteConstants';
 import { RootTabContainer } from '../components/RootTabContainer';
-import { NavigationProbePage } from './dev/NavigationProbePage';
+import { KnowledgeDetailPage } from './learn/KnowledgeDetailPage';
+import { DataSourceProvider } from '../utils/providers/DataSourceProvider';
+import { RepositoryProvider } from '../utils/providers/RepositoryProvider';
+import { UserRepository } from '../repositories/UserRepository';
+import { UserStore } from '../stores/UserStore';
+import { Failure, Result } from '../models/common/Result';
+import { UserProgressState } from '../models/user/UserProgressState';
 import { Logger } from '../utils/logger/Logger';
 
 const MODULE_TAG: string = 'MainPage';
@@ -36,6 +42,45 @@ struct MainPage {
    */
   private navPathStack: NavPathStack = new NavPathStack();
 
+  /**
+   * 启动水化：从 Preferences 恢复用户状态并注水到 UserStore。
+   *
+   * 链路：MainPage → DataSourceProvider.initialize → RepositoryProvider.getUserRepository
+   *       → UserRepository.loadState → UserStore.initialize
+   * 硬约束：
+   *  - 必须 .then().catch()，严禁 await 阻塞冷启动。
+   *  - 失败一律降级为「空 Store」，不 throw、不白屏。
+   *  - hostContext 为 undefined 时必须先行返回。
+   *  - 严禁在此 new Repository / new Store（一律走 Provider 与单例）。
+   */
+  aboutToAppear(): void {
+    const hostContext = this.getUIContext().getHostContext();
+    if (hostContext === undefined) {
+      Logger.error(MODULE_TAG, 'host context unavailable, skip user state hydration');
+      return;
+    }
+
+    DataSourceProvider.initialize(hostContext);
+    const userRepo: UserRepository = RepositoryProvider.getUserRepository();
+
+    userRepo.loadState()
+      .then((state: Result<UserProgressState>) => {
+        if (!state.success) {
+          // ArkTS 仅在否定式判别下收窄 Result<T>，失败信息在此分支取用
+          const failure: Failure = state as Failure;
+          Logger.warn(MODULE_TAG, `user state load failed, keep empty store: code=${failure.code}`);
+          return;
+        }
+        UserStore.getInstance().initialize(state.data);
+        Logger.info(MODULE_TAG,
+          `user state hydrated: fav=${state.data.favorites.length} hist=${state.data.history.length}`);
+      })
+      .catch((err: Object) => {
+        const message: string = err instanceof Error ? err.message : `${err}`;
+        Logger.error(MODULE_TAG, `hydration unexpected error: ${message}`);
+      });
+  }
+
   build() {
     Navigation(this.navPathStack) {
       RootTabContainer()
@@ -57,8 +102,8 @@ struct MainPage {
    */
   @Builder
   pageMap(name: string, param: Object) {
-    if (name === RouteConstants.NAV_PROBE) {
-      NavigationProbePage({ routeName: name })
+    if (name === ROUTE_KNOWLEDGE_DETAIL) {
+      KnowledgeDetailPage()
     } else {
       this.unregisteredRoute(name)
     }

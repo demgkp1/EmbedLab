@@ -1,0 +1,18 @@
+{
+  "id": "stage9_robotics",
+  "title": "29. 机器人与嵌入式",
+  "category": "Stage 9: 传感器 / 机器人 / AI / 项目",
+  "level": "Hard",
+  "tags": [
+    "异构计算",
+    "PID",
+    "闭环控制",
+    "硬实时",
+    "心跳包",
+    "CAN 总线",
+    "ROS2",
+    "Jitter",
+    "MCU"
+  ],
+  "summary": "介绍现代机器人采用的 MPU(Linux) 与 MCU(RTOS) 异构双脑架构，解释软实时与硬实时冲突下的主从分工，并给出 PID 闭环控制、心跳断联急停与 CAN 总线通信的工程陷阱与对策。"
+}

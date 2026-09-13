@@ -1,0 +1,17 @@
+{
+  "id": "stage5_adc_sensor",
+  "title": "13. ADC、DAC 与传感器",
+  "category": "Stage 5: ADC / DMA",
+  "level": "Medium",
+  "tags": [
+    "ADC",
+    "DAC",
+    "参考电压",
+    "分辨率",
+    "采样率",
+    "数字传感器",
+    "PWM",
+    "滑动平均滤波"
+  ],
+  "summary": "介绍 ADC 与 DAC 的定义、参考电压、分辨率与采样率等关键参数，对比 PWM 与 DAC 的本质差异，分析模拟与数字传感器的工程形态，并给出基准漂移、噪声滤波与输入阻抗匹配的排错对策。"
+}

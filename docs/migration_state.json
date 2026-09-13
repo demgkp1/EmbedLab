@@ -1,0 +1,276 @@
+[
+  {
+    "chapter": 1,
+    "file": "01_intro.md",
+    "title": "1. 什么是嵌入式系统",
+    "id": "stage1_intro",
+    "category": "Stage 1: 认识嵌入式世界",
+    "status": "done",
+    "note": "pre-existing: 上一轮已导入 details/stage1_intro.json 与 index 条目"
+  },
+  {
+    "chapter": 2,
+    "file": "02_computer.md",
+    "title": "2. 计算机基础",
+    "id": "stage1_computer",
+    "category": "Stage 1: 认识嵌入式世界",
+    "status": "done"
+  },
+  {
+    "chapter": 3,
+    "file": "03_digital_circuit.md",
+    "title": "3. 数字电路基础",
+    "id": "stage1_digital_circuit",
+    "category": "Stage 1: 认识嵌入式世界",
+    "status": "done"
+  },
+  {
+    "chapter": 4,
+    "file": "04_mcu_soc.md",
+    "title": "4. MCU 与 SoC：认识嵌入式世界的大脑",
+    "id": "stage1_mcu_soc",
+    "category": "Stage 1: 认识嵌入式世界",
+    "status": "done"
+  },
+  {
+    "chapter": 5,
+    "file": "05_cpu_memory_boot.md",
+    "title": "5. CPU、内存与启动",
+    "id": "stage2_cpu",
+    "category": "Stage 2: 计算机 / CPU / Memory / C",
+    "status": "done"
+  },
+  {
+    "chapter": 6,
+    "file": "06_c_language.md",
+    "title": "6. C 语言与嵌入式 C",
+    "id": "stage2_c_language",
+    "category": "Stage 2: 计算机 / CPU / Memory / C",
+    "status": "done"
+  },
+  {
+    "chapter": 7,
+    "file": "07_gpio.md",
+    "title": "7. GPIO",
+    "id": "stage3_gpio",
+    "category": "Stage 3: GPIO / 中断 / 定时器",
+    "status": "done",
+    "note": "pre-existing: 上一轮已导入 details/stage3_gpio.json 与 index 条目"
+  },
+  {
+    "chapter": 8,
+    "file": "08_interrupt.md",
+    "title": "8. 中断",
+    "id": "stage3_interrupt",
+    "category": "Stage 3: GPIO / 中断 / 定时器",
+    "status": "done"
+  },
+  {
+    "chapter": 9,
+    "file": "09_timer_pwm.md",
+    "title": "9. 定时器与 PWM",
+    "id": "stage3_timer_pwm",
+    "category": "Stage 3: GPIO / 中断 / 定时器",
+    "status": "done"
+  },
+  {
+    "chapter": 10,
+    "file": "10_uart.md",
+    "title": "10. UART",
+    "id": "stage4_uart",
+    "category": "Stage 4: UART / I2C / SPI",
+    "status": "done"
+  },
+  {
+    "chapter": 11,
+    "file": "11_i2c.md",
+    "title": "11. I2C",
+    "id": "stage4_i2c",
+    "category": "Stage 4: UART / I2C / SPI",
+    "status": "done"
+  },
+  {
+    "chapter": 12,
+    "file": "12_spi.md",
+    "title": "12. SPI",
+    "id": "stage4_spi",
+    "category": "Stage 4: UART / I2C / SPI",
+    "status": "done"
+  },
+  {
+    "chapter": 13,
+    "file": "13_adc_dac_sensor.md",
+    "title": "13. ADC、DAC 与传感器",
+    "id": "stage5_adc_sensor",
+    "category": "Stage 5: ADC / DMA",
+    "status": "done"
+  },
+  {
+    "chapter": 14,
+    "file": "14_dma.md",
+    "title": "14. DMA",
+    "id": "stage5_dma",
+    "category": "Stage 5: ADC / DMA",
+    "status": "done"
+  },
+  {
+    "chapter": 15,
+    "file": "15_watchdog.md",
+    "title": "15. 看门狗与系统可靠性",
+    "id": "stage6_watchdog",
+    "category": "Stage 6: 看门狗 / Flash / RTOS / 并发",
+    "status": "done"
+  },
+  {
+    "chapter": 16,
+    "file": "16_flash_fs.md",
+    "title": "16. Flash、EEPROM 与文件系统",
+    "id": "stage6_flash",
+    "category": "Stage 6: 看门狗 / Flash / RTOS / 并发",
+    "status": "done"
+  },
+  {
+    "chapter": 17,
+    "file": "17_rtos.md",
+    "title": "17. RTOS 与 FreeRTOS",
+    "id": "stage6_rtos",
+    "category": "Stage 6: 看门狗 / Flash / RTOS / 并发",
+    "status": "done"
+  },
+  {
+    "chapter": 18,
+    "file": "18_concurrency.md",
+    "title": "18. 并发、同步与互斥",
+    "id": "stage6_concurrency",
+    "category": "Stage 6: 看门狗 / Flash / RTOS / 并发",
+    "status": "done"
+  },
+  {
+    "chapter": 19,
+    "file": "19_network.md",
+    "title": "19. 网络通信",
+    "id": "stage7_network",
+    "category": "Stage 7: 网络 / MQTT / 嵌入式 Linux / Bootloader",
+    "status": "done"
+  },
+  {
+    "chapter": 20,
+    "file": "20_mqtt.md",
+    "title": "20. MQTT",
+    "id": "stage7_mqtt",
+    "category": "Stage 7: 网络 / MQTT / 嵌入式 Linux / Bootloader",
+    "status": "done"
+  },
+  {
+    "chapter": 21,
+    "file": "21_embedded_linux.md",
+    "title": "21. 嵌入式 Linux",
+    "id": "stage7_linux",
+    "category": "Stage 7: 网络 / MQTT / 嵌入式 Linux / Bootloader",
+    "status": "done"
+  },
+  {
+    "chapter": 22,
+    "file": "22_bootloader.md",
+    "title": "22. Bootloader",
+    "id": "stage7_bootloader",
+    "category": "Stage 7: 网络 / MQTT / 嵌入式 Linux / Bootloader",
+    "status": "done"
+  },
+  {
+    "chapter": 23,
+    "file": "23_build_link_flash.md",
+    "title": "23. 编译、链接与烧录",
+    "id": "stage8_build",
+    "category": "Stage 8: 构建 / 调试 / 驱动 / 架构",
+    "status": "done"
+  },
+  {
+    "chapter": 24,
+    "file": "24_debugging.md",
+    "title": "24. 调试方法",
+    "id": "stage8_debug",
+    "category": "Stage 8: 构建 / 调试 / 驱动 / 架构",
+    "status": "done"
+  },
+  {
+    "chapter": 25,
+    "file": "25_low_power.md",
+    "title": "25. 低功耗",
+    "id": "stage8_low_power",
+    "category": "Stage 8: 构建 / 调试 / 驱动 / 架构",
+    "status": "done"
+  },
+  {
+    "chapter": 26,
+    "file": "26_driver.md",
+    "title": "26. 设备驱动",
+    "id": "stage8_driver",
+    "category": "Stage 8: 构建 / 调试 / 驱动 / 架构",
+    "status": "done"
+  },
+  {
+    "chapter": 27,
+    "file": "27_architecture.md",
+    "title": "27. 嵌入式软件架构",
+    "id": "stage8_architecture",
+    "category": "Stage 8: 构建 / 调试 / 驱动 / 架构",
+    "status": "done"
+  },
+  {
+    "chapter": 28,
+    "file": "28_sensors.md",
+    "title": "28. 常见传感器",
+    "id": "stage9_sensors",
+    "category": "Stage 9: 传感器 / 机器人 / AI / 项目",
+    "status": "done"
+  },
+  {
+    "chapter": 29,
+    "file": "29_robotics.md",
+    "title": "29. 机器人与嵌入式",
+    "id": "stage9_robotics",
+    "category": "Stage 9: 传感器 / 机器人 / AI / 项目",
+    "status": "done"
+  },
+  {
+    "chapter": 30,
+    "file": "30_tinyml.md",
+    "title": "30. AI + 嵌入式 / TinyML",
+    "id": "stage9_tinyml",
+    "category": "Stage 9: 传感器 / 机器人 / AI / 项目",
+    "status": "done"
+  },
+  {
+    "chapter": 31,
+    "file": "31_project_method.md",
+    "title": "31. 项目开发方法",
+    "id": "stage9_project",
+    "category": "Stage 9: 传感器 / 机器人 / AI / 项目",
+    "status": "done"
+  },
+  {
+    "chapter": 32,
+    "file": "32_troubleshooting.md",
+    "title": "32. 常见问题排查",
+    "id": "stage9_troubleshooting",
+    "category": "Stage 9: 传感器 / 机器人 / AI / 项目",
+    "status": "done"
+  },
+  {
+    "chapter": 33,
+    "file": "33_learning_path.md",
+    "title": "33. 学习路线",
+    "id": "appendix_learning_path",
+    "category": "附录: 学习路线与术语表",
+    "status": "done"
+  },
+  {
+    "chapter": 34,
+    "file": "34_glossary.md",
+    "title": "34. 常用术语表",
+    "id": "appendix_glossary",
+    "category": "附录: 学习路线与术语表",
+    "status": "done"
+  }
+]

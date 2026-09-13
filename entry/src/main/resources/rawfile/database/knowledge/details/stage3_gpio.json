@@ -14,30 +14,150 @@
     "电平兼容"
   ],
   "summary": "GPIO 是单片机上的通用输入输出外设，引脚可由软件配置为输入、推挽 / 开漏输出、复用功能或模拟模式；点灯与读键只是入门，真正的难点在于认清引脚的固定用途与电流、电压、电平兼容等电气约束，具体能力一律以 Datasheet 与 Reference Manual 为准。",
-  "images": [],
+  "images": [
+    "database/images/gpio/gpio_led_sch.png"
+  ],
   "relatedProjectIds": [],
-  "content": {
-    "prerequisite": "需要先理解第 1 章描述的“传感器感知输入、执行器产生输出”这一闭环结构，并回忆第 3 章讲过的引脚悬空（Floating）问题——本章的输入模式与推挽 / 开漏输出都建立在这两个概念之上。此外，你手上必须能查到目标芯片的 Datasheet 与 Reference Manual，否则本章后半部分无法真正落地。",
-    "objective": "如果说 CPU 是单片机的大脑，那么可以粗略地把 GPIO 理解为单片机的手和脚（这是类比，不是定义）。芯片四周有许多金属引脚，除固定用于接电源（VCC）和地（GND）的引脚外，其余多数引脚通常可以较灵活地配置。本章的目标就是讲清如何配置与使用这些引脚：学会把引脚配置为输入或输出、分清推挽与开漏的差别、理解上拉 / 下拉与复用功能的作用，并认识到真实硬件对引脚使用的种种约束，从而做到先查手册再接线。",
-    "concept": "GPIO 全称是 General Purpose Input/Output，即通用输入输出引脚。\n\n正式定义：GPIO 是微控制器 / 处理器上的一类通用输入输出外设，其引脚可被配置为输入、输出、复用功能（Alternate Function）或模拟模式等；具体支持哪些模式、复用功能如何映射，以及电气特性如何，都以该芯片的 Datasheet 与 Reference Manual 为准。\n\n“通用”的意思是：多数通用引脚可以由软件配置为输入去感知外部电平，也可以配置为输出去驱动外部电路。不过并非每个引脚都能随意使用，部分引脚有固定用途。点亮单片机世界的第一盏 LED 灯，读取第一个按键，全都是通过控制 GPIO 来实现的。\n\n把这四类模式放在一起看，就构成了本章的完整骨架：输入（Input 方向）再往下分推挽（Push-Pull）与开漏（Open-Drain）两种输出形态，上拉 / 下拉是叠加在输入模式上的附加选项，而复用（Alternate Function）则通向 UART / SPI / I2C 以及 PWM / Timer 等内部外设。",
-    "principle": "输出模式：把一个引脚配置为输出模式后，软件即可控制该引脚对外的电压。最常见的输出模式有两种。推挽输出（Push-Pull）是最常用的一种：推（Push）指单片机主动向外推出电流，引脚输出高电平（比如 3.3V）；挽（Pull）指单片机主动把电流拉回来，引脚连通 GND，输出低电平（0V）。它的特点是无论输出高还是低，单片机都是发力的，因此能直接点亮 LED 灯，驱动能力比较强。开漏输出（Open-Drain）则容易被误用：在这种模式下输出级不具备主动输出高电平的能力，只具备下拉能力，能把引脚拉到低电平（0V）；当输出级关断、释放引脚时，引脚呈高阻态（High-Z），此时电平由外部电路决定，而不是被芯片强行驱动到某个电平。为什么需要这种模式？因为在一些总线拓扑（比如后面要讲的 I2C 总线）上，多个器件共享同一条信号线，如果每个器件都能主动输出高电平，一旦设备 A 输出高、设备 B 输出低，就会形成低阻通路、电流剧增，可能损坏器件，开漏加外部上拉的结构可以避免这种冲突。那么开漏怎么输出高电平？需要在外部接一个上拉电阻连到 VCC（部分 MCU 也可开启内部上拉），当单片机释放引脚时由这个上拉电阻把电平拉高。\n\n输入模式：把引脚配置为输入模式后，该引脚不再主动驱动电平，而是通过输入缓冲器读取引脚上的电平是高（1）还是低（0）。这时第 3 章讲过的悬空问题又会出现——悬空引脚的电平可能随干扰而随机波动。为避免这种情况，输入模式通常提供三种子选项：浮空输入（Floating）在芯片内部不接上拉或下拉，电平由外部电路决定，除非外部模块始终给出明确的高低电平，否则通常不建议这样使用；上拉输入（Pull-up）在芯片内部接通一个连向 VCC 的上拉电阻，外部未接任何器件时默认读到 1，常用于连接按键（按键另一端接地，按下时读到 0）；下拉输入（Pull-down）在芯片内部接通一个连向 GND 的下拉电阻，外部未接任何器件时默认读到 0。\n\n复用功能：单片机上的引脚资源非常宝贵，一个几十个引脚的单片机不可能给每一个外设都单独分配专门的引脚，所以一个引脚往往身兼数职。以引脚 PA9 为例：普通情况下你可以把它当成普通 GPIO，用代码控制它输出 0 还是 1 来点灯；但如果想用它发送串口（UART）数据，由软件逐位控制 0 和 1 的跳变，CPU 开销会非常大；这时候你可以在代码里把它配置为复用功能（Alternate Function，简称 AF），其含义是该引脚的控制权被移交给内部的串口硬件模块，此后由该模块按串口时序精确控制引脚电平的跳变，CPU 只需要读写数据寄存器，从而可以腾出时间处理其他任务。",
-    "example": {
-      "language": "C",
-      "code": "#include <stdint.h>\n#include <stdbool.h>\n\n/* ------------------------------------------------------------------\n * 1) 寄存器与位定义（示意）\n *    真实地址与全部位域一律以你所用手册为准：\n *    - Reference Manual：GPIOx_MODER / OTYPER / PUPDR / IDR / ODR / BSRR\n *    - Datasheet：引脚复用映射表、单脚与全芯片电流上限\n * ------------------------------------------------------------------ */\ntypedef struct {\n    volatile uint32_t MODER;   /* 模式：输入 / 输出 / 复用 / 模拟 */\n    volatile uint32_t OTYPER;  /* 输出类型：0 = 推挽，1 = 开漏 */\n    volatile uint32_t OSPEEDR; /* 输出速度（翻转速率） */\n    volatile uint32_t PUPDR;   /* 上拉 / 下拉 */\n    volatile uint32_t IDR;     /* 输入数据寄存器（只读） */\n    volatile uint32_t ODR;     /* 输出数据寄存器 */\n    volatile uint32_t BSRR;    /* 位设置 / 复位寄存器（原子写，不必读改写） */\n} GPIO_TypeDef;\n\n#define GPIOA_BASE   (0x48000000UL)             /* 示意地址 */\n#define GPIOA        ((GPIO_TypeDef *)GPIOA_BASE)\n\n#define PIN5         (5U)\n#define PIN_MASK(p)  (1UL << (p))\n\n/* MODER 每个引脚占 2 bit */\n#define MODE_INPUT   0x0U\n#define MODE_OUTPUT  0x1U\n#define MODE_AF      0x2U\n#define MODE_ANALOG  0x3U\n\n/* OTYPER 每个引脚占 1 bit */\n#define OTYPER_PP    0x0U   /* 推挽 Push-Pull */\n#define OTYPER_OD    0x1U   /* 开漏 Open-Drain */\n\n/* PUPDR 每个引脚占 2 bit */\n#define PULL_NONE    0x0U\n#define PULL_UP      0x1U\n#define PULL_DOWN    0x2U\n\ntypedef struct {\n    uint8_t  pin;\n    uint8_t  mode;      /* MODE_INPUT / MODE_OUTPUT / MODE_AF / MODE_ANALOG */\n    uint8_t  otype;     /* OTYPER_PP / OTYPER_OD */\n    uint8_t  pull;      /* PULL_NONE / PULL_UP / PULL_DOWN */\n    uint32_t af;        /* 复用功能编号，仅 mode = MODE_AF 时有效 */\n} GpioConfig;\n\n/* ------------------------------------------------------------------\n * 2) 初始化：把一个引脚配置成目标模式\n *    只修改目标位，其余位保持原值，避免影响同一端口上的其他引脚。\n * ------------------------------------------------------------------ */\nvoid gpio_init(GPIO_TypeDef *port, const GpioConfig *cfg)\n{\n    if ((port == 0) || (cfg == 0) || (cfg->pin > 15U)) {\n        return;   /* 参数自检：启动阶段就拦住错误配置 */\n    }\n\n    const uint32_t pos    = (uint32_t)cfg->pin * 2U;      /* MODER / PUPDR 的位偏移 */\n    const uint32_t twoBit = 0x3UL << pos;\n    const uint32_t oneBit = 1UL << (uint32_t)cfg->pin;\n\n    /* 必须先清掉旧的复用配置，再写入新值 */\n    port->MODER = (port->MODER & ~twoBit) | ((uint32_t)cfg->mode << pos);\n\n    /* 输出类型：仅输出 / 复用模式有意义 */\n    port->OTYPER = (port->OTYPER & ~oneBit) | ((uint32_t)cfg->otype << (uint32_t)cfg->pin);\n\n    /* 上拉 / 下拉：输入模式用来避免悬空，输出模式通常保持 PULL_NONE */\n    port->PUPDR = (port->PUPDR & ~twoBit) | ((uint32_t)cfg->pull << pos);\n\n    if (cfg->mode == MODE_AF) {\n        /* 复用功能编号通常由 AFRL / AFRH 两个寄存器各管 8 个引脚，\n           这里仅示意需要按引脚序号选择寄存器并写入 4 bit 编号 */\n        /* gpio_set_af(port, cfg->pin, cfg->af); */\n    }\n}\n\n/* ------------------------------------------------------------------\n * 3) 位操作：只动目标引脚，绝不整端口赋值\n *    （整端口赋值会把同端口其他引脚的状态一起冲掉）\n * ------------------------------------------------------------------ */\nstatic inline void gpio_set(GPIO_TypeDef *port, uint8_t pin)\n{\n    port->BSRR = PIN_MASK(pin);            /* 置 1：不建议用 ODR |= mask，读改写非原子 */\n}\n\nstatic inline void gpio_reset(GPIO_TypeDef *port, uint8_t pin)\n{\n    port->BSRR = (uint32_t)PIN_MASK(pin) << 16U;   /* 高位半字用于复位 */\n}\n\nstatic inline void gpio_toggle(GPIO_TypeDef *port, uint8_t pin)\n{\n    port->ODR ^= PIN_MASK(pin);            /* 单主控场景可用，多上下文需注意原子性 */\n}\n\nstatic inline bool gpio_read(GPIO_TypeDef *port, uint8_t pin)\n{\n    return (port->IDR & PIN_MASK(pin)) != 0UL;\n}\n\n/* ------------------------------------------------------------------\n * 4) 使用示例：推挽输出点灯 + 上拉输入读按键\n * ------------------------------------------------------------------ */\n#define LED_PIN     PIN5\n#define BUTTON_PIN  (3U)\n\nstatic void led_init(void)\n{\n    const GpioConfig led = { LED_PIN, MODE_OUTPUT, OTYPER_PP, PULL_NONE, 0U };\n    gpio_init(GPIOA, &led);\n}\n\nstatic void button_init(void)\n{\n    /* 上拉输入：按键另一端接 GND，松开读 1、按下读 0，不会悬空 */\n    const GpioConfig key = { BUTTON_PIN, MODE_INPUT, OTYPER_PP, PULL_UP, 0U };\n    gpio_init(GPIOA, &key);\n}\n\nint main(void)\n{\n    led_init();\n    button_init();\n\n    uint32_t press_count = 0U;\n    bool     last_level   = true;   /* 上拉输入：松开状态为高电平 */\n\n    for (;;) {\n        /* 简单软件延时只用于教学；真实项目应改用定时器 */\n        for (volatile uint32_t i = 0U; i < 200000U; i++) {\n        }\n\n        gpio_toggle(GPIOA, LED_PIN);\n\n        const bool level = gpio_read(GPIOA, BUTTON_PIN);\n        if (last_level && !level) {\n            press_count++;      /* 下降沿：按键被按下 */\n        }\n        last_level = level;\n    }\n}",
-      "description": "代码演示本章的四个关键点：其一，GPIO 的行为由寄存器决定（MODER 定方向与模式、OTYPER 选推挽或开漏、PUPDR 选上拉 / 下拉、IDR 读输入、BSRR 写输出），寄存器名与位域必须查 Reference Manual，而不是背下来；其二，初始化必须先清位再写位（先清零再置位），否则会残留上一次的配置；其三，操作引脚要用位操作，并且优先用 BSRR 这类可以原子置位 / 复位的寄存器，整端口赋值或用 ODR |= mask 这种读改写方式会干扰同端口上的其他引脚；其四，输入引脚要明确上拉或下拉，示例中的按键使用上拉输入，松开读 1、按下读 0，从根本上避免悬空。严格来说，示例中的基地址、位域划分与复用寄存器都与具体芯片相关，这里只保留结构；实际编写时请对照你手上那颗芯片的 Datasheet（引脚与电气参数）和 Reference Manual（寄存器定义与复用功能映射表）逐项替换。"
+  "contentBlocks": [
+    {
+      "type": "header",
+      "content": "学习前置要求"
     },
-    "experiment": "实验一：点亮第一盏 LED。选一个确定未被占用的引脚（务必避开电源 / 地、复位 NRST、晶振、调试 SWD / JTAG、Boot / Strapping），按“引脚 → 限流电阻 → LED 阳极，LED 阴极 → GND”接线，再把该引脚初始化为推挽输出。先在 main 里让它输出高、输出低各一次，确认 LED 能亮能灭；然后放进循环里，配合延时让它周期性闪烁。如果灯不亮，按“引脚是否配对、时钟是否使能、LED 极性是否接反、限流电阻是否过大”的顺序排查。\n\n实验二：换限流电阻，观察亮度变化。把限流电阻依次换成 1kΩ 与 10kΩ，你会发现 LED 只是变暗，并不会烧毁——因为你主动限制了电流。反过来，如果去掉限流电阻，电流将只受芯片与 LED 自身特性限制，很容易超出单引脚上限而损坏引脚甚至芯片。\n\n实验三：把推挽改成开漏。保持接线不变，只把 OTYPER 配成开漏：LED 会熄灭，因为引脚再也无法主动输出高电平，只剩下拉能力。随后在引脚与 VCC 之间外接一个上拉电阻，LED 又能正常工作——这正是“开漏靠外部上拉输出高电平”的直接证据，也是 I2C 一类共享总线必须外接上拉的原因。\n\n实验四：按键与上拉输入。把按键一端接引脚、另一端接 GND，引脚配置为上拉输入，把读取到的电平打印出来。你会看到松开时为 1、按下时为 0，电平始终明确；如果把该引脚改成浮空输入并且不接任何东西，读数就会随机跳变，这就是悬空。\n\n验证数据：用串口打印或调试器观察按键计数是否随每次按键递增 1，据此判断有无抖动导致的重复计数；再用示波器或逻辑分析仪测一次引脚波形，确认翻转周期与你的软件延时一致，并核对 Datasheet 中该引脚的最大输出电流与全芯片总电流上限，确认你的 LED 电流留有余量。",
-    "tips": "工程实践——点灯该选哪种输出？点亮 LED 或驱动简单的数字模块时，通常选用推挽输出（Push-Pull），因为它在高低两个方向都能主动驱动，边沿更陡、驱动能力更明确；开漏输出主要用于需要“线与”或多器件共享总线的场合，此时高电平依赖外部上拉电阻，上升沿速度受上拉阻值和线容影响。\n\n权威依据——Datasheet 与 Reference Manual：本章涉及的数字没有一条是靠背下来的，全部以你手上那颗芯片的 Datasheet（数据手册，看电气参数）和 Reference Manual（参考手册，看寄存器与外设行为）为准。养成先查手册再接线的习惯，能省下大量返工和烧板子的钱。\n\n三条可长期复用的工作习惯：第一，选引脚前先看引脚定义表（Pinout），确认它能不能被配置成你要的功能、有没有被复位 / 晶振 / 调试 / 启动占用；第二，把避开的引脚写成项目内的引脚分配说明，让“哪根脚不能动”成为团队的共同约束，而不是某个人的记忆；第三，接线时同步标注原理图与代码注释，让硬件与固件在引脚定义上始终对得上。",
-    "commonErrors": "误区 1：把 GPIO 当成“随便控制的数字引脚”。\nGPIO 不是一组抽象的逻辑开关，它背后是真实的 CMOS 输出级与输入缓冲器，有电压范围、驱动能力、翻转速率等电气约束。使用前至少要确认三件事：这个引脚能否被配置成你要的功能、它的电平和对方是否兼容、它要驱动的负载有多大。这些信息来自 Datasheet（电气参数）与 Reference Manual（寄存器与外设行为）——先查手册，再接线。\n\n误区 2：配置了 GPIO 模式，却忘了复用功能。\n想使用 UART / SPI / I2C / PWM 时，通常需要把对应引脚配置为复用功能（AF），并选择正确的 AF 编号；部分芯片还需要额外使能该外设的时钟。只把引脚设成推挽输出并不会让它自动变成串口引脚。这类问题的典型现象是：代码看起来没错，但用逻辑分析仪 / 示波器测量时引脚上什么波形都没有。\n\n误区 3：忽略最大输出电流与电平兼容。\n单个引脚的拉电流 / 灌电流有上限（常见量级为十几 mA，具体值查 Datasheet），并且芯片还有所有引脚合计的电流上限。驱动电机、继电器、大功率 LED 等负载时，通常要经过三极管 / MOS 管 / 专用驱动芯片，不宜由 GPIO 直接驱动。电平方面：3.3V 与 5V 器件互连时，需要检查对方的高电平输入门限（VIH）以及自己引脚是否耐 5V，必要时加电平转换电路。\n\n误区 4：把调试引脚 / 启动引脚当普通 IO 用。\n调试引脚（SWD / JTAG）一旦被复用为普通 GPIO，可能无法再次连接调试器，出现程序烧不进去、也连不上的局面；部分芯片提供了保持调试端口使能的选项，但更稳妥的做法是优先避开这些引脚。Boot / Strapping 引脚则在上电复位瞬间被芯片采样，用来决定启动介质（Flash / Bootloader / 下载模式），如果外部电路在上电时把它们拉到错误的电平，芯片可能进入非预期的启动模式。因此，分配引脚和接线之前，先看芯片的引脚定义表（Pinout）与 Datasheet 中的引脚说明。把调试引脚配成普通 GPIO，或者让 Boot 引脚在上电时电平不对，是导致“板子连不上、程序烧不进去”的常见原因——这类问题往往并非芯片损坏，而是引脚使用不当。",
-    "keyPoints": [
-      "GPIO 是通用输入输出引脚，多数通用引脚可由软件配置为输入或输出，但部分引脚有固定用途（电源 / 地、复位、晶振、调试、Boot 等）。",
-      "推挽输出能在高低两个方向主动驱动，适合点灯等需要明确驱动能力的场合。",
-      "开漏输出只具备下拉能力，高电平依赖外部上拉电阻，适合挂接多个设备的通信总线（如 I2C）。",
-      "输入模式作为数字输入使用时，通常需要开启上拉或下拉以获得确定的默认电平，应避免让高阻抗节点长期悬空。",
-      "复用功能是把引脚的控制权移交给内部专用硬件模块（如串口、定时器），只配置成推挽输出并不会让它自动变成串口引脚。",
-      "GPIO 存在电气限制（单脚电流、总电流、输入电压范围、3.3V / 5V 电平兼容性），驱动电机、继电器、大功率 LED 通常必须经过三极管 / MOS 管 / 驱动芯片。",
-      "把调试引脚或 Boot / Strapping 引脚当普通 IO 用，是导致程序烧不进去、板子连不上的常见原因，分配引脚前必须先看引脚定义表。",
-      "所有引脚能力与电气参数都以具体芯片的 Datasheet 与 Reference Manual 为准，要养成先查手册再设计和接线的习惯。"
-    ]
-  }
+    {
+      "type": "text",
+      "content": "需要先理解第 1 章描述的“传感器感知输入、执行器产生输出”这一闭环结构，并回忆第 3 章讲过的引脚悬空（Floating）问题——本章的输入模式与推挽 / 开漏输出都建立在这两个概念之上。此外，你手上必须能查到目标芯片的 Datasheet 与 Reference Manual，否则本章后半部分无法真正落地。"
+    },
+    {
+      "type": "header",
+      "content": "学习目标"
+    },
+    {
+      "type": "text",
+      "content": "如果说 CPU 是单片机的大脑，那么可以粗略地把 GPIO 理解为单片机的手和脚（这是类比，不是定义）。芯片四周有许多金属引脚，除固定用于接电源（VCC）和地（GND）的引脚外，其余多数引脚通常可以较灵活地配置。本章的目标就是讲清如何配置与使用这些引脚：学会把引脚配置为输入或输出、分清推挽与开漏的差别、理解上拉 / 下拉与复用功能的作用，并认识到真实硬件对引脚使用的种种约束，从而做到先查手册再接线。"
+    },
+    {
+      "type": "header",
+      "content": "核心概念"
+    },
+    {
+      "type": "text",
+      "content": "GPIO 全称是 General Purpose Input/Output，即通用输入输出引脚。\n\n正式定义：GPIO 是微控制器 / 处理器上的一类通用输入输出外设，其引脚可被配置为输入、输出、复用功能（Alternate Function）或模拟模式等；具体支持哪些模式、复用功能如何映射，以及电气特性如何，都以该芯片的 Datasheet 与 Reference Manual 为准。\n\n“通用”的意思是：多数通用引脚可以由软件配置为输入去感知外部电平，也可以配置为输出去驱动外部电路。不过并非每个引脚都能随意使用，部分引脚有固定用途。点亮单片机世界的第一盏 LED 灯，读取第一个按键，全都是通过控制 GPIO 来实现的。\n\n把这四类模式放在一起看，就构成了本章的完整骨架：输入（Input 方向）再往下分推挽（Push-Pull）与开漏（Open-Drain）两种输出形态，上拉 / 下拉是叠加在输入模式上的附加选项，而复用（Alternate Function）则通向 UART / SPI / I2C 以及 PWM / Timer 等内部外设。"
+    },
+    {
+      "type": "header",
+      "content": "工作机制与原理"
+    },
+    {
+      "type": "text",
+      "content": "输出模式：把一个引脚配置为输出模式后，软件即可控制该引脚对外的电压。最常见的输出模式有两种。推挽输出（Push-Pull）是最常用的一种：推（Push）指单片机主动向外推出电流，引脚输出高电平（比如 3.3V）；挽（Pull）指单片机主动把电流拉回来，引脚连通 GND，输出低电平（0V）。它的特点是无论输出高还是低，单片机都是发力的，因此能直接点亮 LED 灯，驱动能力比较强。开漏输出（Open-Drain）则容易被误用：在这种模式下输出级不具备主动输出高电平的能力，只具备下拉能力，能把引脚拉到低电平（0V）；当输出级关断、释放引脚时，引脚呈高阻态（High-Z），此时电平由外部电路决定，而不是被芯片强行驱动到某个电平。为什么需要这种模式？因为在一些总线拓扑（比如后面要讲的 I2C 总线）上，多个器件共享同一条信号线，如果每个器件都能主动输出高电平，一旦设备 A 输出高、设备 B 输出低，就会形成低阻通路、电流剧增，可能损坏器件，开漏加外部上拉的结构可以避免这种冲突。那么开漏怎么输出高电平？需要在外部接一个上拉电阻连到 VCC（部分 MCU 也可开启内部上拉），当单片机释放引脚时由这个上拉电阻把电平拉高。\n\n输入模式：把引脚配置为输入模式后，该引脚不再主动驱动电平，而是通过输入缓冲器读取引脚上的电平是高（1）还是低（0）。这时第 3 章讲过的悬空问题又会出现——悬空引脚的电平可能随干扰而随机波动。为避免这种情况，输入模式通常提供三种子选项：浮空输入（Floating）在芯片内部不接上拉或下拉，电平由外部电路决定，除非外部模块始终给出明确的高低电平，否则通常不建议这样使用；上拉输入（Pull-up）在芯片内部接通一个连向 VCC 的上拉电阻，外部未接任何器件时默认读到 1，常用于连接按键（按键另一端接地，按下时读到 0）；下拉输入（Pull-down）在芯片内部接通一个连向 GND 的下拉电阻，外部未接任何器件时默认读到 0。\n\n复用功能：单片机上的引脚资源非常宝贵，一个几十个引脚的单片机不可能给每一个外设都单独分配专门的引脚，所以一个引脚往往身兼数职。以引脚 PA9 为例：普通情况下你可以把它当成普通 GPIO，用代码控制它输出 0 还是 1 来点灯；但如果想用它发送串口（UART）数据，由软件逐位控制 0 和 1 的跳变，CPU 开销会非常大；这时候你可以在代码里把它配置为复用功能（Alternate Function，简称 AF），其含义是该引脚的控制权被移交给内部的串口硬件模块，此后由该模块按串口时序精确控制引脚电平的跳变，CPU 只需要读写数据寄存器，从而可以腾出时间处理其他任务。"
+    },
+    {
+      "type": "header",
+      "content": "代码示例"
+    },
+    {
+      "type": "text",
+      "content": "代码演示本章的四个关键点：其一，GPIO 的行为由寄存器决定（MODER 定方向与模式、OTYPER 选推挽或开漏、PUPDR 选上拉 / 下拉、IDR 读输入、BSRR 写输出），寄存器名与位域必须查 Reference Manual，而不是背下来；"
+    },
+    {
+      "type": "code",
+      "language": "C",
+      "content": "#include <stdint.h>\n#include <stdbool.h>\n\n/* ------------------------------------------------------------------\n * 1) 寄存器与位定义（示意）\n *    真实地址与全部位域一律以你所用手册为准：\n *    - Reference Manual：GPIOx_MODER / OTYPER / PUPDR / IDR / ODR / BSRR\n *    - Datasheet：引脚复用映射表、单脚与全芯片电流上限\n * ------------------------------------------------------------------ */\ntypedef struct {\n    volatile uint32_t MODER;   /* 模式：输入 / 输出 / 复用 / 模拟 */\n    volatile uint32_t OTYPER;  /* 输出类型：0 = 推挽，1 = 开漏 */\n    volatile uint32_t OSPEEDR; /* 输出速度（翻转速率） */\n    volatile uint32_t PUPDR;   /* 上拉 / 下拉 */\n    volatile uint32_t IDR;     /* 输入数据寄存器（只读） */\n    volatile uint32_t ODR;     /* 输出数据寄存器 */\n    volatile uint32_t BSRR;    /* 位设置 / 复位寄存器（原子写，不必读改写） */\n} GPIO_TypeDef;\n\n#define GPIOA_BASE   (0x48000000UL)             /* 示意地址 */\n#define GPIOA        ((GPIO_TypeDef *)GPIOA_BASE)\n\n#define PIN5         (5U)\n#define PIN_MASK(p)  (1UL << (p))\n\n/* MODER 每个引脚占 2 bit */\n#define MODE_INPUT   0x0U\n#define MODE_OUTPUT  0x1U\n#define MODE_AF      0x2U\n#define MODE_ANALOG  0x3U\n\n/* OTYPER 每个引脚占 1 bit */\n#define OTYPER_PP    0x0U   /* 推挽 Push-Pull */\n#define OTYPER_OD    0x1U   /* 开漏 Open-Drain */\n\n/* PUPDR 每个引脚占 2 bit */\n#define PULL_NONE    0x0U\n#define PULL_UP      0x1U\n#define PULL_DOWN    0x2U\n\ntypedef struct {\n    uint8_t  pin;\n    uint8_t  mode;      /* MODE_INPUT / MODE_OUTPUT / MODE_AF / MODE_ANALOG */\n    uint8_t  otype;     /* OTYPER_PP / OTYPER_OD */\n    uint8_t  pull;      /* PULL_NONE / PULL_UP / PULL_DOWN */\n    uint32_t af;        /* 复用功能编号，仅 mode = MODE_AF 时有效 */\n} GpioConfig;\n\n/* ------------------------------------------------------------------\n"
+    },
+    {
+      "type": "text",
+      "content": "其二，初始化必须先清位再写位（先清零再置位），否则会残留上一次的配置；"
+    },
+    {
+      "type": "code",
+      "language": "C",
+      "content": " * 2) 初始化：把一个引脚配置成目标模式\n *    只修改目标位，其余位保持原值，避免影响同一端口上的其他引脚。\n * ------------------------------------------------------------------ */\nvoid gpio_init(GPIO_TypeDef *port, const GpioConfig *cfg)\n{\n    if ((port == 0) || (cfg == 0) || (cfg->pin > 15U)) {\n        return;   /* 参数自检：启动阶段就拦住错误配置 */\n    }\n\n    const uint32_t pos    = (uint32_t)cfg->pin * 2U;      /* MODER / PUPDR 的位偏移 */\n    const uint32_t twoBit = 0x3UL << pos;\n    const uint32_t oneBit = 1UL << (uint32_t)cfg->pin;\n\n    /* 必须先清掉旧的复用配置，再写入新值 */\n    port->MODER = (port->MODER & ~twoBit) | ((uint32_t)cfg->mode << pos);\n\n    /* 输出类型：仅输出 / 复用模式有意义 */\n    port->OTYPER = (port->OTYPER & ~oneBit) | ((uint32_t)cfg->otype << (uint32_t)cfg->pin);\n\n    /* 上拉 / 下拉：输入模式用来避免悬空，输出模式通常保持 PULL_NONE */\n    port->PUPDR = (port->PUPDR & ~twoBit) | ((uint32_t)cfg->pull << pos);\n\n    if (cfg->mode == MODE_AF) {\n        /* 复用功能编号通常由 AFRL / AFRH 两个寄存器各管 8 个引脚，\n           这里仅示意需要按引脚序号选择寄存器并写入 4 bit 编号 */\n        /* gpio_set_af(port, cfg->pin, cfg->af); */\n    }\n}\n\n/* ------------------------------------------------------------------\n"
+    },
+    {
+      "type": "text",
+      "content": "其三，操作引脚要用位操作，并且优先用 BSRR 这类可以原子置位 / 复位的寄存器，整端口赋值或用 ODR |= mask 这种读改写方式会干扰同端口上的其他引脚；"
+    },
+    {
+      "type": "code",
+      "language": "C",
+      "content": " * 3) 位操作：只动目标引脚，绝不整端口赋值\n *    （整端口赋值会把同端口其他引脚的状态一起冲掉）\n * ------------------------------------------------------------------ */\nstatic inline void gpio_set(GPIO_TypeDef *port, uint8_t pin)\n{\n    port->BSRR = PIN_MASK(pin);            /* 置 1：不建议用 ODR |= mask，读改写非原子 */\n}\n\nstatic inline void gpio_reset(GPIO_TypeDef *port, uint8_t pin)\n{\n    port->BSRR = (uint32_t)PIN_MASK(pin) << 16U;   /* 高位半字用于复位 */\n}\n\nstatic inline void gpio_toggle(GPIO_TypeDef *port, uint8_t pin)\n{\n    port->ODR ^= PIN_MASK(pin);            /* 单主控场景可用，多上下文需注意原子性 */\n}\n\nstatic inline bool gpio_read(GPIO_TypeDef *port, uint8_t pin)\n{\n    return (port->IDR & PIN_MASK(pin)) != 0UL;\n}\n\n/* ------------------------------------------------------------------\n"
+    },
+    {
+      "type": "text",
+      "content": "其四，输入引脚要明确上拉或下拉，示例中的按键使用上拉输入，松开读 1、按下读 0，从根本上避免悬空。"
+    },
+    {
+      "type": "code",
+      "language": "C",
+      "content": " * 4) 使用示例：推挽输出点灯 + 上拉输入读按键\n * ------------------------------------------------------------------ */\n#define LED_PIN     PIN5\n#define BUTTON_PIN  (3U)\n\nstatic void led_init(void)\n{\n    const GpioConfig led = { LED_PIN, MODE_OUTPUT, OTYPER_PP, PULL_NONE, 0U };\n    gpio_init(GPIOA, &led);\n}\n\nstatic void button_init(void)\n{\n    /* 上拉输入：按键另一端接 GND，松开读 1、按下读 0，不会悬空 */\n    const GpioConfig key = { BUTTON_PIN, MODE_INPUT, OTYPER_PP, PULL_UP, 0U };\n    gpio_init(GPIOA, &key);\n}\n\nint main(void)\n{\n    led_init();\n    button_init();\n\n    uint32_t press_count = 0U;\n    bool     last_level   = true;   /* 上拉输入：松开状态为高电平 */\n\n    for (;;) {\n        /* 简单软件延时只用于教学；真实项目应改用定时器 */\n        for (volatile uint32_t i = 0U; i < 200000U; i++) {\n        }\n\n        gpio_toggle(GPIOA, LED_PIN);\n\n        const bool level = gpio_read(GPIOA, BUTTON_PIN);\n        if (last_level && !level) {\n            press_count++;      /* 下降沿：按键被按下 */\n        }\n        last_level = level;\n    }\n}"
+    },
+    {
+      "type": "text",
+      "content": "严格来说，示例中的基地址、位域划分与复用寄存器都与具体芯片相关，这里只保留结构；实际编写时请对照你手上那颗芯片的 Datasheet（引脚与电气参数）和 Reference Manual（寄存器定义与复用功能映射表）逐项替换。"
+    },
+    {
+      "type": "image",
+      "content": "database/images/gpio/gpio_led_sch.png"
+    },
+    {
+      "type": "header",
+      "content": "实验与实操"
+    },
+    {
+      "type": "text",
+      "content": "实验一：点亮第一盏 LED。选一个确定未被占用的引脚（务必避开电源 / 地、复位 NRST、晶振、调试 SWD / JTAG、Boot / Strapping），按“引脚 → 限流电阻 → LED 阳极，LED 阴极 → GND”接线，再把该引脚初始化为推挽输出。先在 main 里让它输出高、输出低各一次，确认 LED 能亮能灭；然后放进循环里，配合延时让它周期性闪烁。如果灯不亮，按“引脚是否配对、时钟是否使能、LED 极性是否接反、限流电阻是否过大”的顺序排查。\n\n实验二：换限流电阻，观察亮度变化。把限流电阻依次换成 1kΩ 与 10kΩ，你会发现 LED 只是变暗，并不会烧毁——因为你主动限制了电流。反过来，如果去掉限流电阻，电流将只受芯片与 LED 自身特性限制，很容易超出单引脚上限而损坏引脚甚至芯片。\n\n实验三：把推挽改成开漏。保持接线不变，只把 OTYPER 配成开漏：LED 会熄灭，因为引脚再也无法主动输出高电平，只剩下拉能力。随后在引脚与 VCC 之间外接一个上拉电阻，LED 又能正常工作——这正是“开漏靠外部上拉输出高电平”的直接证据，也是 I2C 一类共享总线必须外接上拉的原因。\n\n实验四：按键与上拉输入。把按键一端接引脚、另一端接 GND，引脚配置为上拉输入，把读取到的电平打印出来。你会看到松开时为 1、按下时为 0，电平始终明确；如果把该引脚改成浮空输入并且不接任何东西，读数就会随机跳变，这就是悬空。\n\n验证数据：用串口打印或调试器观察按键计数是否随每次按键递增 1，据此判断有无抖动导致的重复计数；再用示波器或逻辑分析仪测一次引脚波形，确认翻转周期与你的软件延时一致，并核对 Datasheet 中该引脚的最大输出电流与全芯片总电流上限，确认你的 LED 电流留有余量。"
+    },
+    {
+      "type": "header",
+      "content": "工程经验与技巧"
+    },
+    {
+      "type": "text",
+      "content": "工程实践——点灯该选哪种输出？点亮 LED 或驱动简单的数字模块时，通常选用推挽输出（Push-Pull），因为它在高低两个方向都能主动驱动，边沿更陡、驱动能力更明确；开漏输出主要用于需要“线与”或多器件共享总线的场合，此时高电平依赖外部上拉电阻，上升沿速度受上拉阻值和线容影响。\n\n权威依据——Datasheet 与 Reference Manual：本章涉及的数字没有一条是靠背下来的，全部以你手上那颗芯片的 Datasheet（数据手册，看电气参数）和 Reference Manual（参考手册，看寄存器与外设行为）为准。养成先查手册再接线的习惯，能省下大量返工和烧板子的钱。\n\n三条可长期复用的工作习惯：第一，选引脚前先看引脚定义表（Pinout），确认它能不能被配置成你要的功能、有没有被复位 / 晶振 / 调试 / 启动占用；第二，把避开的引脚写成项目内的引脚分配说明，让“哪根脚不能动”成为团队的共同约束，而不是某个人的记忆；第三，接线时同步标注原理图与代码注释，让硬件与固件在引脚定义上始终对得上。"
+    },
+    {
+      "type": "header",
+      "content": "常见误区与陷阱"
+    },
+    {
+      "type": "warning",
+      "content": "误区 1：把 GPIO 当成“随便控制的数字引脚”。\nGPIO 不是一组抽象的逻辑开关，它背后是真实的 CMOS 输出级与输入缓冲器，有电压范围、驱动能力、翻转速率等电气约束。使用前至少要确认三件事：这个引脚能否被配置成你要的功能、它的电平和对方是否兼容、它要驱动的负载有多大。这些信息来自 Datasheet（电气参数）与 Reference Manual（寄存器与外设行为）——先查手册，再接线。\n\n误区 2：配置了 GPIO 模式，却忘了复用功能。\n想使用 UART / SPI / I2C / PWM 时，通常需要把对应引脚配置为复用功能（AF），并选择正确的 AF 编号；部分芯片还需要额外使能该外设的时钟。只把引脚设成推挽输出并不会让它自动变成串口引脚。这类问题的典型现象是：代码看起来没错，但用逻辑分析仪 / 示波器测量时引脚上什么波形都没有。\n\n误区 3：忽略最大输出电流与电平兼容。\n单个引脚的拉电流 / 灌电流有上限（常见量级为十几 mA，具体值查 Datasheet），并且芯片还有所有引脚合计的电流上限。驱动电机、继电器、大功率 LED 等负载时，通常要经过三极管 / MOS 管 / 专用驱动芯片，不宜由 GPIO 直接驱动。电平方面：3.3V 与 5V 器件互连时，需要检查对方的高电平输入门限（VIH）以及自己引脚是否耐 5V，必要时加电平转换电路。\n\n误区 4：把调试引脚 / 启动引脚当普通 IO 用。\n调试引脚（SWD / JTAG）一旦被复用为普通 GPIO，可能无法再次连接调试器，出现程序烧不进去、也连不上的局面；部分芯片提供了保持调试端口使能的选项，但更稳妥的做法是优先避开这些引脚。Boot / Strapping 引脚则在上电复位瞬间被芯片采样，用来决定启动介质（Flash / Bootloader / 下载模式），如果外部电路在上电时把它们拉到错误的电平，芯片可能进入非预期的启动模式。因此，分配引脚和接线之前，先看芯片的引脚定义表（Pinout）与 Datasheet 中的引脚说明。把调试引脚配成普通 GPIO，或者让 Boot 引脚在上电时电平不对，是导致“板子连不上、程序烧不进去”的常见原因——这类问题往往并非芯片损坏，而是引脚使用不当。"
+    },
+    {
+      "type": "header",
+      "content": "核心要点总结"
+    },
+    {
+      "type": "text",
+      "content": "• GPIO 是通用输入输出引脚，多数通用引脚可由软件配置为输入或输出，但部分引脚有固定用途（电源 / 地、复位、晶振、调试、Boot 等）。"
+    },
+    {
+      "type": "text",
+      "content": "• 推挽输出能在高低两个方向主动驱动，适合点灯等需要明确驱动能力的场合。"
+    },
+    {
+      "type": "text",
+      "content": "• 开漏输出只具备下拉能力，高电平依赖外部上拉电阻，适合挂接多个设备的通信总线（如 I2C）。"
+    },
+    {
+      "type": "text",
+      "content": "• 输入模式作为数字输入使用时，通常需要开启上拉或下拉以获得确定的默认电平，应避免让高阻抗节点长期悬空。"
+    },
+    {
+      "type": "text",
+      "content": "• 复用功能是把引脚的控制权移交给内部专用硬件模块（如串口、定时器），只配置成推挽输出并不会让它自动变成串口引脚。"
+    },
+    {
+      "type": "text",
+      "content": "• GPIO 存在电气限制（单脚电流、总电流、输入电压范围、3.3V / 5V 电平兼容性），驱动电机、继电器、大功率 LED 通常必须经过三极管 / MOS 管 / 驱动芯片。"
+    },
+    {
+      "type": "text",
+      "content": "• 把调试引脚或 Boot / Strapping 引脚当普通 IO 用，是导致程序烧不进去、板子连不上的常见原因，分配引脚前必须先看引脚定义表。"
+    },
+    {
+      "type": "text",
+      "content": "• 所有引脚能力与电气参数都以具体芯片的 Datasheet 与 Reference Manual 为准，要养成先查手册再设计和接线的习惯。"
+    }
+  ]
 }

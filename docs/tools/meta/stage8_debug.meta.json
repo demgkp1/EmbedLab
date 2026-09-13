@@ -1,0 +1,19 @@
+{
+  "id": "stage8_debug",
+  "title": "24. 调试方法",
+  "category": "Stage 8: 构建 / 调试 / 驱动 / 架构",
+  "level": "Medium",
+  "tags": [
+    "调试 (Debugging)",
+    "HardFault",
+    "逻辑分析仪",
+    "示波器",
+    "断点 (Breakpoint)",
+    "JTAG / SWD",
+    "串口日志",
+    "断言 (Assertion)",
+    "海森堡 Bug (Heisenbug)",
+    "数据竞争"
+  ],
+  "summary": "本章讲解嵌入式系统的系统级调试方法：用串口日志与断言观测软件状态，用 JTAG/SWD 断点与单步查看内存寄存器，用逻辑分析仪和示波器排查数字与模拟信号异常，并分析 HardFault 的调用栈与故障寄存器定位方法。"
+}

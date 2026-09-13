@@ -72,3 +72,8 @@ reports/
 .agent/
 .harness/
 .tmp/
+
+# EmbedLab 数据流水线自动生成产物（每次重跑覆盖，不入库）
+docs/pipeline/logs/
+docs/pipeline/audit.json
+docs/pipeline/results.json

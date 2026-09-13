@@ -1,0 +1,19 @@
+{
+  "id": "stage6_flash",
+  "title": "16. Flash、EEPROM 与文件系统",
+  "category": "Stage 6: 看门狗 / Flash / RTOS / 并发",
+  "level": "Medium",
+  "tags": [
+    "Flash",
+    "EEPROM",
+    "擦除而后写",
+    "扇区擦除",
+    "擦写寿命",
+    "磨损均衡",
+    "掉电安全",
+    "LittleFS",
+    "NVS",
+    "A/B 双区备份"
+  ],
+  "summary": "对比 EEPROM 与 Flash 的读写粒度、寿命与成本差异，讲解 Flash 只能把 1 写成 0、必须按扇区擦除的物理约束，介绍 NVS、FATFS、LittleFS 等存储抽象层，并给出写入频率、总线阻塞与掉电原子性的工程对策。"
+}

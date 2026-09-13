@@ -1,8 +1,7 @@
 import { describe, beforeEach, it, expect } from '@ohos/hypium';
 import { ErrorCode } from '../../main/ets/models/common/ErrorCode';
 import { Result } from '../../main/ets/models/common/Result';
-import { CodeSnippet } from '../../main/ets/models/knowledge/CodeSnippet';
-import { KnowledgeContent, KnowledgeItem } from '../../main/ets/models/knowledge/KnowledgeItem';
+import { ContentBlock, KnowledgeItem } from '../../main/ets/models/knowledge/KnowledgeItem';
 import { KnowledgeMetadata } from '../../main/ets/models/knowledge/KnowledgeMetadata';
 import { RawFileAssetDataSource } from '../../main/ets/datasources/RawFileAssetDataSource';
 import { KnowledgeRepository } from '../../main/ets/repositories/KnowledgeRepository';
@@ -45,22 +44,14 @@ class MockDataSource extends RawFileAssetDataSource {
   }
 
   private static detail(): KnowledgeItem {
-    const snippet: CodeSnippet = {
-      language: 'C',
-      code: 'HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);',
-      description: '初始化 GPIO 引脚'
-    };
-    const content: KnowledgeContent = {
-      prerequisite: '具备 C 语言基础',
-      objective: '掌握 GPIO 工作模式',
-      concept: '通用输入输出端口',
-      principle: '通过寄存器配置引脚方向与电平',
-      example: snippet,
-      experiment: '点亮一颗 LED',
-      tips: '注意上下拉配置',
-      commonErrors: '忘记使能时钟',
-      keyPoints: ['输入模式', '输出模式']
-    };
+    // 适配 contentBlocks 动态富文本契约（替代已废弃的 content 九宫格结构）
+    const blocks: ContentBlock[] = [
+      { type: 'header', content: '核心概念' },
+      { type: 'text', content: '通用输入输出端口' },
+      { type: 'code', content: 'HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);', language: 'C' },
+      { type: 'image', content: 'database/images/gpio/pinmode.png' },
+      { type: 'warning', content: '忘记使能时钟会导致配置不生效' }
+    ];
     const item: KnowledgeItem = {
       id: TEST_ID,
       title: 'GPIO 基础原理与工作模式',
@@ -70,7 +61,7 @@ class MockDataSource extends RawFileAssetDataSource {
       summary: '测试用元数据摘要',
       images: ['knowledge/gpio/pinmode.png'],
       relatedProjectIds: ['proj_led_blink'],
-      content: content
+      contentBlocks: blocks
     };
     return item;
   }

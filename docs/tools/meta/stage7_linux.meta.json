@@ -1,0 +1,18 @@
+{
+  "id": "stage7_linux",
+  "title": "21. 嵌入式 Linux",
+  "category": "Stage 7: 网络 / MQTT / 嵌入式 Linux / Bootloader",
+  "level": "Hard",
+  "tags": [
+    "嵌入式 Linux",
+    "MMU",
+    "虚拟内存",
+    "进程隔离",
+    "RootFS",
+    "设备树",
+    "交叉编译",
+    "PREEMPT_RT",
+    "内核态"
+  ],
+  "summary": "本章介绍面向 MPU/SoC 裁剪定制的嵌入式 Linux，拆解引导程序、内核与设备树、根文件系统、应用四大件，重点说明 MMU 与虚拟内存带来的进程隔离，对比 RTOS 与 Linux 在实时性、成本、启动时间上的权衡，并提示驱动开发、实时补丁与交叉编译等要点。"
+}
