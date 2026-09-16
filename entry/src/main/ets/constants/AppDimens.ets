@@ -34,4 +34,7 @@ export class AppDimens {
   static readonly FONT_SIZE_BODY: number = 14;
   /** 辅助说明字号 */
   static readonly FONT_SIZE_CAPTION: number = 12;
+
+  /** 全屏图片预览的关闭字形尺寸（与详情页标题栏星标 22 保持同一视觉量级） */
+  static readonly FONT_SIZE_CLOSE_GLYPH: number = 22;
 }

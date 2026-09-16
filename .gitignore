@@ -77,3 +77,4 @@ reports/
 docs/pipeline/logs/
 docs/pipeline/audit.json
 docs/pipeline/results.json
+.temp_screenshots/

@@ -5,6 +5,7 @@ import { ContentBlock, KnowledgeItem } from '../../models/knowledge/KnowledgeIte
 import { KnowledgeDetailParams } from '../../models/knowledge/KnowledgeDetailParams';
 import { KnowledgeDetailViewModel } from '../../viewmodels/KnowledgeDetailViewModel';
 import { GeekCodeBlock } from './components/GeekCodeBlock';
+import { ImageViewerOverlay } from './components/ImageViewerOverlay';
 import { Logger } from '../../utils/logger/Logger';
 
 const MODULE_TAG: string = 'KnowledgeDetailPage';
@@ -28,6 +29,15 @@ const GLYPH_STAR_FILLED: string = '★';
 const GLYPH_STAR_OUTLINE: string = '☆';
 /** 标题栏星标字号 */
 const FAVORITE_GLYPH_SIZE: number = 22;
+/**
+ * 图片块最小点击热区高度（vp）。
+ * 说明：官方 Code Linter 规则要求「主要交互元素可点击热区至少 48vp×48vp（推荐），不得小于 40vp×40vp」。
+ *      超宽图（如 stage5_adc_sensor 宽高比 12.06）在手机竖屏下渲染高仅约 30vp，点击容错≈0，
+ *      故对承载图片的 Column 施加最小高度约束以扩大热区；图片本身用 ImageFit.Contain，
+ *      官方语义为「保持宽高比…完全显示在显示边界内」，故视觉尺寸不变形，仅在下方留白。
+ *      取值 = AppDimens.SPACING_XL(24) × 2 = 48vp，直接对齐官方推荐值，不引入新的魔法数字。
+ */
+const MIN_IMAGE_TAP_HEIGHT: number = AppDimens.SPACING_XL * 2;
 
 /**
  * 知识详情页。
@@ -63,6 +73,15 @@ export struct KnowledgeDetailPage {
    */
   @State isFav: boolean = false;
 
+  /**
+   * 全屏图片预览开关（Milestone 3.5）。
+   * 说明：经 $$ 双向绑定下沉至 bindContentCover 的 isShow（该参数官方自 API 10 起支持 $$，
+   *      且本页 @Builder 内的组件调用不使用 $$，改为单向 @Prop + onRequestClose 回调上行）。
+   */
+  @State isPreviewOpen: boolean = false;
+  /** 待预览图片的 rawfile 相对路径（与 image 块 content 同源，不做任何拼接） */
+  @State previewPath: string = '';
+
   build() {
     NavDestination() {
       Column() {
@@ -79,6 +98,10 @@ export struct KnowledgeDetailPage {
       .width('100%')
       .height('100%')
       .backgroundColor(AppColors.BACKGROUND)
+      // M3.5-d：全页唯一 bindContentCover 绑定点（本 Column 为 NavDestination 唯一直接子节点，
+      // 且不随 uiStatus 分支与 ForEach 重复）。此前每个 image 块各挂一个绑定却共享同一
+      // @State isPreviewOpen，属官方未定义行为，是"成功章节无规律"的根因。
+      .bindContentCover($$this.isPreviewOpen, this.previewOverlay(), ModalTransition.DEFAULT)
     }
     .title(this.navTitle)
     .menus(this.favoriteMenu)
@@ -273,13 +296,60 @@ export struct KnowledgeDetailPage {
       .copyOption(CopyOptions.InApp)
   }
 
-  /** image 块：直接以 block.content 作为 rawfile 路径，不做任何字符串拼接。 */
+  /**
+   * image 块：直接以 block.content 作为 rawfile 路径，不做任何字符串拼接。
+   * Milestone 3.5-d（结构收敛）：
+   *  - 本块**不再挂载 bindContentCover**（全页唯一点已上移至 build() 的根 Column），只保留点击触发。
+   *  - 承载 Column 施加 MIN_IMAGE_TAP_HEIGHT 最小高度约束：图片视觉尺寸不变（ImageFit.Contain
+   *    官方语义为保持宽高比、完全显示在边界内），但可点击热区不低于官方 48vp 推荐值。
+   */
   @Builder
   blockImage(path: string) {
-    Image($rawfile(path))
-      .width('100%')
-      .objectFit(ImageFit.Contain)
-      .borderRadius(AppDimens.RADIUS_SM)
+    Column() {
+      Image($rawfile(path))
+        .width('100%')
+        .objectFit(ImageFit.Contain)
+        .borderRadius(AppDimens.RADIUS_SM)
+    }
+    .width('100%')
+    .constraintSize({ minHeight: MIN_IMAGE_TAP_HEIGHT })
+    .onClick(() => {
+      this.openPreview(path);
+    })
+  }
+
+  /**
+   * 全模态预览内容（唯一根节点为叠加层组件）。
+   * 说明：关闭语义留在本页——叠加层点击关闭时经 onRequestClose 回调上行，
+   *      由本页把 isPreviewOpen 置 false，bindContentCover 随即收起全模态页面。
+   *      故子组件只需 @Prop 单向接收，不使用 @Link（@Builder 内传 $$ 双向绑定不被接受）。
+   */
+  @Builder
+  previewOverlay() {
+    ImageViewerOverlay({
+      isOpen: this.isPreviewOpen,
+      path: this.previewPath,
+      onRequestClose: (): void => {
+        this.closePreview();
+      }
+    })
+  }
+
+  /** 打开全屏预览：先落盘路径再翻转开关，保证叠加层以正确图片入帧。 */
+  private openPreview(path: string): void {
+    if (path.length === 0) {
+      Logger.warn(MODULE_TAG, 'openPreview: empty image path, ignored');
+      return;
+    }
+    this.previewPath = path;
+    this.isPreviewOpen = true;
+    Logger.info(MODULE_TAG, `open preview: ${path}`);
+  }
+
+  /** 关闭全屏预览（由叠加层的关闭请求回调触发）。 */
+  private closePreview(): void {
+    this.isPreviewOpen = false;
+    Logger.info(MODULE_TAG, 'preview closed by user request');
   }
 
   /** warning 块：浅色底 + 圆角 + 醒目前缀。 */

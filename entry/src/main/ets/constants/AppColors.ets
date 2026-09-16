@@ -23,4 +23,8 @@ export class AppColors {
   static readonly DIVIDER: string = '#E5E5E5';
   /** 收藏激活色（金色）：详情页星标已收藏态、Learn 列表收藏标记 */
   static readonly FAVORITE_ACTIVE: string = '#F5A623';
+  /** 全屏图片预览底色（纯黑，最大化图片对比度） */
+  static readonly OVERLAY_BACKDROP: string = '#000000';
+  /** 全屏图片预览的关闭字形颜色（浅灰，在纯黑底上保持可辨识） */
+  static readonly OVERLAY_CLOSE: string = '#E5E5E5';
 }
