@@ -8,6 +8,7 @@ import { RepositoryProvider } from '../utils/providers/RepositoryProvider';
 import { KnowledgeRepository } from '../repositories/KnowledgeRepository';
 import { Result, Failure } from '../models/common/Result';
 import { KnowledgeMetadata } from '../models/knowledge/KnowledgeMetadata';
+import { AppStorageKeys } from '../constants/AppStorageKeys';
 
 const MODULE_TAG: string = 'EntryAbility';
 /** 链路预热日志域（按任务约定固定为 0x0000） */
@@ -30,8 +31,9 @@ export default class EntryAbility extends UIAbility {
     // 日志门面初始化：Debug 构建保留 DEBUG 输出，Release 构建改用 LogLevel.INFO 即可收敛日志。
     Logger.configure(this.context.abilityInfo.bundleName, LogLevel.DEBUG);
     // 注入全局 ApplicationContext，供后续里程碑的 Provider 取用。
-    // 键名 'appContext' 由 MainPage 读取，二者共同构成进程级 Context 交付契约。
-    AppStorage.setOrCreate('appContext', this.context.getApplicationContext());
+    // 键名 AppStorageKeys.APP_CONTEXT：进程级 Context 交付契约预留，当前无读取方。
+    // MainPage 经 getUIContext().getHostContext() 取 Context，不使用此键。
+    AppStorage.setOrCreate(AppStorageKeys.APP_CONTEXT, this.context.getApplicationContext());
     Logger.info(MODULE_TAG, 'onCreate: application context stored');
     // 注入真实设备 Context.resourceManager，打通 RawFile 底层读取能力。
     this.warmUpKnowledgeChain();

@@ -13,4 +13,14 @@ export class AppStorageKeys {
   static readonly FAVORITES_VERSION: string = 'embedlab_favorites_version';
   /** 阅读历史版本号（UserStore.updateHistory / initialize 写入，页面 @StorageLink 监听） */
   static readonly HISTORY_VERSION: string = 'embedlab_history_version';
+
+  // 注：APP_CONTEXT / LOG_LEVEL / LOG_BUNDLE_NAME 为历史遗留键值
+  //     （camelCase 无前缀），与上方 embedlab_* 风格不一致。
+  //     键值属数据契约，不做重命名以免触发回归。
+  /** 应用级 Context（EntryAbility 写入；当前无读取方，契约预留） */
+  static readonly APP_CONTEXT: string = 'appContext';
+  /** Logger 最小日志级别 */
+  static readonly LOG_LEVEL: string = 'logLevel';
+  /** Logger 包名标签 */
+  static readonly LOG_BUNDLE_NAME: string = 'logBundleName';
 }

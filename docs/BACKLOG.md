@@ -44,6 +44,17 @@ Last Update: 2026-09-13
       替代验证：生产路径已由 `I/MainPage: user state hydrated: fav=N hist=M` 日志覆盖。
       裁决：**3.4 收口时暂留**，待 3.5 完成后统一决策（删除 / 转为 docs 下的说明文档）。
 
+- [ ] 5 个未引用资产待处置：
+  - WarShip STM32F1_V3.4_SCH.pdf (711 KB)
+  - gpio_key_sch.png / i2c_pullup_sch.png / power_ldo_sch.png / uart_ch340_sch.png
+  建议：4 张原理图考虑"补引用"，PDF 建议删除。
+  来源：M35_DIAGNOSE.md 第 4 节。
+
+- [ ] stage5_adc_sensor_diagram (1568x130) 与 stage9_tinyml_diagram (1568x176)
+  两张超宽图在手机竖屏上即使全屏预览也仅约 30~40vp 高。
+  建议按语义拆成 2~4 张子图重渲（属 3.5-c）。
+  触发条件：用户反馈"看不清"时立项。
+
 ---
 
 ## P3（接受现状 / 长期观察）
@@ -69,6 +80,9 @@ Last Update: 2026-09-13
       绝对字号已从 16px 提升至 20px，相对增益受标签长度与画布尺寸约束，接受现状。
       来源：Mermaid 字号优化 v3 阶段结论。
 
+- [ ] ImageViewerOverlay 超宽图下方留白 8~18vp（候选 A 的代价，
+  如需消除可升级到候选 C：加"点击查看大图"提示行）
+
 ---
 
 ## 已关闭（保留追溯）
@@ -84,6 +98,10 @@ Last Update: 2026-09-13
       HarmonyOS 的 `resources/base/media/` 不支持子目录，导致 assembleHap 资源扫描失败；
       已整体迁移至 `rawfile/database/images/knowledge/`（内容零改动）。
 - [x] **PushPathByName onPop 死代码移除**（随 3.4-fix3 一并清理）
+
+- [x] M3.5 图片全屏预览 + 双指缩放（真机验证通过，几天使用无问题）
+- [x] bindContentCover 多绑定未定义行为（收敛为全页唯一绑定）
+- [x] image 块点击热区不足 40vp（候选 A constraintSize 修复）
 
 ---
 

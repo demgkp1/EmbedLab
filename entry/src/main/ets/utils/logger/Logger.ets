@@ -1,12 +1,9 @@
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { LogLevel } from './LogLevel';
+import { AppStorageKeys } from '../../constants/AppStorageKeys';
 
 /** hilog 业务域标识（十六进制）。 */
 const DOMAIN: number = 0x9527;
-/** AppStorage 中记录全局日志等级的键，由应用入口唯一写入。 */
-const LOG_LEVEL_KEY: string = 'logLevel';
-/** AppStorage 中记录应用 bundleName 的键，由应用入口唯一写入。 */
-const BUNDLE_NAME_KEY: string = 'logBundleName';
 
 /**
  * 统一日志门面。
@@ -25,8 +22,8 @@ export class Logger {
    * @param minLevel 最低输出等级
    */
   static configure(bundleName: string, minLevel: LogLevel): void {
-    AppStorage.setOrCreate<string>(BUNDLE_NAME_KEY, bundleName);
-    AppStorage.setOrCreate<LogLevel>(LOG_LEVEL_KEY, minLevel);
+    AppStorage.setOrCreate<string>(AppStorageKeys.LOG_BUNDLE_NAME, bundleName);
+    AppStorage.setOrCreate<LogLevel>(AppStorageKeys.LOG_LEVEL, minLevel);
   }
 
   /** 输出 DEBUG 级别日志，用于开发期链路追踪。 */
@@ -51,13 +48,13 @@ export class Logger {
 
   /** 读取当前生效的最低输出等级；未初始化时按 DEBUG 处理。 */
   private static minLevel(): LogLevel {
-    const configured: LogLevel | undefined = AppStorage.get<LogLevel>(LOG_LEVEL_KEY);
+    const configured: LogLevel | undefined = AppStorage.get<LogLevel>(AppStorageKeys.LOG_LEVEL);
     return configured === undefined ? LogLevel.DEBUG : configured;
   }
 
   /** 读取日志域标识；未初始化时回退为占位包名。 */
   private static domain(): string {
-    const configured: string | undefined = AppStorage.get<string>(BUNDLE_NAME_KEY);
+    const configured: string | undefined = AppStorage.get<string>(AppStorageKeys.LOG_BUNDLE_NAME);
     return configured === undefined ? 'EmbedLab' : configured;
   }
 
