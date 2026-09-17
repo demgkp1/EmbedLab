@@ -27,4 +27,6 @@ export class AppColors {
   static readonly OVERLAY_BACKDROP: string = '#000000';
   /** 全屏图片预览的关闭字形颜色（浅灰，在纯黑底上保持可辨识） */
   static readonly OVERLAY_CLOSE: string = '#E5E5E5';
+  /** 警示块浅色背景（warning 块专用） */
+  static readonly WARNING_BG: string = '#FFF7E6';
 }

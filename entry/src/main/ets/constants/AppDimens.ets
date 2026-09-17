@@ -37,4 +37,9 @@ export class AppDimens {
 
   /** 全屏图片预览的关闭字形尺寸（与详情页标题栏星标 22 保持同一视觉量级） */
   static readonly FONT_SIZE_CLOSE_GLYPH: number = 22;
+
+  /** 正文行高（blockText / blockWarning 共用） */
+  static readonly LINE_HEIGHT_BODY: number = 24;
+  /** 收藏星标字形尺寸（详情页标题栏） */
+  static readonly FAVORITE_GLYPH_SIZE: number = 22;
 }

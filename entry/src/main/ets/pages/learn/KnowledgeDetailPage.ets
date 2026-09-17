@@ -19,16 +19,12 @@ const MSG_RETRY: string = '重新加载';
 const DEFAULT_TITLE: string = '知识详情';
 /** 警示块前缀 */
 const WARNING_PREFIX: string = '⚠️ ';
-/** 警示块浅色底 */
-const WARNING_BG: string = '#FFF7E6';
 /**
  * 收藏星标字形：已收藏 / 未收藏。
  * 说明：收藏激活色已收敛至 AppColors.FAVORITE_ACTIVE（架构原则五「视觉规范集中化」）。
  */
 const GLYPH_STAR_FILLED: string = '★';
 const GLYPH_STAR_OUTLINE: string = '☆';
-/** 标题栏星标字号 */
-const FAVORITE_GLYPH_SIZE: number = 22;
 /**
  * 图片块最小点击热区高度（vp）。
  * 说明：官方 Code Linter 规则要求「主要交互元素可点击热区至少 48vp×48vp（推荐），不得小于 40vp×40vp」。
@@ -120,7 +116,7 @@ export struct KnowledgeDetailPage {
   favoriteMenu() {
     Row() {
       Text(this.isFav ? GLYPH_STAR_FILLED : GLYPH_STAR_OUTLINE)
-        .fontSize(FAVORITE_GLYPH_SIZE)
+        .fontSize(AppDimens.FAVORITE_GLYPH_SIZE)
         .fontColor(this.isFav ? AppColors.FAVORITE_ACTIVE : AppColors.TEXT_SECONDARY)
         .padding({
           left: AppDimens.SPACING_SM,
@@ -291,7 +287,7 @@ export struct KnowledgeDetailPage {
     Text(text)
       .fontSize(AppDimens.FONT_SIZE_BODY)
       .fontColor(AppColors.TEXT_SECONDARY)
-      .lineHeight(24)
+      .lineHeight(AppDimens.LINE_HEIGHT_BODY)
       .width('100%')
       .copyOption(CopyOptions.InApp)
   }
@@ -358,10 +354,10 @@ export struct KnowledgeDetailPage {
     Text(WARNING_PREFIX + text)
       .fontSize(AppDimens.FONT_SIZE_BODY)
       .fontColor(AppColors.TEXT_PRIMARY)
-      .lineHeight(24)
+      .lineHeight(AppDimens.LINE_HEIGHT_BODY)
       .width('100%')
       .padding(AppDimens.SPACING_MD)
-      .backgroundColor(WARNING_BG)
+      .backgroundColor(AppColors.WARNING_BG)
       .borderRadius(AppDimens.RADIUS_MD)
       .copyOption(CopyOptions.InApp)
   }

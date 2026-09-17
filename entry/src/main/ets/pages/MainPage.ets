@@ -1,4 +1,5 @@
 import { AppColors } from '../constants/AppColors';
+import { AppDimens } from '../constants/AppDimens';
 import { AppStrings } from '../constants/AppStrings';
 import { ROUTE_KNOWLEDGE_DETAIL } from '../constants/RouteConstants';
 import { RootTabContainer } from '../components/RootTabContainer';
@@ -115,7 +116,7 @@ struct MainPage {
     NavDestination() {
       Column() {
         Text(AppStrings.PLACEHOLDER_TITLE)
-          .fontSize(16)
+          .fontSize(AppDimens.FONT_SIZE_SUBTITLE)
           .fontColor(AppColors.TEXT_PRIMARY)
       }
       .width('100%')
