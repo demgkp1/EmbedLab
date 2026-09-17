@@ -40,4 +40,42 @@ export class AppStrings {
   static readonly NAV_PROBE_PARAM_EMPTY: string = 'null（本页未传递业务参数）';
   static readonly NAV_PROBE_PUSH_AGAIN: string = '再次 push 本页';
   static readonly NAV_PROBE_POP: string = '返回上一页（pop）';
+
+  /** 收藏星标字形（跨页面复用：详情页标题栏 / Learn 列表标记） */
+  static readonly GLYPH_STAR_FILLED: string = '★';
+  static readonly GLYPH_STAR_OUTLINE: string = '☆';
+
+  /** 通用重试按钮文案（四个页面共用） */
+  static readonly MSG_RETRY: string = '重新加载';
+
+  /** 警示块前缀（详情页 warning 块专用） */
+  static readonly WARNING_PREFIX: string = '⚠️ ';
+
+  /** 知识详情页（KnowledgeDetailPage） */
+  static readonly DETAIL_LOADING: string = '正在加载知识正文…';
+  static readonly DETAIL_EMPTY_TITLE: string = '未找到该知识条目';
+  static readonly DETAIL_EMPTY_DESC: string = '该内容可能已被移除，或 details 目录下缺少对应 JSON 文件。';
+  static readonly DETAIL_ERROR_TITLE: string = '知识正文加载失败';
+  static readonly DETAIL_DEFAULT_TITLE: string = '知识详情';
+
+  /** 知识列表页（LearnPage） */
+  static readonly LEARN_LOADING: string = '正在加载知识库…';
+  static readonly LEARN_EMPTY_TITLE: string = '暂无数据，请检查 rawfile';
+  static readonly LEARN_EMPTY_DESC: string = '未在 resources/rawfile/database/knowledge/index.json 中读到任何知识条目。';
+  static readonly LEARN_ERROR_TITLE: string = '知识索引加载失败';
+
+  /** 我的页（ProfilePage） */
+  static readonly PROFILE_TAB_FAVORITES: string = '我的收藏';
+  static readonly PROFILE_TAB_HISTORY: string = '阅读历史';
+  static readonly PROFILE_LOADING: string = '正在加载…';
+  static readonly PROFILE_EMPTY_FAVORITES_TITLE: string = '还没有收藏';
+  static readonly PROFILE_EMPTY_FAVORITES_DESC: string = '在知识详情页点击右上角星标即可收藏。';
+  static readonly PROFILE_EMPTY_HISTORY_TITLE: string = '暂无阅读记录';
+  static readonly PROFILE_EMPTY_HISTORY_DESC: string = '打开任意知识详情页后会自动记录阅读足迹。';
+  static readonly PROFILE_ERROR_TITLE: string = '数据加载失败';
+
+  /** 极客代码块（GeekCodeBlock） */
+  static readonly CODE_COPY: string = '复制';
+  static readonly CODE_COPIED_TOAST: string = '代码已复制';
+  static readonly CODE_COPY_FAILED_TOAST: string = '复制失败，请重试';
 }

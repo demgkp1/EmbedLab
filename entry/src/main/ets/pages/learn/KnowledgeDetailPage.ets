@@ -1,5 +1,6 @@
 import { AppColors } from '../../constants/AppColors';
 import { AppDimens } from '../../constants/AppDimens';
+import { AppStrings } from '../../constants/AppStrings';
 import { UIStatus } from '../../models/common/UIStatus';
 import { ContentBlock, KnowledgeItem } from '../../models/knowledge/KnowledgeItem';
 import { KnowledgeDetailParams } from '../../models/knowledge/KnowledgeDetailParams';
@@ -10,21 +11,6 @@ import { Logger } from '../../utils/logger/Logger';
 
 const MODULE_TAG: string = 'KnowledgeDetailPage';
 
-/** 页面私有文案 */
-const MSG_LOADING: string = '正在加载知识正文…';
-const MSG_EMPTY: string = '未找到该知识条目';
-const MSG_EMPTY_DESC: string = '该内容可能已被移除，或 details 目录下缺少对应 JSON 文件。';
-const MSG_ERROR: string = '知识正文加载失败';
-const MSG_RETRY: string = '重新加载';
-const DEFAULT_TITLE: string = '知识详情';
-/** 警示块前缀 */
-const WARNING_PREFIX: string = '⚠️ ';
-/**
- * 收藏星标字形：已收藏 / 未收藏。
- * 说明：收藏激活色已收敛至 AppColors.FAVORITE_ACTIVE（架构原则五「视觉规范集中化」）。
- */
-const GLYPH_STAR_FILLED: string = '★';
-const GLYPH_STAR_OUTLINE: string = '☆';
 /**
  * 图片块最小点击热区高度（vp）。
  * 说明：官方 Code Linter 规则要求「主要交互元素可点击热区至少 48vp×48vp（推荐），不得小于 40vp×40vp」。
@@ -61,7 +47,7 @@ export struct KnowledgeDetailPage {
   /** 当前知识 id（onReady 提取后保存，供重试使用） */
   private currentId: string = '';
   /** 标题栏文案（onReady 提取，未传则回退通用标题） */
-  @State navTitle: string = DEFAULT_TITLE;
+  @State navTitle: string = AppStrings.DETAIL_DEFAULT_TITLE;
   /**
    * 收藏态（页面级镜像）。
    * 说明：标题栏星标需即时变色，而 UserStore 为 @Observed 单例、@State 不深层监听其内部属性，
@@ -82,9 +68,9 @@ export struct KnowledgeDetailPage {
     NavDestination() {
       Column() {
         if (this.viewModel.uiStatus === UIStatus.LOADING) {
-          this.stateHint(MSG_LOADING, '')
+          this.stateHint(AppStrings.DETAIL_LOADING, '')
         } else if (this.viewModel.uiStatus === UIStatus.EMPTY) {
-          this.stateHint(MSG_EMPTY, MSG_EMPTY_DESC)
+          this.stateHint(AppStrings.DETAIL_EMPTY_TITLE, AppStrings.DETAIL_EMPTY_DESC)
         } else if (this.viewModel.uiStatus === UIStatus.ERROR) {
           this.errorState()
         } else {
@@ -115,7 +101,7 @@ export struct KnowledgeDetailPage {
   @Builder
   favoriteMenu() {
     Row() {
-      Text(this.isFav ? GLYPH_STAR_FILLED : GLYPH_STAR_OUTLINE)
+      Text(this.isFav ? AppStrings.GLYPH_STAR_FILLED : AppStrings.GLYPH_STAR_OUTLINE)
         .fontSize(AppDimens.FAVORITE_GLYPH_SIZE)
         .fontColor(this.isFav ? AppColors.FAVORITE_ACTIVE : AppColors.TEXT_SECONDARY)
         .padding({
@@ -351,7 +337,7 @@ export struct KnowledgeDetailPage {
   /** warning 块：浅色底 + 圆角 + 醒目前缀。 */
   @Builder
   blockWarning(text: string) {
-    Text(WARNING_PREFIX + text)
+    Text(AppStrings.WARNING_PREFIX + text)
       .fontSize(AppDimens.FONT_SIZE_BODY)
       .fontColor(AppColors.TEXT_PRIMARY)
       .lineHeight(AppDimens.LINE_HEIGHT_BODY)
@@ -393,14 +379,14 @@ export struct KnowledgeDetailPage {
   @Builder
   errorState() {
     Column({ space: AppDimens.SPACING_SM }) {
-      Text(MSG_ERROR)
+      Text(AppStrings.DETAIL_ERROR_TITLE)
         .fontSize(AppDimens.FONT_SIZE_SUBTITLE)
         .fontColor(AppColors.TEXT_PRIMARY)
         .textAlign(TextAlign.Center)
       Text(`${this.viewModel.lastErrorCode}`)
         .fontSize(AppDimens.FONT_SIZE_CAPTION)
         .fontColor(AppColors.TEXT_TERTIARY)
-      Button(MSG_RETRY)
+      Button(AppStrings.MSG_RETRY)
         .fontSize(AppDimens.FONT_SIZE_BODY)
         .backgroundColor(AppColors.PRIMARY)
         .onClick(() => {

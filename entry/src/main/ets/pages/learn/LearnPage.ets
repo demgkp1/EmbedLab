@@ -14,15 +14,6 @@ import { Logger } from '../../utils/logger/Logger';
 
 const MODULE_TAG: string = 'LearnPage';
 
-/** 四态提示文案（页面私有文案，避免污染全局 AppStrings） */
-const MSG_LOADING: string = '正在加载知识库…';
-const MSG_EMPTY_TITLE: string = '暂无数据，请检查 rawfile';
-const MSG_EMPTY_DESC: string = '未在 resources/rawfile/database/knowledge/index.json 中读到任何知识条目。';
-const MSG_ERROR_TITLE: string = '知识索引加载失败';
-const MSG_RETRY: string = '重新加载';
-/** 收藏标记字形与尺寸（颜色统一取自 AppColors.FAVORITE_ACTIVE） */
-const GLYPH_STAR_FILLED: string = '★';
-const FAVORITE_MARK_SIZE: number = 16;
 /** 本页在根 Tabs 中的下标（Home=0 / Learn=1 / Projects=2 / Practice=3 / Profile=4） */
 const LEARN_TAB_INDEX: number = 1;
 
@@ -161,9 +152,9 @@ export struct LearnPage {
       })
 
       if (this.viewModel.uiStatus === UIStatus.LOADING) {
-        this.stateHint(MSG_LOADING, '')
+        this.stateHint(AppStrings.LEARN_LOADING, '')
       } else if (this.viewModel.uiStatus === UIStatus.EMPTY) {
-        this.stateHint(MSG_EMPTY_TITLE, MSG_EMPTY_DESC)
+        this.stateHint(AppStrings.LEARN_EMPTY_TITLE, AppStrings.LEARN_EMPTY_DESC)
       } else if (this.viewModel.uiStatus === UIStatus.ERROR) {
         this.errorState()
       } else {
@@ -204,8 +195,8 @@ export struct LearnPage {
 
               // 收藏标记：仅已收藏时显示，轻量小尺寸不抢主视觉
               if (this.isItemFavorite(item.id)) {
-                Text(GLYPH_STAR_FILLED)
-                  .fontSize(FAVORITE_MARK_SIZE)
+                Text(AppStrings.GLYPH_STAR_FILLED)
+                  .fontSize(AppDimens.FAVORITE_MARK_SIZE)
                   .fontColor(AppColors.FAVORITE_ACTIVE)
               }
             }
@@ -251,14 +242,14 @@ export struct LearnPage {
   @Builder
   errorState() {
     Column({ space: AppDimens.SPACING_SM }) {
-      Text(MSG_ERROR_TITLE)
+      Text(AppStrings.LEARN_ERROR_TITLE)
         .fontSize(AppDimens.FONT_SIZE_SUBTITLE)
         .fontColor(AppColors.TEXT_PRIMARY)
         .textAlign(TextAlign.Center)
       Text(`${this.viewModel.lastErrorCode}`)
         .fontSize(AppDimens.FONT_SIZE_CAPTION)
         .fontColor(AppColors.TEXT_TERTIARY)
-      Button(MSG_RETRY)
+      Button(AppStrings.MSG_RETRY)
         .fontSize(AppDimens.FONT_SIZE_BODY)
         .backgroundColor(AppColors.PRIMARY)
         .onClick(() => {

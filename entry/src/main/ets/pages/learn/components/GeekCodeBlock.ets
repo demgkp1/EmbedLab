@@ -1,6 +1,7 @@
 import pasteboard from '@ohos.pasteboard';
 import { promptAction } from '@kit.ArkUI';
 import { AppDimens } from '../../../constants/AppDimens';
+import { AppStrings } from '../../../constants/AppStrings';
 import { Logger } from '../../../utils/logger/Logger';
 
 const MODULE_TAG: string = 'GeekCodeBlock';
@@ -17,9 +18,6 @@ const COPY_BTN_FG: string = '#CCCCCC';
 const COPY_BTN_ACTIVE_BG: string = '#3A3A3A';
 /** 复制按钮绝对定位偏移（vp） */
 const COPY_BTN_OFFSET: number = 8;
-/** 轻提示文案 */
-const TOAST_COPIED: string = '代码已复制';
-const TOAST_FAILED: string = '复制失败，请重试';
 
 /**
  * 极客代码块组件。
@@ -63,7 +61,7 @@ export struct GeekCodeBlock {
       .padding(AppDimens.SPACING_MD)
 
       // 极简复制按钮（绝对定位右上角）
-      Text('复制')
+      Text(AppStrings.CODE_COPY)
         .fontSize(AppDimens.FONT_SIZE_CAPTION)
         .fontColor(COPY_BTN_FG)
         .backgroundColor(COPY_BTN_BG)
@@ -96,17 +94,17 @@ export struct GeekCodeBlock {
       const data: pasteboard.PasteData = pasteboard.createPlainTextData(this.code);
       pasteboard.getSystemPasteboard().setData(data)
         .then(() => {
-          this.toast(TOAST_COPIED);
+          this.toast(AppStrings.CODE_COPIED_TOAST);
           Logger.info(MODULE_TAG, `copied ${this.code.length} chars verbatim`);
         })
         .catch((err: Object) => {
           const message: string = err instanceof Error ? err.message : `${err}`;
-          this.toast(TOAST_FAILED);
+          this.toast(AppStrings.CODE_COPY_FAILED_TOAST);
           Logger.error(MODULE_TAG, `copy failed: ${message}`);
         });
     } catch (err) {
       const message: string = err instanceof Error ? err.message : `${err}`;
-      this.toast(TOAST_FAILED);
+      this.toast(AppStrings.CODE_COPY_FAILED_TOAST);
       Logger.error(MODULE_TAG, `copy threw: ${message}`);
     }
   }

@@ -42,4 +42,10 @@ export class AppDimens {
   static readonly LINE_HEIGHT_BODY: number = 24;
   /** 收藏星标字形尺寸（详情页标题栏） */
   static readonly FAVORITE_GLYPH_SIZE: number = 22;
+  /**
+   * 收藏标记字形尺寸（Learn 列表卡片）。
+   * 说明：与 FAVORITE_GLYPH_SIZE(22) 语义不同 —— 前者是列表内联标记，后者是标题栏按钮，
+   *      二者不可合并为同一常量。
+   */
+  static readonly FAVORITE_MARK_SIZE: number = 16;
 }

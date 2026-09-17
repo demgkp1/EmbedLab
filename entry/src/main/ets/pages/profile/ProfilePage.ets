@@ -11,16 +11,6 @@ import { Logger } from '../../utils/logger/Logger';
 
 const MODULE_TAG: string = 'ProfilePage';
 
-/** 页面私有文案 */
-const TAB_LABEL_FAVORITES: string = '我的收藏';
-const TAB_LABEL_HISTORY: string = '阅读历史';
-const MSG_LOADING: string = '正在加载…';
-const MSG_EMPTY_FAVORITES_TITLE: string = '还没有收藏';
-const MSG_EMPTY_FAVORITES_DESC: string = '在知识详情页点击右上角星标即可收藏。';
-const MSG_EMPTY_HISTORY_TITLE: string = '暂无阅读记录';
-const MSG_EMPTY_HISTORY_DESC: string = '打开任意知识详情页后会自动记录阅读足迹。';
-const MSG_ERROR_TITLE: string = '数据加载失败';
-const MSG_RETRY: string = '重新加载';
 /** 本页在根 Tabs 中的下标（Home=0 / Learn=1 / Projects=2 / Practice=3 / Profile=4） */
 const PROFILE_TAB_INDEX: number = 4;
 
@@ -152,7 +142,7 @@ export struct ProfilePage {
       })
 
       if (this.viewModel.uiStatus === UIStatus.LOADING) {
-        this.stateHint(MSG_LOADING, '')
+        this.stateHint(AppStrings.PROFILE_LOADING, '')
       } else if (this.viewModel.uiStatus === UIStatus.ERROR) {
         this.errorState()
       } else {
@@ -173,8 +163,8 @@ export struct ProfilePage {
   @Builder
   tabBar() {
     Row({ space: AppDimens.SPACING_SM }) {
-      this.tabPill(0, TAB_LABEL_FAVORITES)
-      this.tabPill(1, TAB_LABEL_HISTORY)
+      this.tabPill(0, AppStrings.PROFILE_TAB_FAVORITES)
+      this.tabPill(1, AppStrings.PROFILE_TAB_HISTORY)
     }
     .width('100%')
     .padding({
@@ -268,11 +258,11 @@ export struct ProfilePage {
   @Builder
   emptyState() {
     Column({ space: AppDimens.SPACING_SM }) {
-      Text(this.viewModel.selectedTab === 1 ? MSG_EMPTY_HISTORY_TITLE : MSG_EMPTY_FAVORITES_TITLE)
+      Text(this.viewModel.selectedTab === 1 ? AppStrings.PROFILE_EMPTY_HISTORY_TITLE : AppStrings.PROFILE_EMPTY_FAVORITES_TITLE)
         .fontSize(AppDimens.FONT_SIZE_SUBTITLE)
         .fontColor(AppColors.TEXT_PRIMARY)
         .textAlign(TextAlign.Center)
-      Text(this.viewModel.selectedTab === 1 ? MSG_EMPTY_HISTORY_DESC : MSG_EMPTY_FAVORITES_DESC)
+      Text(this.viewModel.selectedTab === 1 ? AppStrings.PROFILE_EMPTY_HISTORY_DESC : AppStrings.PROFILE_EMPTY_FAVORITES_DESC)
         .fontSize(AppDimens.FONT_SIZE_BODY)
         .fontColor(AppColors.TEXT_SECONDARY)
         .textAlign(TextAlign.Center)
@@ -308,14 +298,14 @@ export struct ProfilePage {
   @Builder
   errorState() {
     Column({ space: AppDimens.SPACING_SM }) {
-      Text(MSG_ERROR_TITLE)
+      Text(AppStrings.PROFILE_ERROR_TITLE)
         .fontSize(AppDimens.FONT_SIZE_SUBTITLE)
         .fontColor(AppColors.TEXT_PRIMARY)
         .textAlign(TextAlign.Center)
       Text(this.viewModel.lastErrorMessage)
         .fontSize(AppDimens.FONT_SIZE_CAPTION)
         .fontColor(AppColors.TEXT_TERTIARY)
-      Button(MSG_RETRY)
+      Button(AppStrings.MSG_RETRY)
         .fontSize(AppDimens.FONT_SIZE_BODY)
         .backgroundColor(AppColors.PRIMARY)
         .onClick(() => {
