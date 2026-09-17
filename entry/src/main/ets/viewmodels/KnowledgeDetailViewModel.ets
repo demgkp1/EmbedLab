@@ -7,6 +7,7 @@ import { UserRepository } from '../repositories/UserRepository';
 import { RepositoryProvider } from '../utils/providers/RepositoryProvider';
 import { UserStore } from '../stores/UserStore';
 import { Logger } from '../utils/logger/Logger';
+import { AppStrings } from '../constants/AppStrings';
 
 const MODULE_TAG: string = 'KnowledgeDetailViewModel';
 
@@ -42,7 +43,7 @@ export class KnowledgeDetailViewModel {
     const repository: KnowledgeRepository | null = RepositoryProvider.getKnowledgeRepository();
     if (repository === null) {
       this.lastErrorCode = ErrorCode.UNKNOWN;
-      this.lastErrorMessage = '知识仓库尚未完成依赖注入';
+      this.lastErrorMessage = AppStrings.ERROR_REPOSITORY_NOT_READY;
       this.uiStatus = UIStatus.ERROR;
       Logger.error(MODULE_TAG, `load skipped: ${this.lastErrorMessage}`);
       return;

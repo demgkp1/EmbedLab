@@ -19,10 +19,7 @@ export class AppStrings {
   static readonly TAB_PRACTICE: string = '练习';
   static readonly TAB_PROFILE: string = '我的';
 
-  /** 一级 Tab 文案 */
-  static readonly HOME_PLACEHOLDER_TITLE: string = '首页';
-  static readonly HOME_PLACEHOLDER_DESC: string = 'V1 仅保留学习状态入口，后续接入学习进度展示。';
-
+  /** 一级 Tab 文案（Home 已于 Milestone B 点亮为真实页面，其骨架占位文案已移除） */
   static readonly PROJECTS_PLACEHOLDER_TITLE: string = '项目';
   static readonly PROJECTS_PLACEHOLDER_DESC: string = '硬件案例库，V1 阶段保持静态占位。';
 
@@ -78,4 +75,19 @@ export class AppStrings {
   static readonly CODE_COPY: string = '复制';
   static readonly CODE_COPIED_TOAST: string = '代码已复制';
   static readonly CODE_COPY_FAILED_TOAST: string = '复制失败，请重试';
+
+  /** 通用错误文案：知识仓库尚未完成依赖注入（3 个 ViewModel 共用） */
+  static readonly ERROR_REPOSITORY_NOT_READY: string = '知识仓库尚未完成依赖注入';
+
+  /** Learn 页分类胶囊「全部」项 */
+  static readonly LEARN_CATEGORY_ALL: string = '全部';
+
+  /** 首页（HomePage） */
+  static readonly HOME_WELCOME_DESC: string = '知识体系 · 学习路径 · 实践项目';
+  static readonly HOME_RECENT_HISTORY_TITLE: string = '最近阅读';
+  static readonly HOME_EMPTY_HISTORY: string = '还没有阅读记录';
+  static readonly HOME_FAVORITES_TITLE: string = '收藏概览';
+  static readonly HOME_EMPTY_FAVORITES: string = '还没有收藏';
+  static readonly HOME_FAVORITES_COUNT: string = '已收藏 ';
+  static readonly HOME_QUICK_ENTRY: string = '快捷入口';
 }

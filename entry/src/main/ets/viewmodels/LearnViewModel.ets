@@ -5,10 +5,9 @@ import { KnowledgeMetadata } from '../models/knowledge/KnowledgeMetadata';
 import { KnowledgeRepository } from '../repositories/KnowledgeRepository';
 import { RepositoryProvider } from '../utils/providers/RepositoryProvider';
 import { Logger } from '../utils/logger/Logger';
+import { AppStrings } from '../constants/AppStrings';
 
 const MODULE_TAG: string = 'LearnViewModel';
-/** 分类筛选的「全部」选项文案 */
-const CATEGORY_ALL: string = '全部';
 
 /**
  * 学习模块 ViewModel。
@@ -31,7 +30,7 @@ export class LearnViewModel {
   /** 全量知识元数据列表（与 Repository 的 metadataCache 对应） */
   allList: KnowledgeMetadata[] = [];
   /** 当前选中的分类，默认「全部」 */
-  selectedCategory: string = CATEGORY_ALL;
+  selectedCategory: string = AppStrings.LEARN_CATEGORY_ALL;
   /** 失败时的语义化错误码，用于错误态提示与排障 */
   lastErrorCode: ErrorCode = ErrorCode.UNKNOWN;
   /** 失败原因文本（仅用于日志与错误态副标题） */
@@ -48,7 +47,7 @@ export class LearnViewModel {
     const repository: KnowledgeRepository | null = RepositoryProvider.getKnowledgeRepository();
     if (repository === null) {
       this.lastErrorCode = ErrorCode.UNKNOWN;
-      this.lastErrorMessage = '知识仓库尚未完成依赖注入';
+      this.lastErrorMessage = AppStrings.ERROR_REPOSITORY_NOT_READY;
       this.uiStatus = UIStatus.ERROR;
       Logger.error(MODULE_TAG, `load failed: ${this.lastErrorMessage}`);
       return;
@@ -64,7 +63,7 @@ export class LearnViewModel {
       return;
     }
     this.allList = result.data;
-    this.selectedCategory = CATEGORY_ALL;
+    this.selectedCategory = AppStrings.LEARN_CATEGORY_ALL;
     this.uiStatus = result.data.length === 0 ? UIStatus.EMPTY : UIStatus.SUCCESS;
     Logger.info(MODULE_TAG, `load success count=${result.data.length} status=${this.uiStatus}`);
   }
@@ -74,7 +73,7 @@ export class LearnViewModel {
    * @returns 分类文案数组
    */
   categoryList(): string[] {
-    const categories: string[] = [CATEGORY_ALL];
+    const categories: string[] = [AppStrings.LEARN_CATEGORY_ALL];
     for (let index: number = 0; index < this.allList.length; index++) {
       const category: string = this.allList[index].category;
       if (category.length > 0 && !categories.includes(category)) {
@@ -89,7 +88,7 @@ export class LearnViewModel {
    * @returns 过滤后的元数据数组
    */
   visibleList(): KnowledgeMetadata[] {
-    if (this.selectedCategory === CATEGORY_ALL) {
+    if (this.selectedCategory === AppStrings.LEARN_CATEGORY_ALL) {
       return this.allList;
     }
     const filtered: KnowledgeMetadata[] = [];

@@ -3,6 +3,7 @@ import { AppDimens } from '../constants/AppDimens';
 import { AppStrings } from '../constants/AppStrings';
 import { LearnPage } from '../pages/learn/LearnPage';
 import { ProfilePage } from '../pages/profile/ProfilePage';
+import { HomePage } from '../pages/home/HomePage';
 
 /**
  * 根 Tab 容器。
@@ -42,7 +43,7 @@ export struct RootTabContainer {
   build() {
     Tabs({ barPosition: BarPosition.End, index: this.currentIndex }) {
       TabContent() {
-        this.tabPlaceholder(AppStrings.HOME_PLACEHOLDER_TITLE, AppStrings.HOME_PLACEHOLDER_DESC)
+        HomePage()
       }
       .tabBar(this.tabBarBuilder(0, AppStrings.TAB_HOME))
 
