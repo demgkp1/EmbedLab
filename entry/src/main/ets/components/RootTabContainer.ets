@@ -27,21 +27,35 @@ import { HomePage } from '../pages/home/HomePage';
  */
 @Component
 export struct RootTabContainer {
-  /** 当前选中的 Tab 下标 */
-  @State currentIndex: number = 0;
   /**
-   * 跨 Tab 刷新广播源（与 currentIndex 同步）。
-   * 说明：本变量由 Tabs.onChange 回调写入，属于页面私有 UI 状态，
-   *      与 NavPathStack 的情形不同（后者由 Navigation 在渲染期内部写入，故严禁装饰），
-   *      此处使用 @Provide 是安全且必要的。
-   * ⚠️ 变量名刻意不取 tabIndex —— 该名字与 ArkUI CustomComponent 基类内置属性冲突，
-   *    会导致编译报错 "Property 'tabIndex' is not assignable to the same property in base type"。
-   * 广播键固定为 'rootTabIndex'，子页面以同名键 @Consume。
+   * 当前选中的 Tab 下标 —— 同时充当 Tabs.index 的绑定源与跨 Tab 广播源（B-fix-3 方案 A-2）。
+   *
+   * 说明（合并原因，见 B-fix-E1 取证结论）：
+   *  - 此前为两个变量：`@State currentIndex`（Tabs.index 的 $$ 绑定源）与
+   *    `@Provide('rootTabIndex') broadcastTabIndex`（子页面 @Consume 的读写端）。
+   *    二者之间**不存在任何同步机制**，故子页面写入只落到 broadcastTabIndex，
+   *    永远无法驱动 Tabs 切换（断点位于原 L41）。
+   *  - 现合并为同一变量：写入源 = Tabs 绑定源 = 广播源，链路闭合。
+   *
+   * 官方依据：
+   *  - 《@Provide》API 参考：「@Provide装饰的变量作为数据源…当@Provide或@Consume装饰的变量
+   *    发生变化时，变化会自动同步到对方」→ @Provide 自带状态能力，无需叠加 @State。
+   *  - 《@Watch》：「可监听所有装饰器装饰的状态变量」→ 子页面 @Consume + @Watch 仍有效。
+   *  - 《Tabs》index：「从API version 10开始，该参数支持$$双向绑定变量」。
+   *
+   * ⚠️ 变更历史与风险登记：
+   *  - 原实现曾并存两个变量，注释自称「与 currentIndex 同步」，但该同步从未被实现。
+   *  - 变量名刻意不取 tabIndex —— 该名与 ArkUI CustomComponent 基类内置属性冲突，
+   *    会报 "Property 'tabIndex' is not assignable to the same property in base type"。
+   *  - 广播别名固定为 'rootTabIndex'，Learn / Profile / Home 三页以同名键 @Consume。
    */
-  @Provide('rootTabIndex') broadcastTabIndex: number = 0;
+  @Provide('rootTabIndex') currentIndex: number = 0;
 
   build() {
-    Tabs({ barPosition: BarPosition.End, index: this.currentIndex }) {
+    // B-fix（方案 A）：index 使用 $$ 双向绑定，绑定源即上面的 @Provide 变量。
+    // $$ 使 index 由单向升级为双向，故子页面（HomePage）写入 @Consume 的 rootTabIndex
+    // 即可驱动 Tabs 切换，无需 TabsController，也无需下发任何函数。
+    Tabs({ barPosition: BarPosition.End, index: $$this.currentIndex }) {
       TabContent() {
         HomePage()
       }
@@ -74,10 +88,11 @@ export struct RootTabContainer {
     .animationDuration(0)
     .width('100%')
     .height('100%')
-    // 同步真实切换的 index，保证文字高亮响应式刷新；同时广播给子页面触发跨 Tab 刷新
+    // 同步真实切换的 index：合并为单变量后，此处仅需写 currentIndex。
+    // 说明：由 $$ 双向绑定先行写入的值与此处同值，不构成变化，
+    //      故不会触发子页面 @Consume 的 @Watch（无冗余刷新）。
     .onChange((index: number) => {
       this.currentIndex = index;
-      this.broadcastTabIndex = index;
     })
   }
 

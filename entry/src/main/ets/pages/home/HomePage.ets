@@ -31,10 +31,13 @@ const PROFILE_TAB_INDEX: number = 4;
  *  - 严禁在 build() 内修改任何状态变量。
  * 响应式说明（与 ProfilePage 完全同构）：
  *  - 收藏 / 足迹变化由 UserStore 递增 AppStorage 版本号驱动，本页以 @StorageLink + @Watch 接收；
- *  - 切回本 Tab 时由 @Consume('rootTabIndex') + @Watch 触发一次「仅重算、不重取」的刷新。
- * 跨 Tab 切换说明（快捷入口）：
- *  - 根 Tabs 的下标由 RootTabContainer 经 @Provide('rootTabIndex') 提供，本页 @Consume 后写入
- *    即可双向同步回祖先（官方 @Provide/@Consume 为双向数据同步），无需新增任何机制。
+ *  - 从详情页返回本页时由 onPageShow 触发一次「仅重算、不重取」的刷新；
+ *  - 切回本 Tab 时由 @Consume('rootTabIndex') + @Watch 触发一次同语义刷新。
+ * 跨 Tab 切换说明（快捷入口，B-fix 方案 A 定稿）：
+ *  - 初版失效根因：**Tabs 的 index 参数不是双向绑定**，仅改 @Provide 源变量不驱动 Tabs 切换。
+ *  - 现由 RootTabContainer 把 Tabs 的 index 改为 `$$this.currentIndex`（官方自 API 10 起支持
+ *    $$ 双向绑定），本页只需写入 @Consume 的 rootTabIndex 即可驱动切换 —— 无需 TabsController，
+ *    也无需下发任何函数（`@Provide`/`@Consume` 本身禁止装饰 Function 类型）。
  */
 @Component
 export struct HomePage {
@@ -44,7 +47,11 @@ export struct HomePage {
   /** 重绘哨兵：@State 不深层监听类实例内部属性，装配完成后翻转以强制驱动 build()。 */
   @State refreshFlag: boolean = false;
 
-  /** 根 Tabs 当前下标（@Provide/@Consume 双向同步；本页也用它作为快捷入口的写入通道） */
+  /**
+   * 根 Tabs 当前下标（@Provide('rootTabIndex') ↔ @Consume 双向同步）。
+   * 写入即驱动 RootTabContainer 的 Tabs 切换（其 index 已用 $$ 双向绑定），
+   * 故本页的快捷入口直接对它赋值即可。
+   */
   @Consume('rootTabIndex') @Watch('onRootTabChanged') rootTabIndex: number;
 
   /** 收藏版本号（状态驱动刷新，机理与 ProfilePage 一致） */
@@ -81,15 +88,6 @@ export struct HomePage {
     Logger.debug(MODULE_TAG, `history changed, recent=${this.viewModel.recentHistory.length}`);
   }
 
-  /** Tab 切换回调：仅当切回首页时按 UserStore 最新状态重算。 */
-  onRootTabChanged(): void {
-    if (this.rootTabIndex === HOME_TAB_INDEX) {
-      this.viewModel.refreshFromStore();
-      this.refreshFlag = !this.refreshFlag;
-      Logger.debug(MODULE_TAG, 'refresh on tab activated');
-    }
-  }
-
   /** 首次加载：一次性批量取元数据并装配。 */
   private loadItems(): void {
     this.viewModel.loadDisplayItems().then(() => {
@@ -109,10 +107,19 @@ export struct HomePage {
     Logger.info(MODULE_TAG, `push ${RouteConstants.KNOWLEDGE_DETAIL} id=${item.id}`);
   }
 
-  /** 快捷入口：切换根 Tabs 到指定下标（经 @Consume 双向同步回祖先）。 */
-  private switchTab(index: number): void {
-    this.rootTabIndex = index;
-    Logger.info(MODULE_TAG, `quick entry: switch tab to ${index}`);
+  /** 快捷入口点击：写入 @Consume 的 rootTabIndex，驱动根 Tabs 切换（$$ 双向绑定）。 */
+  private onQuickEntry(targetIndex: number): void {
+    this.rootTabIndex = targetIndex;
+    Logger.info(MODULE_TAG, `quick entry: request switch tab to ${targetIndex}`);
+  }
+
+  /** Tab 切换回调：仅当切回首页时按 UserStore 最新状态重算（不重取元数据）。 */
+  onRootTabChanged(): void {
+    if (this.rootTabIndex === HOME_TAB_INDEX) {
+      this.viewModel.refreshFromStore();
+      this.refreshFlag = !this.refreshFlag;
+      Logger.debug(MODULE_TAG, 'refresh on tab activated');
+    }
   }
 
   build() {
@@ -261,7 +268,7 @@ export struct HomePage {
           .backgroundColor(AppColors.PRIMARY)
           .layoutWeight(1)
           .onClick(() => {
-            this.switchTab(LEARN_TAB_INDEX);
+            this.onQuickEntry(LEARN_TAB_INDEX);
           })
         Button(AppStrings.PROFILE_TAB_FAVORITES)
           .fontSize(AppDimens.FONT_SIZE_BODY)
@@ -269,7 +276,7 @@ export struct HomePage {
           .fontColor(AppColors.PRIMARY)
           .layoutWeight(1)
           .onClick(() => {
-            this.switchTab(PROFILE_TAB_INDEX);
+            this.onQuickEntry(PROFILE_TAB_INDEX);
           })
       }
       .width('100%')
