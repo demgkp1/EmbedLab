@@ -1,9 +1,14 @@
 import { AppColors } from '../constants/AppColors';
 import { AppDimens } from '../constants/AppDimens';
 import { AppStrings } from '../constants/AppStrings';
-import { ROUTE_KNOWLEDGE_DETAIL } from '../constants/RouteConstants';
+import { ROUTE_KNOWLEDGE_DETAIL, ROUTE_PROFILE_FAVORITES, ROUTE_PROFILE_HISTORY,
+  ROUTE_PROFILE_SETTINGS, ROUTE_PROFILE_ABOUT } from '../constants/RouteConstants';
 import { RootTabContainer } from '../components/RootTabContainer';
 import { KnowledgeDetailPage } from './learn/KnowledgeDetailPage';
+import { FavoritesPage } from './profile/FavoritesPage';
+import { HistoryPage } from './profile/HistoryPage';
+import { SettingsPage } from './profile/SettingsPage';
+import { AboutPage } from './profile/AboutPage';
 import { DataSourceProvider } from '../utils/providers/DataSourceProvider';
 import { RepositoryProvider } from '../utils/providers/RepositoryProvider';
 import { UserRepository } from '../repositories/UserRepository';
@@ -105,6 +110,14 @@ struct MainPage {
   pageMap(name: string, param: Object) {
     if (name === ROUTE_KNOWLEDGE_DETAIL) {
       KnowledgeDetailPage()
+    } else if (name === ROUTE_PROFILE_FAVORITES) {
+      FavoritesPage()
+    } else if (name === ROUTE_PROFILE_HISTORY) {
+      HistoryPage()
+    } else if (name === ROUTE_PROFILE_SETTINGS) {
+      SettingsPage()
+    } else if (name === ROUTE_PROFILE_ABOUT) {
+      AboutPage()
     } else {
       this.unregisteredRoute(name)
     }

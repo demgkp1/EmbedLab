@@ -90,4 +90,44 @@ export class AppStrings {
   static readonly HOME_EMPTY_FAVORITES: string = '还没有收藏';
   static readonly HOME_FAVORITES_COUNT: string = '已收藏 ';
   static readonly HOME_QUICK_ENTRY: string = '快捷入口';
+
+  /** Profile 二级入口字形（工程无 media 图标资源，统一用 Unicode 字形方案） */
+  static readonly PROFILE_ENTRY_GLYPH_FAVORITES: string = '★';
+  static readonly PROFILE_ENTRY_GLYPH_HISTORY: string = '⏱';
+  static readonly PROFILE_ENTRY_GLYPH_SETTINGS: string = '⚙';
+  static readonly PROFILE_ENTRY_GLYPH_ABOUT: string = 'ⓘ';
+  /** 入口行右侧指示箭头 */
+  static readonly PROFILE_ENTRY_ARROW: string = '›';
+
+  /** Profile 概览卡与二级入口 */
+  static readonly PROFILE_OVERVIEW_TITLE: string = '学习概览';
+  static readonly PROFILE_OVERVIEW_FAVORITES: string = '收藏';
+  static readonly PROFILE_OVERVIEW_HISTORY: string = '已读';
+  static readonly PROFILE_ENTRY_FAVORITES: string = '我的收藏';
+  static readonly PROFILE_ENTRY_HISTORY: string = '阅读历史';
+  static readonly PROFILE_ENTRY_SETTINGS: string = '设置';
+  static readonly PROFILE_ENTRY_ABOUT: string = '关于';
+
+  /** 设置页（取值来源见各常量注释，均为静态常量，非运行时计算） */
+  /** 版本文本：AppScope/app.json5 L6 versionName */
+  static readonly SETTINGS_VERSION_NAME: string = '1.0.0';
+  /** 版本号：AppScope/app.json5 L5 versionCode */
+  static readonly SETTINGS_VERSION_CODE: string = '1000000';
+  /** 构建号：AppScope/app.json5 L7 buildVersion */
+  static readonly SETTINGS_BUILD_VERSION: string = '1';
+  /** 知识索引 sha256 前 8 位：docs/pipeline/STATE.md 记录值（构建产物哈希，非包内数据） */
+  static readonly SETTINGS_INDEX_SHA256_PREFIX: string = '233c11dc';
+  static readonly SETTINGS_LABEL_VERSION: string = '版本';
+  static readonly SETTINGS_LABEL_BUILD: string = '构建号';
+  static readonly SETTINGS_LABEL_INDEX_HASH: string = '索引校验';
+  static readonly SETTINGS_NOTE: string = '以上信息为构建期常量，非运行时计算。';
+
+  /** 关于页 */
+  static readonly ABOUT_APP_NAME_TEXT: string = 'EmbedLab 嵌入式学习平台';
+  static readonly ABOUT_SLOGAN: string = '知识体系 → 学习路径 → 实践项目';
+  static readonly ABOUT_DESC: string = '基于 HarmonyOS NEXT 原生 ArkUI 构建的嵌入式系统学习平台，离线可用。';
+  static readonly ABOUT_SECTION_DATA: string = '内容与数据';
+  static readonly ABOUT_DATA_DESC: string = '知识内容以只读 JSON 资产随包发布，用户收藏与阅读足迹经 Preferences 本地持久化。';
+  static readonly ABOUT_SECTION_TECH: string = '技术架构';
+  static readonly ABOUT_TECH_DESC: string = '单根 Navigation 路由栈 · 四层单向架构（UI → ViewModel → Repository → DataSource）· 静态依赖注入。';
 }

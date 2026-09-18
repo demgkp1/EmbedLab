@@ -4,8 +4,6 @@ import { AppStrings } from '../../constants/AppStrings';
 import { RouteConstants } from '../../constants/RouteConstants';
 import { AppStorageKeys } from '../../constants/AppStorageKeys';
 import { UIStatus } from '../../models/common/UIStatus';
-import { KnowledgeMetadata } from '../../models/knowledge/KnowledgeMetadata';
-import { KnowledgeDetailParams } from '../../models/knowledge/KnowledgeDetailParams';
 import { ProfileViewModel } from '../../viewmodels/ProfileViewModel';
 import { Logger } from '../../utils/logger/Logger';
 
@@ -15,24 +13,29 @@ const MODULE_TAG: string = 'ProfilePage';
 const PROFILE_TAB_INDEX: number = 4;
 
 /**
- * 「我的」页（V1：收藏列表 + 阅读历史）。
+ * 「我的」页（Profile-R 重构版：顶部学习概览卡 + 二级入口列表）。
  *
  * 职责：
- *  - 持有 ProfileViewModel，在 aboutToAppear 触发一次元数据装配；
- *  - 以双 Tab 切换展示收藏 / 历史，各含空态与列表；
- *  - 列表项点击经根 NavPathStack 跳转知识详情。
+ *  - 持有 ProfileViewModel，在 aboutToAppear 触发一次元数据装配（仅用于概览卡计数）；
+ *  - 顶部展示「学习概览」卡：收藏数 / 已读数；
+ *  - 下方为二级入口列表：我的收藏 / 阅读历史 / 设置 / 关于，点击经根 NavPathStack push。
+ * 变更说明（Profile-R）：
+ *  - 原「收藏 / 历史双 Tab + 页内列表」已拆分到 FavoritesPage / HistoryPage 两个二级页；
+ *  - 本页因此删除 tabBar() / tabPill()，以及页内 itemList / itemRow / emptyState；
+ *  - 数据层调用（loadDisplayItems / refreshFromStore）**全部保留**，未删除任何数据逻辑。
  * 分层约束：
  *  - 本页严禁遍历 ID 调 Repository（聚合在 ProfileViewModel 内完成）。
- *  - 本页严禁直接访问 rawfile / Preferences。
+ *  - 本页严禁直接访问 rawfile / Preferences / resourceManager，亦不直连 UserStore。
  *  - 严禁在 build() 内修改任何状态变量。
+ *  - 严禁内嵌 Navigation / 新建 NavPathStack（全应用唯一根栈由 MainPage 持有）。
  * 响应式说明：
  *  - UserStore 为 @Observed 单例，ProfileViewModel 在每次装配时重新读取其最新数组；
- *  - 从详情页返回本页时由 onPageShow 触发一次「仅重算、不重取」的刷新，
- *    以规避 @State 不深层监听类实例内部属性的已知问题。
+ *  - 从详情页返回本页时由 onPageShow 触发一次「仅重算、不重取」的刷新；
+ *  - 切回本 Tab 时由 @Consume('rootTabIndex') + @Watch 触发同语义刷新。
  */
 @Component
 export struct ProfilePage {
-  /** 页面级 ViewModel */
+  /** 页面级 ViewModel（保留：概览卡计数与数据装配均依赖它） */
   @State viewModel: ProfileViewModel = new ProfileViewModel();
 
   /**
@@ -51,7 +54,6 @@ export struct ProfilePage {
   /**
    * 收藏版本号（状态驱动刷新，Milestone 3.4-fix3）。
    * 机理：UserStore 收藏变化 → AppStorage 版本号递增 → 本变量变化 → @Watch 触发刷新。
-   *      与触发场景无关，可覆盖「从 Profile 收藏列表进详情后取消收藏并返回」这一路径。
    * 约束：key 取自 AppStorageKeys 常量，禁止硬编码；@StorageLink 必须带 @Watch。
    */
   @StorageLink(AppStorageKeys.FAVORITES_VERSION)
@@ -60,7 +62,7 @@ export struct ProfilePage {
 
   /**
    * 阅读历史版本号（状态驱动刷新，Milestone 3.4-fix3）。
-   * 机理同收藏版本号：history 变化即驱动历史列表刷新。
+   * 机理同收藏版本号：history 变化即驱动概览卡已读数刷新。
    */
   @StorageLink(AppStorageKeys.HISTORY_VERSION)
   @Watch('onHistoryChanged')
@@ -70,22 +72,22 @@ export struct ProfilePage {
     this.loadItems();
   }
 
-  /** 收藏版本变化：依据 UserStore 最新状态重算展示数组并驱动重绘。 */
+  /** 收藏版本变化：依据 UserStore 最新状态重算概览计数并驱动重绘。 */
   onFavoritesChanged(): void {
     this.viewModel.refreshFromStore();
     this.refreshFlag = !this.refreshFlag;
-    Logger.debug(MODULE_TAG, `favorites changed, list refreshed: count=${this.viewModel.favoriteItems.length}`);
+    Logger.debug(MODULE_TAG, `favorites changed, count=${this.viewModel.favoriteItems.length}`);
   }
 
-  /** 历史版本变化：依据 UserStore 最新状态重算展示数组并驱动重绘。 */
+  /** 历史版本变化：依据 UserStore 最新状态重算概览计数并驱动重绘。 */
   onHistoryChanged(): void {
     this.viewModel.refreshFromStore();
     this.refreshFlag = !this.refreshFlag;
-    Logger.debug(MODULE_TAG, `history changed, list refreshed: count=${this.viewModel.historyItems.length}`);
+    Logger.debug(MODULE_TAG, `history changed, count=${this.viewModel.historyItems.length}`);
   }
 
   /**
-   * Tab 切换回调：仅当切回本页（Profile）时按 UserStore 最新状态重算展示数组。
+   * Tab 切换回调：仅当切回本页（Profile）时按 UserStore 最新状态重算概览计数。
    * 说明：仅重算、不重取元数据（复用 metadataPool），避免无谓的 Repository 调用。
    */
   onRootTabChanged(): void {
@@ -97,7 +99,7 @@ export struct ProfilePage {
   }
 
   /**
-   * 从其他页面返回本页时触发：仅依据 UserStore 最新状态重算展示数组（不重复请求元数据），
+   * 从其他页面返回本页时触发：仅依据 UserStore 最新状态重算概览计数（不重复请求元数据），
    * 随后翻转哨兵驱动重绘。这是跨页收藏联动的关键刷新点。
    */
   onPageShow(): void {
@@ -112,16 +114,18 @@ export struct ProfilePage {
     });
   }
 
-  /** 列表项点击：跳转知识详情。 */
-  private openKnowledgeDetail(item: KnowledgeMetadata): void {
-    const params: KnowledgeDetailParams = { id: item.id, title: item.title };
+  /**
+   * 二级入口点击：经根 NavPathStack push 对应路由（四者均为无参路由，param 传 null）。
+   * 取栈方式与 Profile 原实现一致：queryNavigationInfo()?.pathStack，严禁 new NavPathStack()。
+   */
+  private openRoute(routeName: string): void {
     const stack: NavPathStack | undefined = this.queryNavigationInfo()?.pathStack;
     if (stack === undefined) {
-      Logger.error(MODULE_TAG, `push skipped: root stack unavailable, id=${item.id}`);
+      Logger.error(MODULE_TAG, `push skipped: root stack unavailable, route=${routeName}`);
       return;
     }
-    stack.pushPathByName(RouteConstants.KNOWLEDGE_DETAIL, params);
-    Logger.info(MODULE_TAG, `push ${RouteConstants.KNOWLEDGE_DETAIL} id=${item.id}`);
+    stack.pushPathByName(routeName, null);
+    Logger.info(MODULE_TAG, `push ${routeName}`);
   }
 
   build() {
@@ -146,12 +150,8 @@ export struct ProfilePage {
       } else if (this.viewModel.uiStatus === UIStatus.ERROR) {
         this.errorState()
       } else {
-        this.tabBar()
-        if (this.viewModel.isEmpty()) {
-          this.emptyState()
-        } else {
-          this.itemList()
-        }
+        this.overviewCard()
+        this.entryList()
       }
     }
     .width('100%')
@@ -159,118 +159,93 @@ export struct ProfilePage {
     .backgroundColor(AppColors.BACKGROUND)
   }
 
-  /** 形态切换：收藏 / 历史。 */
+  /** 学习概览卡：收藏数 / 已读数（数据来自 ProfileViewModel，不直连 UserStore）。 */
   @Builder
-  tabBar() {
-    Row({ space: AppDimens.SPACING_SM }) {
-      this.tabPill(0, AppStrings.PROFILE_TAB_FAVORITES)
-      this.tabPill(1, AppStrings.PROFILE_TAB_HISTORY)
+  overviewCard() {
+    Column({ space: AppDimens.SPACING_MD }) {
+      Text(AppStrings.PROFILE_OVERVIEW_TITLE)
+        .fontSize(AppDimens.FONT_SIZE_SUBTITLE)
+        .fontWeight(FontWeight.Bold)
+        .fontColor(AppColors.TEXT_PRIMARY)
+        .width('100%')
+
+      Row({ space: AppDimens.SPACING_XL }) {
+        this.overviewMetric(AppStrings.PROFILE_OVERVIEW_FAVORITES,
+          `${this.viewModel.favoriteItems.length}`, AppColors.FAVORITE_ACTIVE)
+        this.overviewMetric(AppStrings.PROFILE_OVERVIEW_HISTORY,
+          `${this.viewModel.historyItems.length}`, AppColors.PRIMARY)
+      }
+      .width('100%')
+    }
+    .width('100%')
+    .alignItems(HorizontalAlign.Start)
+    .padding(AppDimens.SPACING_LG)
+    .margin({ left: AppDimens.SPACING_LG, right: AppDimens.SPACING_LG })
+    .backgroundColor(AppColors.SURFACE)
+    .borderRadius(AppDimens.RADIUS_MD)
+  }
+
+  /** 单个概览指标：数值 + 标签。 */
+  @Builder
+  overviewMetric(label: string, value: string, accent: string) {
+    Column({ space: AppDimens.SPACING_XS }) {
+      Text(value)
+        .fontSize(AppDimens.FONT_SIZE_TITLE)
+        .fontWeight(FontWeight.Bold)
+        .fontColor(accent)
+      Text(label)
+        .fontSize(AppDimens.FONT_SIZE_CAPTION)
+        .fontColor(AppColors.TEXT_SECONDARY)
+    }
+    .alignItems(HorizontalAlign.Start)
+  }
+
+  /** 二级入口列表：4 行，统一经 entryRow 渲染。 */
+  @Builder
+  entryList() {
+    Column({ space: AppDimens.SPACING_SM }) {
+      this.entryRow(AppStrings.PROFILE_ENTRY_GLYPH_FAVORITES,
+        AppStrings.PROFILE_ENTRY_FAVORITES, RouteConstants.PROFILE_FAVORITES)
+      this.entryRow(AppStrings.PROFILE_ENTRY_GLYPH_HISTORY,
+        AppStrings.PROFILE_ENTRY_HISTORY, RouteConstants.PROFILE_HISTORY)
+      this.entryRow(AppStrings.PROFILE_ENTRY_GLYPH_SETTINGS,
+        AppStrings.PROFILE_ENTRY_SETTINGS, RouteConstants.PROFILE_SETTINGS)
+      this.entryRow(AppStrings.PROFILE_ENTRY_GLYPH_ABOUT,
+        AppStrings.PROFILE_ENTRY_ABOUT, RouteConstants.PROFILE_ABOUT)
     }
     .width('100%')
     .padding({
       left: AppDimens.SPACING_LG,
       right: AppDimens.SPACING_LG,
-      bottom: AppDimens.SPACING_SM
+      top: AppDimens.SPACING_LG,
+      bottom: AppDimens.SPACING_LG
     })
   }
 
-  /** 单个形态胶囊。 */
+  /** 单条入口行：字形 + 文案 + 右箭头。 */
   @Builder
-  tabPill(tab: number, label: string) {
-    Text(label)
-      .fontSize(AppDimens.FONT_SIZE_BODY)
-      .fontWeight(this.viewModel.selectedTab === tab ? FontWeight.Medium : FontWeight.Normal)
-      .fontColor(this.viewModel.selectedTab === tab ? AppColors.PRIMARY : AppColors.TEXT_SECONDARY)
-      .padding({
-        left: AppDimens.SPACING_MD,
-        right: AppDimens.SPACING_MD,
-        top: AppDimens.SPACING_XS,
-        bottom: AppDimens.SPACING_XS
-      })
-      .borderRadius(AppDimens.RADIUS_SM)
-      .backgroundColor(this.viewModel.selectedTab === tab ? AppColors.PRIMARY_LIGHT : AppColors.SURFACE)
-      .onClick(() => {
-        this.viewModel.selectTab(tab);
-      })
-  }
-
-  /** 展示列表（收藏或历史，取决于当前形态）。 */
-  @Builder
-  itemList() {
-    List({ space: AppDimens.SPACING_MD }) {
-      ForEach(this.viewModel.visibleItems(), (item: KnowledgeMetadata) => {
-        ListItem() {
-          this.itemRow(item)
-        }
-      }, (item: KnowledgeMetadata) => `profile-${this.viewModel.selectedTab}-${item.id}`)
-    }
-    .width('100%')
-    .layoutWeight(1)
-    .listDirection(Axis.Vertical)
-    .scrollBar(BarState.Auto)
-    .padding({ left: AppDimens.SPACING_LG, right: AppDimens.SPACING_LG, bottom: AppDimens.SPACING_LG })
-  }
-
-  /** 单条展示项（轻量卡片，避免与 Learn 的 KnowledgeCard 视觉重复）。 */
-  @Builder
-  itemRow(item: KnowledgeMetadata) {
-    Row({ space: AppDimens.SPACING_SM }) {
-      Column({ space: AppDimens.SPACING_XS }) {
-        Text(item.title)
-          .fontSize(AppDimens.FONT_SIZE_SUBTITLE)
-          .fontWeight(FontWeight.Medium)
-          .fontColor(AppColors.TEXT_PRIMARY)
-          .width('100%')
-          .maxLines(2)
-          .textOverflow({ overflow: TextOverflow.Ellipsis })
-        Text(item.category)
-          .fontSize(AppDimens.FONT_SIZE_CAPTION)
-          .fontColor(AppColors.TEXT_SECONDARY)
-          .width('100%')
-          .maxLines(1)
-          .textOverflow({ overflow: TextOverflow.Ellipsis })
-      }
-      .layoutWeight(1)
-      .alignItems(HorizontalAlign.Start)
-
-      Text(item.level)
-        .fontSize(AppDimens.FONT_SIZE_CAPTION)
+  entryRow(glyph: string, label: string, routeName: string) {
+    Row({ space: AppDimens.SPACING_MD }) {
+      Text(glyph)
+        .fontSize(AppDimens.FONT_SIZE_SUBTITLE)
         .fontColor(AppColors.PRIMARY)
-        .backgroundColor(AppColors.PRIMARY_LIGHT)
-        .padding({
-          left: AppDimens.SPACING_SM,
-          right: AppDimens.SPACING_SM,
-          top: AppDimens.SPACING_XS,
-          bottom: AppDimens.SPACING_XS
-        })
-        .borderRadius(AppDimens.RADIUS_SM)
+
+      Text(label)
+        .fontSize(AppDimens.FONT_SIZE_BODY)
+        .fontColor(AppColors.TEXT_PRIMARY)
+        .layoutWeight(1)
+
+      Text(AppStrings.PROFILE_ENTRY_ARROW)
+        .fontSize(AppDimens.FONT_SIZE_SUBTITLE)
+        .fontColor(AppColors.TEXT_TERTIARY)
     }
     .width('100%')
     .padding(AppDimens.SPACING_LG)
     .backgroundColor(AppColors.SURFACE)
     .borderRadius(AppDimens.RADIUS_MD)
     .onClick(() => {
-      this.openKnowledgeDetail(item);
+      this.openRoute(routeName);
     })
-  }
-
-  /** 空态：按当前形态给出对应提示。 */
-  @Builder
-  emptyState() {
-    Column({ space: AppDimens.SPACING_SM }) {
-      Text(this.viewModel.selectedTab === 1 ? AppStrings.PROFILE_EMPTY_HISTORY_TITLE : AppStrings.PROFILE_EMPTY_FAVORITES_TITLE)
-        .fontSize(AppDimens.FONT_SIZE_SUBTITLE)
-        .fontColor(AppColors.TEXT_PRIMARY)
-        .textAlign(TextAlign.Center)
-      Text(this.viewModel.selectedTab === 1 ? AppStrings.PROFILE_EMPTY_HISTORY_DESC : AppStrings.PROFILE_EMPTY_FAVORITES_DESC)
-        .fontSize(AppDimens.FONT_SIZE_BODY)
-        .fontColor(AppColors.TEXT_SECONDARY)
-        .textAlign(TextAlign.Center)
-    }
-    .width('100%')
-    .layoutWeight(1)
-    .justifyContent(FlexAlign.Center)
-    .padding(AppDimens.SPACING_XL)
   }
 
   /** 通用状态提示（LOADING）。 */
@@ -294,7 +269,7 @@ export struct ProfilePage {
     .padding(AppDimens.SPACING_XL)
   }
 
-  /** 错误态：提示 + 错误码 + 重试。 */
+  /** 错误态：提示 + 原因 + 重试。 */
   @Builder
   errorState() {
     Column({ space: AppDimens.SPACING_SM }) {
