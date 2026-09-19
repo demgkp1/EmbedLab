@@ -221,7 +221,7 @@ devecocli log --level I
 
 本项目采用 **Apache License 2.0** 开源。
 
-许可证全文见仓库根目录 [`LICENSE.txt`](LICENSE.txt) 文件。
+许可证全文见仓库根目录 [`LICENSE`](LICENSE) 文件。
 
 ---
 
