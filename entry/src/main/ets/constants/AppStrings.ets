@@ -16,15 +16,6 @@ export class AppStrings {
   static readonly TAB_LEARN: string = '学习';
   static readonly TAB_PROFILE: string = '我的';
 
-  /** 路由基础设施验证入口（Milestone 0 临时脚手架，随 KnowledgeDetailPage 落地后移除） */
-  static readonly NAV_PROBE_ENTRY: string = '验证二级页面路由（push / pop）';
-  static readonly NAV_PROBE_TITLE: string = '路由验证页';
-  static readonly NAV_PROBE_DESC: string = '本页由 NavDestination 承载，压入唯一根 NavPathStack，用于验证 push / pop 基础设施。';
-  static readonly NAV_PROBE_PARAM_PREFIX: string = '路由参数来源：';
-  static readonly NAV_PROBE_PARAM_EMPTY: string = 'null（本页未传递业务参数）';
-  static readonly NAV_PROBE_PUSH_AGAIN: string = '再次 push 本页';
-  static readonly NAV_PROBE_POP: string = '返回上一页（pop）';
-
   /** 收藏星标字形（跨页面复用：详情页标题栏 / Learn 列表标记） */
   static readonly GLYPH_STAR_FILLED: string = '★';
   static readonly GLYPH_STAR_OUTLINE: string = '☆';
