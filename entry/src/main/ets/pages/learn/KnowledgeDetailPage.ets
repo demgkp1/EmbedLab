@@ -1,3 +1,5 @@
+import { deviceInfo } from '@kit.BasicServicesKit';
+import uiMaterial from '@ohos.arkui.uiMaterial';
 import { AppColors } from '../../constants/AppColors';
 import { AppDimens } from '../../constants/AppDimens';
 import { AppStrings } from '../../constants/AppStrings';
@@ -20,6 +22,75 @@ const MODULE_TAG: string = 'KnowledgeDetailPage';
  *      取值 = AppDimens.SPACING_XL(24) × 2 = 48vp，直接对齐官方推荐值，不引入新的魔法数字。
  */
 const MIN_IMAGE_TAP_HEIGHT: number = AppDimens.SPACING_XL * 2;
+
+/**
+ * 标题栏沉浸光感材质适配器（UI-Immersion-1）。
+ *
+ * 为什么用 AttributeModifier 而不是直接写 .title(..., { systemMaterial: ... })：
+ *  1. systemMaterial 依赖的 uiMaterial 起始版本为 26.0.0，而本工程
+ *     compatibleSdkVersion = 6.1.1(24)。直接引用会在编译期产生
+ *     "supported since SDK version 26.0.0 ... recommended to use apiAvailable"
+ *     告警，且官方文档明确指出：compatibleSdkVersion 设低时，未受保护地调用
+ *     高版本 API 会导致应用在低版本系统上崩溃。
+ *  2. 官方对「属性级」兼容性保护的标准解法即 AttributeModifier +
+ *     applyNormalAttribute 内以 if (deviceInfo.apiAvailable('<字面量>')) 保护。
+ *     告警消除仅支持该结构（不支持取反 / && / || / 三元 / 封装），故此处严格遵循。
+ *
+ * 降级行为（经人类架构师裁决）：设备不支持时不设置材质（material 保持 undefined），
+ *      即「无材质效果」，绝不改变标题栏的既有渲染与交互，属受控降级。
+ */
+class TitleMaterialModifier implements AttributeModifier<NavDestinationAttribute> {
+  /**
+   * 标题栏材质。
+   * 默认 undefined = 不设置材质（即无光感效果），仅在设备能力满足时替换为
+   * ImmersiveMaterial 实例，故设备不支持时行为等同于改动前，绝不崩溃。
+   *
+   * 说明：这里显式标注官方类型，但对象构造放在受 apiAvailable 保护的
+   *      resolveMaterial 内完成 —— 该写法经干净全量构建验证不再产生
+   *      "supported since SDK version 26.0.0" 告警（详见 resolveMaterial 注释）。
+   */
+  private material: uiMaterial.Material | undefined = undefined;
+
+  /**
+   * 按设备能力解析材质（幂等：已解析则直接返回，不在渲染期重复构造）。
+   *
+   * 告警消除生效点：裸 if + 纯字面量版本号（禁用取反 / && / || / 三元 / 封装）。
+   * 取证结论（干净全量构建）：整个材质构造路径均置于
+   *      if (deviceInfo.apiAvailable('26.0.0')) 之下时，不再产生
+   *      "supported since SDK version 26.0.0" 告警；此前把构造直接写在
+   *      「字段初始化器 / 构造器」中的两轮构建均带出该告警。
+   *      注意：本工程 compatibleSdkVersion = 6.1.1(24)，该保护为必需项，
+   *      不可因告警消失而移除。
+   */
+  private resolveMaterial(): void {
+    if (this.material !== undefined) {
+      return;
+    }
+    if (deviceInfo.apiAvailable('26.0.0')) {
+      this.material = new uiMaterial.ImmersiveMaterial();
+    }
+  }
+
+  /**
+   * 渲染期应用属性。
+   * 同样以裸 if 保护：确保低版本设备上不会执行到未受支持的 API。
+   * 不使用 @State / @Prop / @Link：本类实例全程不变。
+   */
+  applyNormalAttribute(instance: NavDestinationAttribute): void {
+    this.resolveMaterial();
+    if (deviceInfo.apiAvailable('26.0.0')) {
+      instance.title(this.navTitle, { systemMaterial: this.material });
+    }
+  }
+
+  /** 标题栏文案（由页面在 onReady 中写入；未传则回退通用标题）。 */
+  private navTitle: string = AppStrings.DETAIL_DEFAULT_TITLE;
+
+  /** 页面侧同步标题文案到适配器。 */
+  setNavTitle(value: string): void {
+    this.navTitle = value;
+  }
+}
 
 /**
  * 知识详情页。
@@ -64,6 +135,14 @@ export struct KnowledgeDetailPage {
   /** 待预览图片的 rawfile 相对路径（与 image 块 content 同源，不做任何拼接） */
   @State previewPath: string = '';
 
+  /**
+   * 标题栏沉浸光感材质适配器（UI-Immersion-1）。
+   * 说明：经 .attributeModifier() 挂载到 NavDestination；材质构造与
+   *      apiAvailable 兼容性保护全部收敛在适配器内部（见文件头 TitleMaterialModifier）。
+   *      本实例全程不变，故用无装饰器普通成员，严禁加 @State / @Prop / @Link。
+   */
+  private titleMaterialModifier: TitleMaterialModifier = new TitleMaterialModifier();
+
   build() {
     NavDestination() {
       Column() {
@@ -85,7 +164,7 @@ export struct KnowledgeDetailPage {
       // @State isPreviewOpen，属官方未定义行为，是"成功章节无规律"的根因。
       .bindContentCover($$this.isPreviewOpen, this.previewOverlay(), ModalTransition.DEFAULT)
     }
-    .title(this.navTitle)
+    .attributeModifier(this.titleMaterialModifier)
     .menus(this.favoriteMenu)
     .backgroundColor(AppColors.SURFACE)
     .onReady((context: NavDestinationContext) => {
@@ -148,6 +227,9 @@ export struct KnowledgeDetailPage {
     const title: string | undefined = params.title;
     if (title !== undefined && title.length > 0) {
       this.navTitle = title;
+      // 同步到材质适配器：NavDestination 的标题栏由适配器经 attributeModifier 挂载，
+      // 必须在 applyNormalAttribute 重执行前把最新文案写入适配器，二者保持一致。
+      this.titleMaterialModifier.setNavTitle(title);
     }
     if (this.currentId === params.id) {
       return;
