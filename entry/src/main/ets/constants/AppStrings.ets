@@ -60,6 +60,19 @@ export class AppStrings {
   /** Learn 页分类胶囊「全部」项 */
   static readonly LEARN_CATEGORY_ALL: string = '全部';
 
+  /**
+   * Learn 页难度胶囊「全部」项（C-1 难度筛选）。
+   * 说明：与 LEARN_CATEGORY_ALL 取值相同但**语义不同**（分类维度 vs 难度维度），
+   *      按产品决策 D1 独立成键，避免二者日后各自演化时互相牵连。
+   */
+  static readonly LEARN_LEVEL_ALL: string = '全部';
+  /**
+   * 双维度筛选组合为空时的空态文案（C-1，产品决策 D4）。
+   * 说明：与 LEARN_EMPTY_TITLE（数据源为空）语义严格区分 ——
+   *      前者是「数据在但被筛掉了」，后者是「压根没读到数据」。
+   */
+  static readonly LEARN_EMPTY_FILTERED: string = '当前筛选条件下没有匹配的知识点';
+
   /** 首页（HomePage） */
   static readonly HOME_WELCOME_DESC: string = '知识体系 · 学习路径 · 实践项目';
   static readonly HOME_RECENT_HISTORY_TITLE: string = '最近阅读';

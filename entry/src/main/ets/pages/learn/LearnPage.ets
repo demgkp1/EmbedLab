@@ -14,7 +14,12 @@ import { Logger } from '../../utils/logger/Logger';
 
 const MODULE_TAG: string = 'LearnPage';
 
-/** 本页在根 Tabs 中的下标（Home=0 / Learn=1 / Projects=2 / Practice=3 / Profile=4） */
+/**
+ * 本页在根 Tabs 中的下标。
+ * 说明：UI-Batch-1 后一级 Tab 由 5 个瘦身为 3 个，顺序为
+ *      首页(Home)=0 / 学习(Learn)=1 / 我的(Profile)=2。
+ *      早期注释曾写「Projects=2 / Practice=3 / Profile=4」，已随 Tab 瘦身失效。
+ */
 const LEARN_TAB_INDEX: number = 1;
 
 /**
@@ -166,51 +171,67 @@ export struct LearnPage {
     .backgroundColor(AppColors.BACKGROUND)
   }
 
-  /** SUCCESS 态：分类筛选栏 + 知识卡片列表。 */
+  /** SUCCESS 态：分类筛选栏 + 难度筛选栏 + 知识卡片列表。 */
   @Builder
   successState() {
     Column() {
       CategoryBar({
-        categories: this.viewModel.categoryList(),
+        options: this.viewModel.categoryList(),
         selected: this.viewModel.selectedCategory,
-        onCategorySelected: (category: string) => {
+        onSelected: (category: string) => {
           this.viewModel.selectCategory(category);
         }
       })
 
-      List({ space: AppDimens.SPACING_MD }) {
-        ForEach(this.viewModel.visibleList(), (item: KnowledgeMetadata) => {
-          ListItem() {
-            Row({ space: AppDimens.SPACING_SM }) {
-              // 知识卡片占满剩余宽度
-              Column() {
-                KnowledgeCard({
-                  item: item,
-                  onClickItem: (id: string) => {
-                    this.openKnowledgeDetail(id);
-                  }
-                })
-              }
-              .layoutWeight(1)
+      // 难度筛选栏（C-1）：与分类维度并置，二者为「与」关系，复用同一胶囊组件。
+      CategoryBar({
+        options: this.viewModel.levelList(),
+        selected: this.viewModel.selectedLevel,
+        onSelected: (level: string) => {
+          this.viewModel.selectLevel(level);
+        }
+      })
 
-              // 收藏标记：仅已收藏时显示，轻量小尺寸不抢主视觉
-              if (this.isItemFavorite(item.id)) {
-                Text(AppStrings.GLYPH_STAR_FILLED)
-                  .fontSize(AppDimens.FAVORITE_MARK_SIZE)
-                  .fontColor(AppColors.FAVORITE_ACTIVE)
+      // 空态分流：数据本身非空（uiStatus 已为 SUCCESS），但当前双维度组合无匹配项。
+      // 说明：此处必须保留两条筛选栏可见，用户才能改回其它组合，
+      //      故空态文案渲染在列表位置，而非替换整个 successState。
+      if (this.viewModel.visibleList().length === 0) {
+        this.stateHint(AppStrings.LEARN_EMPTY_FILTERED, '')
+      } else {
+        List({ space: AppDimens.SPACING_MD }) {
+          ForEach(this.viewModel.visibleList(), (item: KnowledgeMetadata) => {
+            ListItem() {
+              Row({ space: AppDimens.SPACING_SM }) {
+                // 知识卡片占满剩余宽度
+                Column() {
+                  KnowledgeCard({
+                    item: item,
+                    onClickItem: (id: string) => {
+                      this.openKnowledgeDetail(id);
+                    }
+                  })
+                }
+                .layoutWeight(1)
+
+                // 收藏标记：仅已收藏时显示，轻量小尺寸不抢主视觉
+                if (this.isItemFavorite(item.id)) {
+                  Text(AppStrings.GLYPH_STAR_FILLED)
+                    .fontSize(AppDimens.FAVORITE_MARK_SIZE)
+                    .fontColor(AppColors.FAVORITE_ACTIVE)
+                }
               }
+              .width('100%')
+              .alignItems(VerticalAlign.Top)
             }
-            .width('100%')
-            .alignItems(VerticalAlign.Top)
-          }
-        }, (item: KnowledgeMetadata) => item.id)
+          }, (item: KnowledgeMetadata) => item.id)
+        }
+        .width('100%')
+        .height('100%')
+        .layoutWeight(1)
+        .listDirection(Axis.Vertical)
+        .scrollBar(BarState.Auto)
+        .padding({ left: AppDimens.SPACING_LG, right: AppDimens.SPACING_LG, bottom: AppDimens.SPACING_LG })
       }
-      .width('100%')
-      .height('100%')
-      .layoutWeight(1)
-      .listDirection(Axis.Vertical)
-      .scrollBar(BarState.Auto)
-      .padding({ left: AppDimens.SPACING_LG, right: AppDimens.SPACING_LG, bottom: AppDimens.SPACING_LG })
     }
     .width('100%')
     .height('100%')

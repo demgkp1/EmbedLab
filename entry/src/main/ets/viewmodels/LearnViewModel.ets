@@ -10,6 +10,16 @@ import { AppStrings } from '../constants/AppStrings';
 const MODULE_TAG: string = 'LearnViewModel';
 
 /**
+ * 难度候选值（写入序）。
+ *
+ * 来源：knowledge/index.json 的 level 字段 —— 实测 34 章仅 3 种取值
+ *      Basic(9) / Medium(15) / Hard(10)，无第四种，故此处静态声明而非从数据推导，
+ *      以保证候选顺序在视觉上由浅入深稳定呈现（推导序会随 JSON 条目顺序漂移）。
+ * 约束：按产品决策 D2，标签直接使用原始值，不做中文映射。
+ */
+const LEVEL_OPTIONS: string[] = ['Basic', 'Medium', 'Hard'];
+
+/**
  * 学习模块 ViewModel。
  *
  * 职责：维护 LearnPage 的 UI 状态（四态流转）、承载用户意图（切换分类、加载数据），
@@ -31,6 +41,8 @@ export class LearnViewModel {
   allList: KnowledgeMetadata[] = [];
   /** 当前选中的分类，默认「全部」 */
   selectedCategory: string = AppStrings.LEARN_CATEGORY_ALL;
+  /** 当前选中的难度，默认「全部」（C-1；与分类维度相互独立，二者为「与」关系） */
+  selectedLevel: string = AppStrings.LEARN_LEVEL_ALL;
   /** 失败时的语义化错误码，用于错误态提示与排障 */
   lastErrorCode: ErrorCode = ErrorCode.UNKNOWN;
   /** 失败原因文本（仅用于日志与错误态副标题） */
@@ -63,7 +75,10 @@ export class LearnViewModel {
       return;
     }
     this.allList = result.data;
+    // 重新加载视为一次全新会话，两个筛选维度一并复位为「全部」，
+    // 避免「重试后仍停留在旧筛选条件」造成的「加载了但看不到内容」困惑。
     this.selectedCategory = AppStrings.LEARN_CATEGORY_ALL;
+    this.selectedLevel = AppStrings.LEARN_LEVEL_ALL;
     this.uiStatus = result.data.length === 0 ? UIStatus.EMPTY : UIStatus.SUCCESS;
     Logger.info(MODULE_TAG, `load success count=${result.data.length} status=${this.uiStatus}`);
   }
@@ -84,17 +99,41 @@ export class LearnViewModel {
   }
 
   /**
-   * 按当前选中分类计算展示列表（计算属性，不产生额外状态）。
+   * 生成难度筛选清单：首项固定为「全部」，后接固定顺序的 Basic / Medium / Hard。
+   *
+   * 说明：与 categoryList() 的「从数据去重推导」不同，难度取值以 LEVEL_OPTIONS
+   *      静态声明为准 —— 候选顺序需稳定（由浅入深），不可随 JSON 条目顺序漂移。
+   *      若某难度档在当前数据中不存在，该档位仍会展示但筛选结果为空，
+   *      此时由页面呈现 LEARN_EMPTY_FILTERED 空态。
+   * @returns 难度文案数组
+   */
+  levelList(): string[] {
+    const levels: string[] = [AppStrings.LEARN_LEVEL_ALL];
+    for (let index: number = 0; index < LEVEL_OPTIONS.length; index++) {
+      levels.push(LEVEL_OPTIONS[index]);
+    }
+    return levels;
+  }
+
+  /**
+   * 按当前选中分类 + 选中难度计算展示列表（计算属性，不产生额外状态）。
+   *
+   * 组合语义：两个维度为**逻辑与**。任一维度为「全部」即视为该维度不过滤；
+   *          两者均为「全部」时不遍历，直接返回 allList（快路径）。
    * @returns 过滤后的元数据数组
    */
   visibleList(): KnowledgeMetadata[] {
-    if (this.selectedCategory === AppStrings.LEARN_CATEGORY_ALL) {
+    const categoryAll: boolean = this.selectedCategory === AppStrings.LEARN_CATEGORY_ALL;
+    const levelAll: boolean = this.selectedLevel === AppStrings.LEARN_LEVEL_ALL;
+    if (categoryAll && levelAll) {
       return this.allList;
     }
     const filtered: KnowledgeMetadata[] = [];
     for (let index: number = 0; index < this.allList.length; index++) {
       const item: KnowledgeMetadata = this.allList[index];
-      if (item.category === this.selectedCategory) {
+      const categoryHit: boolean = categoryAll || item.category === this.selectedCategory;
+      const levelHit: boolean = levelAll || item.level === this.selectedLevel;
+      if (categoryHit && levelHit) {
         filtered.push(item);
       }
     }
@@ -108,6 +147,15 @@ export class LearnViewModel {
   selectCategory(category: string): void {
     this.selectedCategory = category;
     Logger.debug(MODULE_TAG, `category switched to ${category}`);
+  }
+
+  /**
+   * 切换难度筛选（用户意图入口，C-1）。
+   * @param level 目标难度值（LEARN_LEVEL_ALL 或 Basic / Medium / Hard）
+   */
+  selectLevel(level: string): void {
+    this.selectedLevel = level;
+    Logger.debug(MODULE_TAG, `level switched to ${level}`);
   }
 
   /**
