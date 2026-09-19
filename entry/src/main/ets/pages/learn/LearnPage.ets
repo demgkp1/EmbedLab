@@ -175,22 +175,41 @@ export struct LearnPage {
   @Builder
   successState() {
     Column() {
-      CategoryBar({
-        options: this.viewModel.categoryList(),
-        selected: this.viewModel.selectedCategory,
-        onSelected: (category: string) => {
-          this.viewModel.selectCategory(category);
-        }
-      })
+      // 分类筛选排：左侧「分类」标签用于消歧（两排首项均为「全部」）。
+      Row() {
+        Text(AppStrings.LEARN_FILTER_CATEGORY_LABEL)
+          .fontSize(AppDimens.FONT_SIZE_CAPTION)
+          .fontColor(AppColors.TEXT_SECONDARY)
+          .margin({ right: AppDimens.SPACING_SM })
+        CategoryBar({
+          options: this.viewModel.categoryList(),
+          selected: this.viewModel.selectedCategory,
+          onSelected: (category: string) => {
+            this.viewModel.selectCategory(category);
+          }
+        })
+        .layoutWeight(1)
+      }
+      .width('100%')
+      .alignItems(VerticalAlign.Center)
 
-      // 难度筛选栏（C-1）：与分类维度并置，二者为「与」关系，复用同一胶囊组件。
-      CategoryBar({
-        options: this.viewModel.levelList(),
-        selected: this.viewModel.selectedLevel,
-        onSelected: (level: string) => {
-          this.viewModel.selectLevel(level);
-        }
-      })
+      // 难度筛选排（C-1）：与分类维度并置，二者为「与」关系，复用同一胶囊组件。
+      Row() {
+        Text(AppStrings.LEARN_FILTER_LEVEL_LABEL)
+          .fontSize(AppDimens.FONT_SIZE_CAPTION)
+          .fontColor(AppColors.TEXT_SECONDARY)
+          .margin({ right: AppDimens.SPACING_SM })
+        CategoryBar({
+          options: this.viewModel.levelList(),
+          selected: this.viewModel.selectedLevel,
+          onSelected: (level: string) => {
+            this.viewModel.selectLevel(level);
+          }
+        })
+        .layoutWeight(1)
+      }
+      .width('100%')
+      .alignItems(VerticalAlign.Center)
 
       // 空态分流：数据本身非空（uiStatus 已为 SUCCESS），但当前双维度组合无匹配项。
       // 说明：此处必须保留两条筛选栏可见，用户才能改回其它组合，

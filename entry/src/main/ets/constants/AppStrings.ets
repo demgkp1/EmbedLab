@@ -73,6 +73,14 @@ export class AppStrings {
    */
   static readonly LEARN_EMPTY_FILTERED: string = '当前筛选条件下没有匹配的知识点';
 
+  /**
+   * 筛选栏维度标签（UI-Polish-1）。
+   * 存在原因：两条筛选栏的首项都是「全部」，用户无法从胶囊本身区分维度，
+   *          故在每排左侧加一枚小字标签予以消歧。
+   */
+  static readonly LEARN_FILTER_CATEGORY_LABEL: string = '分类';
+  static readonly LEARN_FILTER_LEVEL_LABEL: string = '难度';
+
   /** 首页（HomePage） */
   static readonly HOME_WELCOME_DESC: string = '知识体系 · 学习路径 · 实践项目';
   static readonly HOME_RECENT_HISTORY_TITLE: string = '最近阅读';
