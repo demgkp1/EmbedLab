@@ -12,11 +12,10 @@ import { Logger } from '../../utils/logger/Logger';
 
 const MODULE_TAG: string = 'HomePage';
 
-/** 本页在根 Tabs 中的下标（Home=0 / Learn=1 / Projects=2 / Practice=3 / Profile=4） */
+/** 本页在根 Tabs 中的下标（UI-Batch-1 后为 3 个 Tab：Home=0 / Learn=1 / Profile=2） */
 const HOME_TAB_INDEX: number = 0;
-/** 快捷入口目标下标：学习 / 我的 */
+/** 「学习」快捷入口目标下标（保持切 Tab 行为不变） */
 const LEARN_TAB_INDEX: number = 1;
-const PROFILE_TAB_INDEX: number = 4;
 
 /**
  * 首页（Milestone B：学习概览入口）。
@@ -107,10 +106,27 @@ export struct HomePage {
     Logger.info(MODULE_TAG, `push ${RouteConstants.KNOWLEDGE_DETAIL} id=${item.id}`);
   }
 
-  /** 快捷入口点击：写入 @Consume 的 rootTabIndex，驱动根 Tabs 切换（$$ 双向绑定）。 */
+  /** 「学习」快捷入口：写入 @Consume 的 rootTabIndex，驱动根 Tabs 切换（$$ 双向绑定）。 */
   private onQuickEntry(targetIndex: number): void {
     this.rootTabIndex = targetIndex;
     Logger.info(MODULE_TAG, `quick entry: request switch tab to ${targetIndex}`);
+  }
+
+  /**
+   * 「我的收藏」快捷入口：push 到 Profile 二级页 FavoritesPage（UI-Batch-1 改造）。
+   * 变更原因：原实现是切到 Profile Tab，但 Profile 已重构为「概览 + 二级入口」，
+   *          收藏列表已迁至独立二级页，故此处应直达该页而非只切 Tab。
+   * 取栈方式与 openKnowledgeDetail 完全一致：queryNavigationInfo()?.pathStack；
+   * 严禁 new NavPathStack()、严禁内嵌 Navigation。无参路由，param 传 null。
+   */
+  private openFavorites(): void {
+    const stack: NavPathStack | undefined = this.queryNavigationInfo()?.pathStack;
+    if (stack === undefined) {
+      Logger.error(MODULE_TAG, 'push skipped: root stack unavailable, route=ProfileFavoritesPage');
+      return;
+    }
+    stack.pushPathByName(RouteConstants.PROFILE_FAVORITES, null);
+    Logger.info(MODULE_TAG, `push ${RouteConstants.PROFILE_FAVORITES}`);
   }
 
   /** Tab 切换回调：仅当切回首页时按 UserStore 最新状态重算（不重取元数据）。 */
@@ -276,7 +292,7 @@ export struct HomePage {
           .fontColor(AppColors.PRIMARY)
           .layoutWeight(1)
           .onClick(() => {
-            this.onQuickEntry(PROFILE_TAB_INDEX);
+            this.openFavorites();
           })
       }
       .width('100%')

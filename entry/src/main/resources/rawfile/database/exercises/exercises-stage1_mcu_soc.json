@@ -1,0 +1,116 @@
+{
+  "schemaVersion": "1.0.0",
+  "chapterId": "stage1_mcu_soc",
+  "chapterNo": 4,
+  "chapterTitle": "4. MCU 与 SoC：认识嵌入式世界的大脑",
+  "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+  "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn",
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "extractedAt": "2026-09-13",
+  "exercises": [
+    {
+      "id": "ex-ch04-001",
+      "chapterId": "stage1_mcu_soc",
+      "chapterNo": 4,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材称 MCU 为\"嵌入式系统的心脏\"，并列出其核心功能与关键参数。下列关于 MCU 的描述，哪一项**符合**素材？",
+      "options": [
+        { "key": "A", "text": "MCU 集成了运算控制核心与片上外设（如 ADC、DAC、PWM），可减少外部芯片依赖" },
+        { "key": "B", "text": "MCU 只包含 CPU 内核，所有外设都必须外挂独立芯片" },
+        { "key": "C", "text": "MCU 的主频越高，其内核位数必然越大" },
+        { "key": "D", "text": "MCU 必须搭配 MMU 才能运行程序" }
+      ],
+      "answer": "A",
+      "explanation": "素材在\"片上外设\"一条中明确写道：集成 ADC、DAC、PWM 等功能模块，减少外部芯片依赖。B 与\"集成\"相反；C 把主频（如 STM32F103 为 72MHz）与内核位数（8/32/64 位）两个独立参数强行绑定，素材分别列出二者，并未给出这种必然关系；D 无依据——MMU 是运行通用操作系统（如 Linux）才需要的能力。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#MCU（微控制器）：嵌入式系统的心脏",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch04-002",
+      "chapterId": "stage1_mcu_soc",
+      "chapterNo": 4,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材把内核位数分为\"8 位（适合简单控制）、32 位（主流）、64 位（高性能应用）\"，并列出 ARM Cortex-M、RISC-V、8051/AVR 等典型架构。下列对应关系哪一项**错误**？",
+      "options": [
+        { "key": "A", "text": "8051/AVR — 传统 8 位 MCU，低成本" },
+        { "key": "B", "text": "ARM Cortex-M — 主流低功耗 MCU" },
+        { "key": "C", "text": "RISC-V — 开源架构，可灵活定制" },
+        { "key": "D", "text": "ARM Cortex-M — 只用于 64 位高性能应用" }
+      ],
+      "answer": "D",
+      "explanation": "素材把 Cortex-M 归入\"主流低功耗 MCU\"，并举例 STM32、Nordic nRF 系列，属于 32 位主流阵营；把 64 位与\"高性能应用\"绑定的是另一类内核，而非 Cortex-M 的定位。A、B、C 与素材表述一致。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#1. **核心功能**",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch04-003",
+      "chapterId": "stage1_mcu_soc",
+      "chapterNo": 4,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材把 Flash 分为 NOR 与 NAND 两类：NOR\"读取速度快、支持 XIP（就地执行）、适合代码存储\"，NAND\"容量大、成本低、适合存储大量数据\"。某产品需要 MCU 直接从 Flash **就地执行**代码，同时要外挂一颗芯片保存大量采集数据，下列方案最合理的是？",
+      "options": [
+        { "key": "A", "text": "代码放 NOR（或 MCU 内置 Flash），大数据量放 NAND/SPI Flash" },
+        { "key": "B", "text": "代码放 NAND，大数据量放 NOR" },
+        { "key": "C", "text": "两者都必须放 NAND，因为 NAND 读取速度更快" },
+        { "key": "D", "text": "两者都必须放 NOR，因为 NOR 容量更大、成本更低" }
+      ],
+      "answer": "A",
+      "explanation": "XIP（就地执行）要求存储器可随机快速读取，正是 NOR 的强项；而\"容量大、成本低\"是 NAND 的强项，适合大块数据（素材举例 SSD、SD 卡）。B 恰好把两者的特性对调；C、D 把\"读取速度快\"与\"容量大\"这两个分属 NOR/NAND 的特性错配到同一类器件上。素材还给出典型应用：MCU 内置 Flash（如 STM32F407 含 1MB）与外部 SPI Flash（如 W25Q 系列）。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#1. **Flash存储器**",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch04-004",
+      "chapterId": "stage1_mcu_soc",
+      "chapterNo": 4,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材给出主频示例\"STM32F103 主频 72MHz，STM32H7 主频 480MHz\"，同时把内核位数与片上外设单列为关键参数。仅凭主频数值比较两颗 MCU 的性能，最主要的风险是？",
+      "options": [
+        { "key": "A", "text": "忽略内核架构与存储/总线差异，主频高不等于实际执行效率高" },
+        { "key": "B", "text": "主频与性能毫无关系，该参数没有参考价值" },
+        { "key": "C", "text": "主频只在 8 位 MCU 上有意义，32 位 MCU 不看主频" },
+        { "key": "D", "text": "只要主频相同，两颗 MCU 的外设能力必然相同" }
+      ],
+      "answer": "A",
+      "explanation": "素材把主频、内核位数、片上外设并列为三个独立的关键参数，正说明单看主频不足以判断整机能力：不同内核架构的每周期指令数不同，取指/数据访问还受存储与总线影响。B 走向另一极端（完全否定主频价值）；C、D 均无素材依据，且 D 把主频与\"片上外设\"这两项独立参数混为一谈。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#2. **关键参数**",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch04-005",
+      "chapterId": "stage1_mcu_soc",
+      "chapterNo": 4,
+      "type": "code",
+      "difficulty": "advanced",
+      "question": "MCU 选型时需要按\"最低主频 / 最低 Flash / 最低 SRAM\"三条硬指标从候选列表中筛选。请实现筛选函数：返回**第一个**同时满足三项下限的型号下标；若都不满足返回 `-1`。\n\n要求：\n1. 规格数组中任一字段为负值表示\"数据无效\"，该型号直接跳过；\n2. 采用\"大于或等于\"下限即视为满足；\n3. `list == NULL` 或 `n <= 0` 时返回 `-1`。",
+      "language": "c",
+      "starterCode": "#include <stdint.h>\n\ntypedef struct {\n    const char *name;\n    int mhz;        /* 主频（MHz） */\n    int flash_kb;   /* 片上 Flash（KB） */\n    int sram_kb;    /* 片上 SRAM（KB） */\n} McuSpec;\n\n/*\n * 返回第一个满足三项下限的型号下标；无满足项返回 -1。\n */\nint find_first_match(const McuSpec *list, int n,\n                     int min_mhz, int min_flash_kb, int min_sram_kb)\n{\n    /* TODO: 在此实现 */\n    return -1;\n}",
+      "expectedOutput": "返回首个三项指标均不低于下限的型号下标；无匹配或入参非法时返回 -1。",
+      "testCases": [
+        { "input": "list = {{A,72,512,64},{B,480,1024,1024}}, n = 2, min_mhz = 100, min_flash_kb = 512, min_sram_kb = 64", "expectedOutput": "返回 1（A 主频 72 < 100 被跳过，B 全部满足）" },
+        { "input": "list = {{A,72,512,64}}, n = 1, min_mhz = 72, min_flash_kb = 512, min_sram_kb = 64", "expectedOutput": "返回 0（恰好等于下限视为满足）" },
+        { "input": "list = {{A,-1,512,64}}, n = 1, min_mhz = 72, min_flash_kb = 512, min_sram_kb = 64", "expectedOutput": "返回 -1（存在负值字段，数据无效）" },
+        { "input": "list = NULL, n = 0, min_mhz = 72, min_flash_kb = 512, min_sram_kb = 64", "expectedOutput": "返回 -1" }
+      ],
+      "solutionCode": "#include <stdint.h>\n\ntypedef struct {\n    const char *name;\n    int mhz;\n    int flash_kb;\n    int sram_kb;\n} McuSpec;\n\nint find_first_match(const McuSpec *list, int n,\n                     int min_mhz, int min_flash_kb, int min_sram_kb)\n{\n    if (list == NULL || n <= 0) {\n        return -1;\n    }\n\n    for (int i = 0; i < n; i++) {\n        const McuSpec *s = &list[i];\n\n        if (s->mhz < 0 || s->flash_kb < 0 || s->sram_kb < 0) {\n            continue;\n        }\n        if (s->mhz >= min_mhz && s->flash_kb >= min_flash_kb && s->sram_kb >= min_sram_kb) {\n            return i;\n        }\n    }\n    return -1;\n}",
+      "hints": [
+        "用 `continue` 跳过含负值字段（无效）的型号，再统一做三项下限比较。",
+        "三项条件是\"与\"关系，任一不满足就继续下一个型号。",
+        "注意\"恰好等于下限\"也算满足，比较用 `>=` 而不是 `>`。"
+      ],
+      "explanation": "本题把素材中 MCU 的三项关键参数（主频、片上 Flash、片上 SRAM）转成可测试的选型逻辑。要点：① 先做数据有效性校验再比较，避免把\"未知/无效\"当成\"不满足\"或误判为满足；② 多个约束条件的组合判断要一次判全，避免\"分步过滤\"时改动了返回下标语义；③ 下标返回值与 -1 哨兵值的约定需与调用方一致，这也是嵌入式 API 的常见约定（如返回句柄或错误码）。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#2. **关键参数**",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    }
+  ]
+}

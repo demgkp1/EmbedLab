@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "1.0.0",
+  "chapterId": "stage1_computer",
+  "chapterNo": 2,
+  "chapterTitle": "2. 计算机基础",
+  "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+  "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn",
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "extractedAt": "2026-09-13",
+  "exercises": [
+    {
+      "id": "ex-ch02-001",
+      "chapterId": "stage1_computer",
+      "chapterNo": 2,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材指出\"内存编号（地址）一般用十六进制数字表示\"。十六进制 `0xFF` 对应的十进制值与二进制值分别是？",
+      "options": [
+        { "key": "A", "text": "255，1111 1111" },
+        { "key": "B", "text": "128，1000 0000" },
+        { "key": "C", "text": "15，0000 1111" },
+        { "key": "D", "text": "256，1 0000 0000" }
+      ],
+      "answer": "A",
+      "explanation": "十六进制每位恰好对应 4 个二进制位：`0xFF` = `1111 1111b` = 15×16 + 15 = 255。B 误按\"最高位为 1 的 8 位数\"记为 128；C 只算了一位 F（漏掉另一位）；D 混淆了 0xFF（8 位全 1）与 0x100（9 位，256）。这也解释了为什么寄存器地址/掩码习惯用十六进制书写：一位十六进制 = 4 个引脚/标志位，便于人眼分组。",
+      "sourceRef": "01-C语言基础与进阶/Readme.md#📌 变量（Variable）",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch02-002",
+      "chapterId": "stage1_computer",
+      "chapterNo": 2,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "关于\"位（bit）\"与\"字节（Byte）\"，下列哪项正确？",
+      "options": [
+        { "key": "A", "text": "1 Byte = 8 bit，字节是嵌入式寄存器操作中最常见的组织单位" },
+        { "key": "B", "text": "1 bit = 8 Byte，位是比字节更大的单位" },
+        { "key": "C", "text": "1 Byte = 4 bit，与十六进制一位一一对应" },
+        { "key": "D", "text": "字节与位的换算取决于 MCU 是 8 位还是 32 位内核" }
+      ],
+      "answer": "A",
+      "explanation": "1 Byte 固定为 8 bit。C 把\"1 位十六进制 = 4 bit\"的关系错误地套到了字节上；B 把大小关系颠倒；D 混淆了内核字长与字节定义——无论 8 位还是 32 位内核，1 Byte 都是 8 bit，内核位数影响的是单次运算位宽（如 `uint32_t`）。",
+      "sourceRef": "01-C语言基础与进阶/Readme.md#📌 数据类型（Data Types）",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch02-003",
+      "chapterId": "stage1_computer",
+      "chapterNo": 2,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材给出寄存器位操作宏 `#define SET_BIT(REG, BIT) ((REG) |= (BIT))`。若某寄存器当前值为 `0b0110_0011`，执行 `SET_BIT(REG, (1u << 3))` 后，寄存器值变为？",
+      "options": [
+        { "key": "A", "text": "0b0110_1011，仅第 3 位被置 1，其余位不变" },
+        { "key": "B", "text": "0b0000_1000，其余位被清零" },
+        { "key": "C", "text": "0b0110_0011，值不变" },
+        { "key": "D", "text": "0b0110_0010，第 3 位被清零" }
+      ],
+      "answer": "A",
+      "explanation": "`|=` 是按位或：只要有一边为 1，结果位即为 1，因此只把掩码中为 1 的那一位（第 3 位）置 1，其他位保持原值 → `0110_0011 | 0000_1000 = 0110_1011`。B 是直接赋值（`REG = 掩码`）才会出现的结果，会误伤其他位；C 描述的是掩码本身没对准位；D 描述的是清位操作（`&= ~`）的效果。",
+      "sourceRef": "03-驱动开发与外设编程/README.md#📌 位操作技巧",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch02-004",
+      "chapterId": "stage1_computer",
+      "chapterNo": 2,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材给出 `#define CLEAR_BIT(REG, BIT) ((REG) &= ~(BIT))`。若要\"翻转某一位（原 1 变 0、原 0 变 1）\"，应使用下列哪种写法？",
+      "options": [
+        { "key": "A", "text": "REG ^= (1u << n);" },
+        { "key": "B", "text": "REG |= (1u << n);" },
+        { "key": "C", "text": "REG &= ~(1u << n);" },
+        { "key": "D", "text": "REG = (1u << n);" }
+      ],
+      "answer": "A",
+      "explanation": "按位异或 `^` 的规则是\"相同为 0、不同为 1\"，与 1 异或即翻转该位，与 0 异或即保持不变，因此 `REG ^= (1u << n)` 只翻转第 n 位。B 是置位（`SET_BIT`），C 是清位（`CLEAR_BIT`），D 是直接赋值，会把其他所有位清掉——这是寄存器操作中最常见的误用。",
+      "sourceRef": "03-驱动开发与外设编程/README.md#📌 位操作技巧",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch02-005",
+      "chapterId": "stage1_computer",
+      "chapterNo": 2,
+      "type": "code",
+      "difficulty": "advanced",
+      "question": "寄存器位操作是嵌入式开发的基本功。请实现三个函数，分别完成\"置位、清位、翻转位\"，且**只影响目标位、不动其他位**。\n\n要求：\n1. 位序号 `n` 从 0 开始；若 `n` 不在 `0..31` 范围内，三个函数都必须**原样返回入参 `reg`**（防御非法移位）；\n2. 禁止使用赋值覆盖整个寄存器（即不得写 `reg = (1u << n)`）；\n3. 返回值类型统一为 `uint32_t`。",
+      "language": "c",
+      "starterCode": "#include <stdint.h>\n\n/* 把 reg 的第 n 位置 1，其他位不变 */\nuint32_t set_bit(uint32_t reg, int n)\n{\n    /* TODO */\n    return reg;\n}\n\n/* 把 reg 的第 n 位清 0，其他位不变 */\nuint32_t clear_bit(uint32_t reg, int n)\n{\n    /* TODO */\n    return reg;\n}\n\n/* 翻转 reg 的第 n 位，其他位不变 */\nuint32_t toggle_bit(uint32_t reg, int n)\n{\n    /* TODO */\n    return reg;\n}",
+      "expectedOutput": "三个函数分别返回\"仅第 n 位被置 1 / 清 0 / 翻转\"后的寄存器值；当 n 越界（<0 或 >31）时原样返回 reg。",
+      "testCases": [
+        { "input": "set_bit(0x00u, 3)", "expectedOutput": "0x08" },
+        { "input": "set_bit(0x63u, 3)", "expectedOutput": "0x6B（0b0110_0011 → 0b0110_1011）" },
+        { "input": "clear_bit(0x6Bu, 3)", "expectedOutput": "0x63（0b0110_1011 → 0b0110_0011）" },
+        { "input": "toggle_bit(0x63u, 3)", "expectedOutput": "0x6B；再调用一次 toggle_bit(0x6Bu, 3) 应回到 0x63" },
+        { "input": "set_bit(0xFFFFFFFFu, 32)", "expectedOutput": "0xFFFFFFFF（n 越界，原样返回）" }
+      ],
+      "solutionCode": "#include <stdint.h>\n\nstatic int bit_index_valid(int n)\n{\n    return (n >= 0 && n <= 31);\n}\n\nuint32_t set_bit(uint32_t reg, int n)\n{\n    if (!bit_index_valid(n)) {\n        return reg;\n    }\n    return reg | (1u << n);\n}\n\nuint32_t clear_bit(uint32_t reg, int n)\n{\n    if (!bit_index_valid(n)) {\n        return reg;\n    }\n    return reg & ~(1u << n);\n}\n\nuint32_t toggle_bit(uint32_t reg, int n)\n{\n    if (!bit_index_valid(n)) {\n        return reg;\n    }\n    return reg ^ (1u << n);\n}",
+      "hints": [
+        "置位用 `|=`，清位用 `&= ~`，翻转用 `^=`，三者都只影响掩码中为 1 的位。",
+        "掩码写作 `1u << n`：`u` 后缀可避免有符号数左移溢出等未定义行为。",
+        "移位前先判断位序号范围：对 32 位类型，移位量达到或超过 32 属于未定义行为，必须提前返回。"
+      ],
+      "explanation": "本题把素材中的 `SET_BIT` / `CLEAR_BIT` 宏展开为可测试的函数形式，考察三点：① 三种位运算的语义差异（或置 1、与取反清 0、异或翻转）；② \"读-改-写\"必须保留其他位，禁止整寄存器赋值；③ 移位越界属未定义行为，必须在函数入口防御。常见错误包括把清位写成 `reg & (1u << n)`（漏掉取反，实际变成只读该位）、以及忘记处理 n 越界导致在真实 MCU 上产生不可预期结果。",
+      "sourceRef": "03-驱动开发与外设编程/README.md#📌 位操作技巧",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    }
+  ]
+}

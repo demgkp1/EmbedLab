@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "1.0.0",
+  "chapterId": "stage1_digital_circuit",
+  "chapterNo": 3,
+  "chapterTitle": "3. 数字电路基础",
+  "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+  "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn",
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "extractedAt": "2026-09-13",
+  "exercises": [
+    {
+      "id": "ex-ch03-001",
+      "chapterId": "stage1_digital_circuit",
+      "chapterNo": 3,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材提到 GPIO\"可配置上拉/下拉电阻\"，并把\"上拉输入\"\"下拉输入\"与\"浮空输入\"并列为可选输入模式。上拉电阻的核心作用是？",
+      "options": [
+        { "key": "A", "text": "在外部未驱动引脚时，把引脚电平钳定在高电平，避免电平不确定" },
+        { "key": "B", "text": "提高引脚的最大输出电流，用来直接驱动电机" },
+        { "key": "C", "text": "把引脚电压抬升到高于 VCC，以获得更大的逻辑摆幅" },
+        { "key": "D", "text": "替代电源芯片，为整个 MCU 供电" }
+      ],
+      "answer": "A",
+      "explanation": "上拉（下拉）电阻的作用是在没有外部器件驱动时给引脚一个确定的默认电平：上拉为高、下拉为低，从而避免\"悬空/浮空\"导致的电平不确定。B 混淆了上拉电阻与驱动能力（上拉电阻阻值通常较大，只能提供微弱电流）；C 违背电气常识，引脚电压不可能被上拉到超过供电电压；D 把弱上拉与电源供电混为一谈。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#1. GPIO（通用输入输出）",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch03-002",
+      "chapterId": "stage1_digital_circuit",
+      "chapterNo": 3,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材把 GPIO 输入模式列为\"浮空输入、上拉输入、下拉输入、模拟输入\"。若一个按键一端接引脚、另一端接 GND，引脚配置为**浮空输入**，按键未按下时最可能出现的问题是？",
+      "options": [
+        { "key": "A", "text": "引脚电平不确定，读数可能随干扰随机跳变" },
+        { "key": "B", "text": "引脚被硬件强制钳在低电平，永远读到 0" },
+        { "key": "C", "text": "引脚被硬件强制钳在高电平，永远读到 1" },
+        { "key": "D", "text": "MCU 会因引脚悬空而立即复位" }
+      ],
+      "answer": "A",
+      "explanation": "按键未按下时引脚与 GND 断开，浮空输入下没有确定的高低电平来源，电平由分布电容与外界干扰决定，读数会随机跳变。正确做法是启用内部上拉（或外接上拉电阻），使未按下时为确定高电平、按下时被拉到 GND。B、C 描述的是\"被明确驱动\"的情形，与浮空矛盾；D 夸大了后果——悬空引脚一般不会导致复位，但可能造成误触发或额外功耗。",
+      "sourceRef": "03-驱动开发与外设编程/README.md#📌 GPIO（通用输入输出）",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch03-003",
+      "chapterId": "stage1_digital_circuit",
+      "chapterNo": 3,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材在输出模式中列出\"推挽输出\"与\"开漏输出（需外部上拉）\"，并说明 I2C 通过\"检测 SDA 线电平被拉低\"实现总线仲裁。关于开漏输出，下列哪项正确？",
+      "options": [
+        { "key": "A", "text": "开漏只能主动拉低，高电平需靠外部上拉电阻提供，因此适合多器件共享的总线" },
+        { "key": "B", "text": "开漏与推挽一样能主动输出高电平，且驱动能力更强" },
+        { "key": "C", "text": "开漏输出不需要任何上拉即可稳定输出高电平" },
+        { "key": "D", "text": "开漏输出只能用于输入模式，不能用于输出" }
+      ],
+      "answer": "A",
+      "explanation": "开漏（Open-Drain）输出级只能把线拉低或释放为高阻，高电平必须由外部上拉电阻建立——正因如此，多个器件的开漏输出可以直接并到同一条线上而不会互相\"对顶\"，这也是 I2C 总线仲裁（谁先拉低谁占线）能成立的前提。B 与开漏定义矛盾（主动输出高是推挽的特性）；C 与素材\"需外部上拉\"直接冲突；D 混淆输入/输出模式。",
+      "sourceRef": "03-驱动开发与外设编程/README.md#📌 GPIO（通用输入输出）",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch03-004",
+      "chapterId": "stage1_digital_circuit",
+      "chapterNo": 3,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材在电源部分对比了 LDO 与 DC-DC：LDO\"电路简单、输出纹波小\"但\"效率低（输入输出压差越大越低）\"，DC-DC\"效率高（可达 90% 以上）\"。某电池供电节点需要把 4.2V 降到 3.3V 且对续航敏感，下列选型判断最合理的是？",
+      "options": [
+        { "key": "A", "text": "优先选 DC-DC 以降低损耗；若后级对纹波敏感，可在其后再加 LDO 做二级稳压" },
+        { "key": "B", "text": "必须选 LDO，因为 LDO 效率一定高于 DC-DC" },
+        { "key": "C", "text": "两者效率相同，只看封装大小即可" },
+        { "key": "D", "text": "必须选 DC-DC，且不需要考虑输出纹波" }
+      ],
+      "answer": "A",
+      "explanation": "电池供电且对续航敏感时，效率是首要矛盾，因此优先 DC-DC；但 DC-DC 开关动作会带来输出纹波，若后级（如模拟采集、射频）对纹波敏感，可串接 LDO 做二级稳压——这正是素材给出的\"LDO 纹波小、DC-DC 效率高\"两条特性的工程组合。B 与素材\"LDO 效率低\"直接冲突；C 忽略了压差与效率的关系；D 只取效率而完全放弃纹波约束。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#电源管理：续航与稳定性的保障",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch03-005",
+      "chapterId": "stage1_digital_circuit",
+      "chapterNo": 3,
+      "type": "code",
+      "difficulty": "advanced",
+      "question": "机械按键在按下/释放瞬间会产生抖动，导致一次操作被读成多次电平变化。请实现一个**软件消抖判决**函数：输入是一串按时间顺序采样的引脚电平（0 或 1），只有当**连续 `stable_count` 次采样值完全一致**时，才认为电平已稳定并返回该值。\n\n要求：\n1. `stable_count <= 0`、`levels == NULL` 或 `n <= 0` 时返回 `-1`（表示无法判定）；\n2. 若整段采样中不存在长度为 `stable_count` 的连续相同值，返回 `-1`；\n3. 一旦出现满足条件的连续段，立即返回该电平值（0 或 1）。",
+      "language": "c",
+      "starterCode": "/*\n * 软件消抖判决。\n * levels       : 按时间顺序采样的引脚电平数组，元素为 0 或 1\n * n            : 采样点个数\n * stable_count : 判定稳定所需的连续相同采样次数\n * 返回         : 稳定的电平值（0/1）；无法判定时返回 -1\n */\nint debounce_level(const int *levels, int n, int stable_count)\n{\n    /* TODO: 在此实现 */\n    return -1;\n}",
+      "expectedOutput": "返回首次出现的、长度为 stable_count 的连续相同电平值（0 或 1）；不存在则返回 -1。",
+      "testCases": [
+        { "input": "levels = {1, 0, 1, 1, 1}, n = 5, stable_count = 3", "expectedOutput": "返回 1（后三次连续为 1）" },
+        { "input": "levels = {1, 0, 1, 0, 1}, n = 5, stable_count = 2", "expectedOutput": "返回 -1（不存在连续两次相同）" },
+        { "input": "levels = {0, 0, 1, 1}, n = 4, stable_count = 1", "expectedOutput": "返回 0（stable_count 为 1 时首个采样即稳定）" },
+        { "input": "levels = {1, 1}, n = 2, stable_count = 5", "expectedOutput": "返回 -1（连续长度不足）" },
+        { "input": "levels = NULL, n = 0, stable_count = 3", "expectedOutput": "返回 -1" }
+      ],
+      "solutionCode": "int debounce_level(const int *levels, int n, int stable_count)\n{\n    if (levels == NULL || n <= 0 || stable_count <= 0) {\n        return -1;\n    }\n\n    int run_value = levels[0];\n    int run_len = 1;\n\n    if (run_len >= stable_count) {\n        return run_value;\n    }\n\n    for (int i = 1; i < n; i++) {\n        if (levels[i] == run_value) {\n            run_len++;\n        } else {\n            run_value = levels[i];\n            run_len = 1;\n        }\n        if (run_len >= stable_count) {\n            return run_value;\n        }\n    }\n    return -1;\n}",
+      "hints": [
+        "用\"当前连续值 + 连续长度\"两个变量在一次遍历中完成统计，无需嵌套循环。",
+        "每遇到不同的电平就重置连续长度，并把当前值切换为新电平。",
+        "别忘了 `stable_count == 1` 的边界：此时第一个采样点就已满足条件。"
+      ],
+      "explanation": "本题把\"浮空/上拉输入 + 按键读取\"的硬件场景落到可测试的软件策略：机械抖动会让一次按键产生多次跳变，若不加消抖就会被识别为多次操作。实现要点：① 单次遍历维护\"当前值 + 连续计数\"，时间 O(n)、空间 O(1)；② 达标即返回，避免多算；③ 边界与非法入参必须返回 -1 而不是 0——返回 0 会被上层误判为\"按键按下/低电平\"，这正是嵌入式里最危险的沉默错误。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#1. GPIO（通用输入输出）",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    }
+  ]
+}

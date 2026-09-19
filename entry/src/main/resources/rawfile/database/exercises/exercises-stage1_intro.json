@@ -1,0 +1,116 @@
+{
+  "schemaVersion": "1.0.0",
+  "chapterId": "stage1_intro",
+  "chapterNo": 1,
+  "chapterTitle": "1. 什么是嵌入式系统",
+  "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+  "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn",
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "extractedAt": "2026-09-13",
+  "exercises": [
+    {
+      "id": "ex-ch01-001",
+      "chapterId": "stage1_intro",
+      "chapterNo": 1,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材从三个维度给出嵌入式系统的定义，下列哪一项**不属于**这三个维度？",
+      "options": [
+        { "key": "A", "text": "专用性——针对特定任务优化" },
+        { "key": "B", "text": "嵌入性——隐藏于设备内部，用户通常意识不到其存在" },
+        { "key": "C", "text": "计算系统——包含硬件（处理器、传感器）与软件（固件、驱动）" },
+        { "key": "D", "text": "通用性——同一套软硬件不做修改即可适配任意产品" }
+      ],
+      "answer": "D",
+      "explanation": "素材给出的三个维度是专用性、嵌入性、计算系统。D 与\"专用性\"直接矛盾：嵌入式系统恰恰是围绕特定任务优化的，跨产品复用往往需要重新裁剪软硬件，因此 D 不属于定义维度。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#嵌入式系统定义与特点",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch01-002",
+      "chapterId": "stage1_intro",
+      "chapterNo": 1,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "下列哪一项**不是**素材列出的嵌入式系统典型特点？",
+      "options": [
+        { "key": "A", "text": "资源受限（低功耗、内存小）" },
+        { "key": "B", "text": "实时性要求高" },
+        { "key": "C", "text": "高可靠性与稳定性" },
+        { "key": "D", "text": "必须配备通用操作系统与图形界面" }
+      ],
+      "answer": "D",
+      "explanation": "素材列出的特点是资源受限、实时性要求高、高可靠性与稳定性，并指出嵌入式系统\"通常运行裸机或 RTOS\"。D 把\"通用操作系统 + 图形界面\"当成必备条件，既与\"通常运行裸机或 RTOS\"冲突，也与专用性矛盾。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#嵌入式系统定义与特点",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch01-003",
+      "chapterId": "stage1_intro",
+      "chapterNo": 1,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材以汽车 ABS 防抱死系统为例说明\"专用性\"。若 ABS 的刹车控制任务未在截止时间内完成，会直接导致功能失效。这一特征最准确地对应下列哪一描述？",
+      "options": [
+        { "key": "A", "text": "该系统的算力不足，需要更换更高主频的处理器" },
+        { "key": "B", "text": "该任务具有硬实时约束，超时即视为失败" },
+        { "key": "C", "text": "该系统的内存不足，应优先扩大 SRAM" },
+        { "key": "D", "text": "该系统属于通用计算机，只是恰好装在汽车上" }
+      ],
+      "answer": "B",
+      "explanation": "\"专用性\"指针对特定任务优化（ABS 仅负责刹车控制）。素材同时把\"实时性要求高\"列为嵌入式系统的典型特点；当任务超过截止时间即导致功能失效时，属于硬实时约束。A、C 把实时性问题误判为算力/内存容量问题；D 与专用性相反。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#嵌入式系统定义与特点",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch01-004",
+      "chapterId": "stage1_intro",
+      "chapterNo": 1,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材把嵌入式系统构成分为 MCU、Flash/SRAM、外设、传感器、通信模块、电源管理等模块。关于其中 Flash/SRAM 的分工，下列哪项正确？",
+      "options": [
+        { "key": "A", "text": "Flash 存程序代码，SRAM 存运行数据" },
+        { "key": "B", "text": "Flash 存运行数据，SRAM 存程序代码" },
+        { "key": "C", "text": "两者都用于存程序代码，容量可互换" },
+        { "key": "D", "text": "两者都用于存运行数据，掉电后均不丢失" }
+      ],
+      "answer": "A",
+      "explanation": "素材在\"系统构成\"表中写明 Flash/SRAM 的作用是\"存储程序代码与运行数据\"，并在存储器小节中进一步区分：Flash 存储程序代码（固件），掉电不丢失；SRAM 用于运行时数据存储（如变量、堆栈）。B 完全颠倒；C、D 混淆了两类存储的职责与掉电特性。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#系统构成（MCU、存储器、传感器、外设）",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch01-005",
+      "chapterId": "stage1_intro",
+      "chapterNo": 1,
+      "type": "code",
+      "difficulty": "advanced",
+      "question": "嵌入式系统的典型工作闭环是\"传感器感知 → CPU 决策 → 执行器动作\"。请实现该闭环中的**决策**环节：给定一组按时间顺序采集的整型温度采样值，统计**严格大于**阈值的采样点个数，并通过出参返回**首次**超阈值采样点的下标（从 0 开始）。\n\n要求：\n1. 若没有任何采样点超阈值，`*first_index` 置为 `-1`；\n2. `n <= 0` 或 `samples` 为空指针时，直接返回 0 并把 `*first_index` 置为 `-1`；\n3. 等于阈值**不算**超阈值。",
+      "language": "c",
+      "starterCode": "/*\n * 统计严格大于 threshold 的采样点个数。\n * samples     : 按时间顺序排列的温度采样值\n * n           : 采样点个数\n * threshold   : 阈值\n * first_index : 出参，写入首次超阈值的下标；无则写 -1\n * 返回        : 超阈值的采样点个数\n */\nint count_over_threshold(const int *samples, int n, int threshold, int *first_index)\n{\n    /* TODO: 在此实现 */\n    return 0;\n}",
+      "expectedOutput": "返回严格大于阈值的采样点个数；并保证 `*first_index` 为首次超阈值的下标（无超阈值、n<=0 或空指针时为 -1）。",
+      "testCases": [
+        { "input": "samples = {25, 31, 33, 29}, n = 4, threshold = 30", "expectedOutput": "返回 2，*first_index = 1" },
+        { "input": "samples = {20, 25, 29}, n = 3, threshold = 30", "expectedOutput": "返回 0，*first_index = -1" },
+        { "input": "samples = {30, 30}, n = 2, threshold = 30", "expectedOutput": "返回 0，*first_index = -1（等于阈值不算超阈值）" },
+        { "input": "samples = NULL, n = 0, threshold = 30", "expectedOutput": "返回 0，*first_index = -1" }
+      ],
+      "solutionCode": "int count_over_threshold(const int *samples, int n, int threshold, int *first_index)\n{\n    int count = 0;\n\n    if (first_index != NULL) {\n        *first_index = -1;\n    }\n    if (samples == NULL || n <= 0) {\n        return 0;\n    }\n\n    for (int i = 0; i < n; i++) {\n        if (samples[i] > threshold) {\n            if (count == 0 && first_index != NULL) {\n                *first_index = i;\n            }\n            count++;\n        }\n    }\n    return count;\n}",
+      "hints": [
+        "先做入参防御：空指针与 n<=0 必须直接返回，避免解引用空指针。",
+        "出参 first_index 要在一开始就写 -1，保证\"无超阈值\"时也有确定值。",
+        "只有第一次命中时才写 first_index，可以用 count == 0 判断。"
+      ],
+      "explanation": "本题把章节的\"感知—决策—执行\"闭环落到决策环节：阈值比较即最朴素的决策逻辑。关键点有三：① 入参防御（嵌入式代码必须处理异常输入，否则会 HardFault）；② 出参的默认值语义（-1 表示\"未命中\"，避免调用方读到未初始化值）；③ 边界判定采用严格大于，与\"等于阈值不动作\"的工程习惯一致。常见错误是把 `>=` 当成 `>`，以及在 `count == 0` 时重复写入 first_index 导致记成最后一次的下标。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#传感器：感知物理世界的窗口",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    }
+  ]
+}

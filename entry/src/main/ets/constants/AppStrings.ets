@@ -8,26 +8,13 @@ export class AppStrings {
   /** 应用名称 */
   static readonly APP_NAME: string = 'EmbedLab';
 
-  /** 骨架阶段统一占位提示 */
+  /** 骨架阶段统一占位提示（仅未注册路由兜底在用，见 MainPage.unregisteredRoute） */
   static readonly PLACEHOLDER_TITLE: string = '模块建设中';
-  static readonly PLACEHOLDER_DESC: string = '该模块将在后续里程碑提供，当前仅验证工程骨架与路由基础设施。';
 
-  /** 一级 Tab 名称 */
+  /** 一级 Tab 名称（UI-Batch-1 阶段一后为 3 个 Tab：首页 / 学习 / 我的） */
   static readonly TAB_HOME: string = '首页';
   static readonly TAB_LEARN: string = '学习';
-  static readonly TAB_PROJECTS: string = '项目';
-  static readonly TAB_PRACTICE: string = '练习';
   static readonly TAB_PROFILE: string = '我的';
-
-  /** 一级 Tab 文案（Home 已于 Milestone B 点亮为真实页面，其骨架占位文案已移除） */
-  static readonly PROJECTS_PLACEHOLDER_TITLE: string = '项目';
-  static readonly PROJECTS_PLACEHOLDER_DESC: string = '硬件案例库，V1 阶段保持静态占位。';
-
-  static readonly PRACTICE_PLACEHOLDER_TITLE: string = '练习';
-  static readonly PRACTICE_PLACEHOLDER_DESC: string = '嵌入式练习题库，V1 阶段保持静态占位。';
-
-  static readonly PROFILE_PLACEHOLDER_TITLE: string = '我的';
-  static readonly PROFILE_PLACEHOLDER_DESC: string = '收藏与阅读历史，将在 Milestone 3 接入本地持久化。';
 
   /** 路由基础设施验证入口（Milestone 0 临时脚手架，随 KnowledgeDetailPage 落地后移除） */
   static readonly NAV_PROBE_ENTRY: string = '验证二级页面路由（push / pop）';

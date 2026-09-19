@@ -9,8 +9,8 @@ import { Logger } from '../../utils/logger/Logger';
 
 const MODULE_TAG: string = 'ProfilePage';
 
-/** 本页在根 Tabs 中的下标（Home=0 / Learn=1 / Projects=2 / Practice=3 / Profile=4） */
-const PROFILE_TAB_INDEX: number = 4;
+/** 本页在根 Tabs 中的下标（UI-Batch-1 后为 3 个 Tab：Home=0 / Learn=1 / Profile=2） */
+const PROFILE_TAB_INDEX: number = 2;
 
 /**
  * 「我的」页（Profile-R 重构版：顶部学习概览卡 + 二级入口列表）。
@@ -159,7 +159,11 @@ export struct ProfilePage {
     .backgroundColor(AppColors.BACKGROUND)
   }
 
-  /** 学习概览卡：收藏数 / 已读数（数据来自 ProfileViewModel，不直连 UserStore）。 */
+  /**
+   * 学习概览卡：收藏数 / 已读数（数据来自 ProfileViewModel，不直连 UserStore）。
+   * 布局（Profile-R1 方案 C）：标题与两项指标整体水平居中，视觉更接近仪表盘。
+   * 说明：仅调整对齐方式（枚举值），卡片内边距与圆角维持不变；数据来源与调用点未动。
+   */
   @Builder
   overviewCard() {
     Column({ space: AppDimens.SPACING_MD }) {
@@ -168,6 +172,7 @@ export struct ProfilePage {
         .fontWeight(FontWeight.Bold)
         .fontColor(AppColors.TEXT_PRIMARY)
         .width('100%')
+        .textAlign(TextAlign.Center)
 
       Row({ space: AppDimens.SPACING_XL }) {
         this.overviewMetric(AppStrings.PROFILE_OVERVIEW_FAVORITES,
@@ -176,16 +181,17 @@ export struct ProfilePage {
           `${this.viewModel.historyItems.length}`, AppColors.PRIMARY)
       }
       .width('100%')
+      .justifyContent(FlexAlign.Center)
     }
     .width('100%')
-    .alignItems(HorizontalAlign.Start)
+    .alignItems(HorizontalAlign.Center)
     .padding(AppDimens.SPACING_LG)
     .margin({ left: AppDimens.SPACING_LG, right: AppDimens.SPACING_LG })
     .backgroundColor(AppColors.SURFACE)
     .borderRadius(AppDimens.RADIUS_MD)
   }
 
-  /** 单个概览指标：数值 + 标签。 */
+  /** 单个概览指标：数值 + 标签（方案 C：本指标块内部亦居中对齐）。 */
   @Builder
   overviewMetric(label: string, value: string, accent: string) {
     Column({ space: AppDimens.SPACING_XS }) {
@@ -197,7 +203,8 @@ export struct ProfilePage {
         .fontSize(AppDimens.FONT_SIZE_CAPTION)
         .fontColor(AppColors.TEXT_SECONDARY)
     }
-    .alignItems(HorizontalAlign.Start)
+    .layoutWeight(1)
+    .alignItems(HorizontalAlign.Center)
   }
 
   /** 二级入口列表：4 行，统一经 entryRow 渲染。 */

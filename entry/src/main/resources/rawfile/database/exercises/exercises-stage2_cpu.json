@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "1.0.0",
+  "chapterId": "stage2_cpu",
+  "chapterNo": 5,
+  "chapterTitle": "5. CPU、内存与启动",
+  "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+  "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn",
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "extractedAt": "2026-09-13",
+  "exercises": [
+    {
+      "id": "ex-ch05-001",
+      "chapterId": "stage2_cpu",
+      "chapterNo": 5,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材给出启动流程：\"MCU 上电 → 执行 `Reset_Handler` → 设置 SP（栈顶）→ 初始化 `.data` 和 `.bss` 段 → 调用 `SystemInit()` → 跳转执行用户 `main()`\"。其中**最先**执行的环节是？",
+      "options": [
+        { "key": "A", "text": "Reset_Handler（复位处理函数）" },
+        { "key": "B", "text": "用户 main() 函数" },
+        { "key": "C", "text": "SystemInit() 时钟初始化" },
+        { "key": "D", "text": ".bss 段清零" }
+      ],
+      "answer": "A",
+      "explanation": "上电后 CPU 从向量表取出复位向量，先进入 `Reset_Handler`，再由它设置栈顶 SP、初始化 `.data`/`.bss`、调用 `SystemInit()`，最后才跳转到 `main()`。因此 B、C、D 都发生在 `Reset_Handler` 之后——尤其 `main()` 是整条链路中最晚执行的。素材的 `Startup.s` 片段也印证了这一点：`LDR R0, =_estack` / `MOV SP, R0` / `BL SystemInit` / `BL main`。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#📌 启动流程简要",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch05-002",
+      "chapterId": "stage2_cpu",
+      "chapterNo": 5,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材以 STM32F4 为例给出存储器映射：Flash 起始地址 `0x08000000`，SRAM 起始地址 `0x20000000`。下列关于二者分工的描述，哪项正确？",
+      "options": [
+        { "key": "A", "text": "程序代码从 Flash 执行，运行时数据（变量、堆栈）位于 SRAM" },
+        { "key": "B", "text": "程序代码从 SRAM 执行，运行时数据位于 Flash" },
+        { "key": "C", "text": "两者都是掉电保持的存储器，区别仅在容量" },
+        { "key": "D", "text": "两者地址可以互换，取决于链接脚本的写法" }
+      ],
+      "answer": "A",
+      "explanation": "素材的\"Flash 区域详解\"指出实际代码从 `0x08000000` 开始（含中断向量表），\"RAM 区域详解\"则把 `.data`/`.bss`/栈/堆都排在 `0x20000000` 起，说明运行数据在 SRAM。B 恰好对调；C 错在 SRAM 是易失的（掉电丢失），掉电保持是 Flash 的特性；D 忽略了物理存储器类型不可互换——链接脚本只能把段放到芯片真实存在且允许访问的区域。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#STM32存储器布局详解",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch05-003",
+      "chapterId": "stage2_cpu",
+      "chapterNo": 5,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材的面试高频问题给出：`.data` 存储已初始化的全局变量，\"占用 Flash 和 RAM\"；`.bss` 存储未初始化的全局变量，\"仅占用 RAM（运行前自动清零）\"。据此判断：声明 `int a = 10;` 与 `int b;`（均为全局变量）对存储的影响是？",
+      "options": [
+        { "key": "A", "text": "a 同时占用 Flash 与 RAM；b 只占用 RAM，且启动时被清零" },
+        { "key": "B", "text": "a 只占用 Flash；b 同时占用 Flash 与 RAM" },
+        { "key": "C", "text": "两者都只占用 RAM，且都无需初始化" },
+        { "key": "D", "text": "两者都只占用 Flash，运行时直接从 Flash 读写" }
+      ],
+      "answer": "A",
+      "explanation": "初始值 10 必须在固件里留一份（存于 Flash），运行时再拷贝到 RAM，所以 `a` 同时占 Flash 与 RAM；`b` 没有初值，不需要在 Flash 里保存数据，只占 RAM，且由启动代码（`Reset_Handler` 阶段）统一清零。B 把两者对调；C 漏掉了 `a` 的初值必须保存在 Flash；D 忽略了变量运行时可写、不能放在 Flash 中直接改写。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#面试高频问题",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch05-004",
+      "chapterId": "stage2_cpu",
+      "chapterNo": 5,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材解释链接脚本中 `.data : { *(.data) } > RAM AT > FLASH` 的含义是\"运行时在 RAM，但加载时从 Flash 复制到 RAM\"。其中 `AT` 关键字指定的是？",
+      "options": [
+        { "key": "A", "text": "该段的加载地址（Load Address），即固件镜像中该段数据的存放位置" },
+        { "key": "B", "text": "该段的运行地址（Virtual Address），运行时 CPU 访问该段所用的地址" },
+        { "key": "C", "text": "该段的对齐字节数" },
+        { "key": "D", "text": "该段的只读属性开关" }
+      ],
+      "answer": "A",
+      "explanation": "`> RAM` 给出运行地址（VMA，运行时 CPU 访问的地址），`AT > FLASH` 给出加载地址（LMA，即该段数据在固件镜像里的存放位置）。因此启动代码必须把 `.data` 从 Flash 的 LMA 拷贝到 RAM 的 VMA，这正是\"占用 Flash 和 RAM\"的物理原因。B 描述的是 `> RAM` 的作用；C 由 `ALIGN()` 指定；D 由 MEMORY 区域的 `rwx` 属性描述。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#面试高频问题",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch05-005",
+      "chapterId": "stage2_cpu",
+      "chapterNo": 5,
+      "type": "code",
+      "difficulty": "advanced",
+      "question": "素材的调试技巧提到用 `arm-none-eabi-size` 查看段大小、并警告\"内存溢出：代码或数据量超过 Flash/RAM 大小\"。请实现一个**段容量检查**函数，按下面的映射规则判断固件能否装进芯片：\n\n- Flash 占用 = `text_kb + data_kb`（`.text` 与 `.data` 的加载副本都在 Flash）\n- RAM 占用 = `data_kb + bss_kb + stack_kb`（`.data` 运行时副本、`.bss`、栈都在 RAM）\n\n返回状态码：\n- `0` = 均在容量内；\n- `1` = 仅 Flash 溢出；\n- `2` = 仅 RAM 溢出；\n- `3` = 两者都溢出；\n- `-1` = 入参非法（任一容量或段大小为负）。",
+      "language": "c",
+      "starterCode": "typedef struct {\n    int text_kb;   /* .text 段 */\n    int data_kb;   /* .data 段 */\n    int bss_kb;    /* .bss 段 */\n    int stack_kb;  /* 栈空间 */\n} SectionUsage;\n\n/*\n * 返回 0/1/2/3 表示均可/仅 Flash 溢出/仅 RAM 溢出/两者溢出；入参非法返回 -1。\n */\nint check_memory_fit(const SectionUsage *u, int flash_kb, int ram_kb)\n{\n    /* TODO: 在此实现 */\n    return 0;\n}",
+      "expectedOutput": "按 Flash = text + data、RAM = data + bss + stack 计算占用，返回 0/1/2/3；入参非法返回 -1。",
+      "testCases": [
+        { "input": "u = {text 100, data 8, bss 12, stack 4}, flash_kb = 128, ram_kb = 32", "expectedOutput": "返回 0（Flash 108 ≤ 128，RAM 24 ≤ 32）" },
+        { "input": "u = {text 200, data 8, bss 12, stack 4}, flash_kb = 128, ram_kb = 32", "expectedOutput": "返回 1（Flash 208 > 128，RAM 24 ≤ 32）" },
+        { "input": "u = {text 100, data 8, bss 40, stack 4}, flash_kb = 128, ram_kb = 32", "expectedOutput": "返回 2（Flash 108 ≤ 128，RAM 52 > 32）" },
+        { "input": "u = {text 200, data 8, bss 40, stack 4}, flash_kb = 128, ram_kb = 32", "expectedOutput": "返回 3（两者均溢出）" },
+        { "input": "u = {text 100, data -1, bss 12, stack 4}, flash_kb = 128, ram_kb = 32", "expectedOutput": "返回 -1（含负值，入参非法）" }
+      ],
+      "solutionCode": "typedef struct {\n    int text_kb;\n    int data_kb;\n    int bss_kb;\n    int stack_kb;\n} SectionUsage;\n\nint check_memory_fit(const SectionUsage *u, int flash_kb, int ram_kb)\n{\n    if (u == NULL || flash_kb < 0 || ram_kb < 0) {\n        return -1;\n    }\n    if (u->text_kb < 0 || u->data_kb < 0 || u->bss_kb < 0 || u->stack_kb < 0) {\n        return -1;\n    }\n\n    int flash_used = u->text_kb + u->data_kb;\n    int ram_used = u->data_kb + u->bss_kb + u->stack_kb;\n    int flash_over = (flash_used > flash_kb) ? 1 : 0;\n    int ram_over = (ram_used > ram_kb) ? 1 : 0;\n\n    return flash_over + (ram_over << 1);\n}",
+      "hints": [
+        "先把两类占用的公式写清楚：Flash = text + data，RAM = data + bss + stack（data 要算两遍）。",
+        "用两个 0/1 标志位表示溢出，再组合成 0/1/2/3：`flash_over + (ram_over << 1)`。",
+        "所有入参（含结构体字段）都要做非负校验，任一为负即返回 -1。"
+      ],
+      "explanation": "本题把\"内存溢出\"这一常见链接期/调试期问题转成可测试的判定逻辑，考察对段映射的理解：`.data` 必须**同时**计入 Flash（加载副本）与 RAM（运行时副本），这是最容易漏算的一项；`.bss` 与栈只占 RAM。返回值设计采用位组合（bit0 = Flash 溢出、bit1 = RAM 溢出），既便于调用方分别判断，也避免了\"两种情况都溢出时返回什么\"的歧义。常见错误是漏算 `.data` 的 Flash 占用，导致实际烧录时才发现镜像超出片内 Flash。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#常见问题与调试技巧",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    }
+  ]
+}
