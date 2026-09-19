@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "1.0.0",
+  "chapterId": "stage9_troubleshooting",
+  "chapterNo": 32,
+  "chapterTitle": "32. 常见问题排查",
+  "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+  "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn",
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "extractedAt": "2026-09-13",
+  "exercises": [
+    {
+      "id": "ex-ch32-001",
+      "chapterId": "stage9_troubleshooting",
+      "chapterNo": 32,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "链接阶段报错提示某个符号未定义（undefined reference）。按素材对\"链接错误\"中\"符号未定义\"一项的说明，最贴合的排查手段是？",
+      "options": [
+        { "key": "A", "text": "核对函数名拼写，并确认包含该符号实现的目标文件已参与链接" },
+        { "key": "B", "text": "减少全局变量数量，或更换 Flash/RAM 容量更大的 MCU" },
+        { "key": "C", "text": "在链接脚本中用 `KEEP` 保留中断向量表，防止其被优化掉" },
+        { "key": "D", "text": "检查晶振与 PLL 配置，确认系统时钟已正确初始化" }
+      ],
+      "answer": "A",
+      "explanation": "素材把\"符号未定义\"的原因写成\"调用未实现的函数或使用未定义的变量\"，解决办法是\"检查函数名拼写，确保目标文件包含该符号\"——即符号从未被定义，或定义所在的目标文件/库没有进入链接列表。B 描述的是素材中另一类链接错误\"内存溢出\"的处理办法（优化代码、减少全局变量、更换更大容量 MCU），与符号解析无关。C 的 `KEEP` 出自\"链接脚本调试技巧\"，用于防止向量表等段被优化丢弃，解决的是\"符号被丢掉\"，而不是\"链接器找不到符号\"。D 是运行期的时钟初始化问题：链接阶段连可执行文件都还没生成，时钟配置根本不会参与链接。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#1. **链接错误**",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch32-002",
+      "chapterId": "stage9_troubleshooting",
+      "chapterNo": 32,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材把\"内存溢出\"的原因记为\"代码或数据量超过 Flash/RAM 大小\"，并在调试工具一节给出 `arm-none-eabi-size main.elf` 的输出示例：`text 1234 / data 56 / bss 789 / dec 2079 / hex 81F`。据此判断，下列定位做法哪项正确？",
+      "options": [
+        { "key": "A", "text": "用 `arm-none-eabi-size` 查看 `text`、`data`、`bss` 三个段的大小，再与芯片的 Flash/RAM 容量比较" },
+        { "key": "B", "text": "用 `arm-none-eabi-objdump -d` 统计反汇编指令条数，指令条数就是 Flash 占用量" },
+        { "key": "C", "text": "比较输出中的 `dec` 与 `hex` 两列，二者之差就是剩余的 Flash 空间" },
+        { "key": "D", "text": "只读 `hex` 列即可，它直接给出该固件占用的 RAM 字节数" }
+      ],
+      "answer": "A",
+      "explanation": "素材把 `size` 的用途写成\"显示各段大小\"，示例输出正是 `text`/`data`/`bss` 三列；而\"内存溢出\"是代码或数据量超过 Flash/RAM 容量，两者对接即可定位超限的段。B 把两个工具的用途弄混：素材中 `objdump -d` 用于\"生成反汇编代码\"（核对指令与地址），不是段容量统计工具，指令条数也不等于占用字节数。C 误读了 `dec`/`hex` 两列：示例中 1234 + 56 + 789 = 2079，而 2079 的十六进制正是 `81F`，两列只是同一总量的十进制与十六进制写法，并非剩余空间。D 把总量当成了 RAM 占用：`text`/`data`/`bss` 性质不同，`hex` 只是总量换算，无法单独反映 RAM 使用量。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#2. **调试工具**",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch32-003",
+      "chapterId": "stage9_troubleshooting",
+      "chapterNo": 32,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材把 `GDB` 描述为\"支持断点、单步、查看变量\"的调试器，把 `OpenOCD` 描述为\"用于连接 GDB 和硬件调试接口（如 ST-Link）\"，并给出命令序列：先 `openocd -f interface/stlink.cfg -f target/stm32f4x.cfg`，再由 GDB 加载 ELF、`target remote :3333`、`load`、`monitor reset halt`。关于二者的分工与连接方式，下列哪项正确？",
+      "options": [
+        { "key": "A", "text": "OpenOCD 负责连接 GDB 与硬件调试接口，GDB 用 `target remote :3333` 连到 OpenOCD 的默认端口" },
+        { "key": "B", "text": "GDB 直接驱动 ST-Link 硬件，OpenOCD 只负责把 ELF 转换成 BIN 文件" },
+        { "key": "C", "text": "必须先由 GDB 执行 `load` 把程序写入 Flash，OpenOCD 才能启动并连接目标板" },
+        { "key": "D", "text": "`monitor reset halt` 是 GDB 的原生命令，不经过 OpenOCD 即可复位并暂停目标" }
+      ],
+      "answer": "A",
+      "explanation": "素材的命令序列是\"先启动 OpenOCD（`-f interface/stlink.cfg` 指定调试器、`-f target/stm32f4x.cfg` 指定目标芯片），再由 GDB 加载 ELF 并用 `target remote :3333` 连接\"，并注明 3333 是默认端口，可见 OpenOCD 是 GDB 与硬件调试接口之间的桥梁。B 把职责对调：真正对接 ST-Link 的是 OpenOCD，把 ELF 转成 BIN 属于 `objcopy` 一类工具的工作。C 顺序颠倒：素材里 `load` 是 GDB 连上 OpenOCD 之后才执行的下载步骤，而不是 OpenOCD 启动的前提。D 与素材的描述相矛盾——素材把 `monitor reset halt` 列在 GDB 命令序列中、注明作用是\"复位并暂停 CPU\"，而 OpenOCD 正是\"连接 GDB 和硬件调试接口\"的组件，复位动作不可能绕过它直接作用到目标芯片。",
+      "sourceRef": "07-Debug_Optimization/README.md#GDB + OpenOCD 调试",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch32-004",
+      "chapterId": "stage9_troubleshooting",
+      "chapterNo": 32,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材的实战案例描述\"中断风暴\"：现象是 CPU 占用率 100%、系统无响应；排查步骤是\"使用调试器暂停 CPU，查看当前执行的代码（通常是某个 ISR）\"，并检查\"中断触发条件（如 GPIO 引脚是否抖动）\"。该案例给出的解决方案是？",
+      "options": [
+        { "key": "A", "text": "在中断回调中记录上次被接受的中断时刻，只有间隔超过 50ms 才处理本次中断（软件消抖）" },
+        { "key": "B", "text": "提升该中断的优先级，使它尽快抢占其他任务，缩短系统响应时间" },
+        { "key": "C", "text": "把中断处理逻辑全部搬进 ISR 同步执行完毕，再统一开中断" },
+        { "key": "D", "text": "在系统启动时关闭该类外部中断，改用主循环轮询引脚电平" }
+      ],
+      "answer": "A",
+      "explanation": "素材在\"中断风暴处理\"中给出的代码正是用一个静态时间戳 `ulLastInterruptTime` 与 `DEBOUNCE_TIME 50`（50ms）比较，只有超过消抖窗口才调用业务处理函数，从而把引脚抖动产生的重复中断挡在业务之外。B 会放大问题：中断风暴的根源是中断被高频重复触发，提高优先级只会让它更频繁地抢占 CPU。C 与素材另一处的规范相反——中断服务函数应尽量简短、避免耗时操作，把逻辑全部塞进 ISR 恰恰是 CPU 被占满的常见成因。D 用轮询替代中断，既牺牲实时性与低功耗（素材在低功耗设计中强调休眠与唤醒源），也只是回避了触发条件，并未消除抖动这一根因。",
+      "sourceRef": "07-Debug_Optimization/README.md#调试与优化实战案例",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch32-005",
+      "chapterId": "stage9_troubleshooting",
+      "chapterNo": 32,
+      "type": "code",
+      "difficulty": "advanced",
+      "question": "素材在\"中断风暴处理\"中用一个静态时间戳加 `DEBOUNCE_TIME 50`（毫秒）实现软件消抖。请把它抽象成可复用的消抖判定模块：\n\n- `st` 保存消抖状态：`last_ms` 为上次**被接受**的中断时刻，`initialized` 表示是否已经接受过中断；\n- 首次调用（`initialized == 0`）一律接受，并记录本次时刻；\n- 之后仅当\"距上次被接受的间隔 ≥ `interval_ms`\"才接受并刷新 `last_ms`，否则判为抖动丢弃；\n- `now_ms` 来自自由运行的毫秒计数，**会发生回绕**，间隔必须用无符号差值计算；\n- `interval_ms == 0` 表示不设消抖窗口，一律接受。\n\n返回 `1` 接受、`0` 丢弃、`-1` 入参非法（`st` 为 `NULL`）。",
+      "language": "c",
+      "starterCode": "#include <stdint.h>\n#include <stddef.h>\n\ntypedef struct {\n    uint32_t last_ms;      /* 上次被接受的中断时刻 */\n    int      initialized;  /* 0 = 尚未接受过任何中断 */\n} debounce_t;\n\n/*\n * 软件消抖判定：距上次被接受的间隔 >= interval_ms 才接受。\n * 返回： 1 = 接受（并刷新 last_ms）\n *        0 = 抖动丢弃\n *       -1 = 入参非法（st 为 NULL）\n */\nint debounce_accept(debounce_t *st, uint32_t now_ms, uint32_t interval_ms)\n{\n    /* TODO: 在此实现 */\n    return 0;\n}",
+      "expectedOutput": "首次调用，或\"距上次被接受的间隔 ≥ interval_ms\"时返回 1 并刷新 `last_ms`；落在消抖窗口内返回 0；`st` 为 `NULL` 返回 -1；`interval_ms == 0` 时一律返回 1。计数器回绕要用无符号差值判断，不能在回绕点误判。",
+      "testCases": [
+        { "input": "st 未初始化（initialized = 0, last_ms = 0），debounce_accept(&st, 1000, 50)", "expectedOutput": "返回 1，且 st.last_ms 更新为 1000、initialized 置 1" },
+        { "input": "紧接上一步：debounce_accept(&st, 1010, 50)（距上次仅 10ms）", "expectedOutput": "返回 0（落在 50ms 消抖窗口内，判为抖动）" },
+        { "input": "紧接上一步：debounce_accept(&st, 1070, 50)（距上次 60ms）", "expectedOutput": "返回 1，且 st.last_ms 刷新为 1070" },
+        { "input": "st.last_ms = 0xFFFFFFF0、initialized = 1，debounce_accept(&st, 0x00000010, 50)（回绕后实际间隔 0x20 = 32ms）", "expectedOutput": "返回 0（无符号差值 32 < 50，判为抖动）" },
+        { "input": "debounce_accept(NULL, 1000, 50)", "expectedOutput": "返回 -1（入参非法）" }
+      ],
+      "solutionCode": "#include <stdint.h>\n#include <stddef.h>\n\ntypedef struct {\n    uint32_t last_ms;\n    int      initialized;\n} debounce_t;\n\nint debounce_accept(debounce_t *st, uint32_t now_ms, uint32_t interval_ms)\n{\n    if (st == NULL) {\n        return -1;\n    }\n\n    /* 首次调用：没有参照时刻，直接接受并建立基准 */\n    if (!st->initialized) {\n        st->last_ms = now_ms;\n        st->initialized = 1;\n        return 1;\n    }\n\n    /* interval_ms == 0：不设消抖窗口 */\n    if (interval_ms == 0) {\n        st->last_ms = now_ms;\n        return 1;\n    }\n\n    /* 无符号减法在 32 位回绕时依然给出正确的正向间隔 */\n    if ((uint32_t)(now_ms - st->last_ms) >= interval_ms) {\n        st->last_ms = now_ms;\n        return 1;\n    }\n\n    return 0;\n}",
+      "hints": [
+        "用 `initialized` 标志区分\"首次调用\"：若一上来就比较 `now_ms - last_ms`，首次差值恒为 0，会把真实中断误判成抖动丢掉。",
+        "间隔计算写成 `(uint32_t)(now_ms - st->last_ms)`——无符号减法在计数器回绕时仍给出正确的正向间隔，不要改成有符号比较。",
+        "先拦截 `st == NULL`（返回 -1），再单独处理 `interval_ms == 0`（不设窗口，一律接受），最后才走窗口比较。"
+      ],
+      "explanation": "本题把素材中\"静态时间戳 + `DEBOUNCE_TIME 50`\"的片段抽象成可复用模块，考察三个易错点。第一是**首次调用的语义**：没有 `initialized` 标志时，`now_ms - last_ms` 首次为 0，会被判成抖动而丢掉第一次真实中断（表现为按键按下无响应）。第二是**计数器回绕**：自由运行的毫秒计数必然溢出，必须用无符号差值 `(uint32_t)(now_ms - st->last_ms)`；换成有符号比较会在回绕点得到负间隔，导致长时间误判丢弃。第三是**非法与边界入参**：`st == NULL` 返回 -1，`interval_ms == 0` 明确为\"不设窗口、一律接受\"。另一个隐含要点是把 `last_ms` 定义为\"上次**被接受**的时刻\"——若每次中断都刷新它，抖动会不断推迟窗口，最终形成\"永远消抖、业务再也不触发\"的死锁，这正是素材把刷新语句放在 `if` 内部的用意。",
+      "sourceRef": "07-Debug_Optimization/README.md#调试与优化实战案例",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    }
+  ]
+}

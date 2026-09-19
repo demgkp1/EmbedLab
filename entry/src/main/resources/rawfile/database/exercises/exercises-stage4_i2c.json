@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "1.0.0",
+  "chapterId": "stage4_i2c",
+  "chapterNo": 11,
+  "chapterTitle": "11. I2C",
+  "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+  "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn",
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "extractedAt": "2026-09-13",
+  "exercises": [
+    {
+      "id": "ex-ch11-001",
+      "chapterId": "stage4_i2c",
+      "chapterNo": 11,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材的接口对比表把 `I2C` 描述为\"半双工，同步，2 线（SCL/SDA）\"，典型应用是\"多设备通信（如连接多个传感器）\"。据此，下列描述正确的是？",
+      "options": [
+        { "key": "A", "text": "I2C 用 SCL 提供同步时钟、SDA 双向传数据，一根总线上可以挂多个设备" },
+        { "key": "B", "text": "I2C 是全双工的，可以在 SCL/SDA 上同时收发数据" },
+        { "key": "C", "text": "I2C 是异步接口，不需要时钟线，因此只用了 2 根线" },
+        { "key": "D", "text": "I2C 用 4 根线（SCK/MOSI/MISO/CS），所以比 UART 更适合多设备" }
+      ],
+      "answer": "A",
+      "explanation": "对比表给 I2C 的三条关键属性是半双工、同步、2 线（SCL/SDA），而 SCL 是同步时钟线、SDA 是双向数据线，正是\"同步\"与\"2 线\"能同时成立的原因；多设备通信则来自它的寻址机制。B 把 I2C 说成全双工——全双工是 UART（TX/RX 各一线）与 SPI（MOSI/MISO 各一线）的特性，I2C 的 SDA 同一时刻只能一个方向有效；C 混淆了异步与同步，I2C 有时钟线 SCL，异步的是 UART；D 列的 4 线是 SPI 的引脚定义，与对比表中 I2C 的 2 线冲突。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#2. 通信接口",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch11-002",
+      "chapterId": "stage4_i2c",
+      "chapterNo": 11,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材的 I2C 寻址方式写道：\"7 位地址：0x00~0x7F，其中 0x00 为广播地址\"，并列出\"10 位地址：扩展寻址，用于特殊设备\"。下列关于 I2C 地址的描述哪项与素材一致？",
+      "options": [
+        { "key": "A", "text": "7 位地址的编码范围是 0x00~0x7F，其中 0x00 用作广播地址" },
+        { "key": "B", "text": "7 位地址的编码范围是 0x00~0xFF，其中 0xFF 用作广播地址" },
+        { "key": "C", "text": "广播地址是 0x7F，即 7 位地址中最大的一个" },
+        { "key": "D", "text": "10 位地址是 7 位地址的一种书写扩展，两者在同一帧里可任意混用" }
+      ],
+      "answer": "A",
+      "explanation": "7 位地址由 7 个二进制位组成，编码空间为 0~127，写成十六进制即 0x00~0x7F，素材明确其中 0x00 为广播地址。B 把 8 位（0x00~0xFF）的空间误当成 7 位，并把广播地址挪到了最高端；C 把最大地址当成广播地址，与素材\"0x00 为广播地址\"直接冲突；D 混淆了两种寻址方式——素材把 10 位地址定位为\"扩展寻址，用于特殊设备\"，它是独立的寻址方案，需要专门的地址帧格式，不能与 7 位地址在同一帧内随意混用。",
+      "sourceRef": "03-驱动开发与外设编程/README.md#📌 I2C（集成电路间总线）",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch11-003",
+      "chapterId": "stage4_i2c",
+      "chapterNo": 11,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材描述 I2C 的多主竞争解决方式是\"通过 SDA 线的电平检测实现总线仲裁，先检测到 SDA 线被拉低的主设备退出竞争\"。结合素材在 GPIO 部分给出的\"开漏输出（需外部上拉）\"，下列理解正确的是？",
+      "options": [
+        { "key": "A", "text": "开漏输出只能把线拉低、释放后由外部上拉恢复高电平，因此多个主设备可以同时驱动 SDA 而不损坏器件；竞争时某主设备释放（想输出高）却读到低电平，说明被别的设备抢先，于是退出" },
+        { "key": "B", "text": "多个主设备可以随意同时驱动 SDA，因为推挽输出会自行协商电平，不需要仲裁" },
+        { "key": "C", "text": "仲裁靠 SCK 线的频率高低决定，时钟频率高的主设备自动胜出" },
+        { "key": "D", "text": "仲裁一旦发生，总线上所有主设备都会退出，本次传输必须整个作废" }
+      ],
+      "answer": "A",
+      "explanation": "开漏输出级只能主动拉低或释放为高阻，高电平由外部上拉电阻建立——正因如此，多个器件的开漏输出可以直接并到同一根线上而不会出现\"一个推高、一个拉低\"的对顶短路，这是 I2C 总线能共享的前提。仲裁的依据是\"回读电平与自己的输出是否一致\"：释放 SDA（想发高）却读到低，说明别人正在拉低，自己让出总线。B 与素材\"开漏输出（需外部上拉）\"矛盾，推挽同时驱动同一根线会形成短路；C 把仲裁挪到了时钟线上，而素材明确仲裁\"通过 SDA 线的电平检测\"实现；D 说反了结果——仲裁的规则是竞争失败者退出，胜出的主设备继续完成传输，不需要重发整帧。",
+      "sourceRef": "03-驱动开发与外设编程/README.md#📌 I2C（集成电路间总线）",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch11-004",
+      "chapterId": "stage4_i2c",
+      "chapterNo": 11,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材的面试高频问题写道：\"ACK（应答）：接收方正确接收到数据，发送低电平；NACK（非应答）：接收方无法继续接收，发送高电平\"。基于该描述，下列判断正确的是？",
+      "options": [
+        { "key": "A", "text": "接收方在应答时把 SDA 拉低，因此\"读到低电平\"才表示数据被正确接收；收到 NACK 时发送方应停止继续发送或结束本次传输" },
+        { "key": "B", "text": "接收方在应答时把 SDA 拉高，读到高电平才表示数据被正确接收" },
+        { "key": "C", "text": "ACK/NACK 与 SDA 电平无关，它由 SCK 时钟的有无表示" },
+        { "key": "D", "text": "NACK 只可能由主设备发出，从设备不存在发出 NACK 的场景" }
+      ],
+      "answer": "A",
+      "explanation": "素材把 ACK 定义为\"接收方正确接收到数据，发送低电平\"、NACK 定义为\"接收方无法继续接收，发送高电平\"，因此 SDA 被读为低是\"对方确认收到\"的信号；收到 NACK 意味着对方不能继续接收，发送方继续灌数据只会被丢弃甚至触发总线异常，应停止或结束本次传输。B 把 ACK/NACK 的电平极性对调，与素材相反；C 把应答机制挪到了时钟线上，而 ACK/NACK 是接收方在数据字节之后对 SDA 电平的驱动；D 记反了角色——主设备在读操作结束前对从设备发出的最后一个字节回 NACK，用于告诉从机\"不再需要更多数据\"，这也是 NACK 的典型用途之一。",
+      "sourceRef": "03-驱动开发与外设编程/README.md#六、面试高频问题",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch11-005",
+      "chapterId": "stage4_i2c",
+      "chapterNo": 11,
+      "type": "code",
+      "difficulty": "advanced",
+      "question": "I2C 通信的第一步是把目标设备的地址与读写方向组装成一个地址字节再发上总线。素材说明\"7 位地址：0x00~0x7F，其中 0x00 为广播地址\"，并单独列出\"10 位地址：扩展寻址，用于特殊设备\"。请实现**7 位地址字节组装**函数：\n\n—— 只在 7 位地址模式下工作，10 位地址必须被拒绝（返回 `-1`），交由扩展寻址流程处理。\n\n规则：\n1. `addr` 必须在 0~127（即 0x00~0x7F）内，超出该范围返回 `-1`；\n2. `addr == 0` 是广播地址，仅允许写方向：写方向时返回组装好的地址字节，读方向返回 `-1`；\n3. `dir` 取 `I2C_DIR_WRITE`(0) 或 `I2C_DIR_READ`(1)，其他值返回 `-1`；\n4. 组装方式：地址字节 = `(addr << 1) | dir`，即地址占高 7 位、读写方向占最低位。",
+      "language": "c",
+      "starterCode": "#include <stdint.h>\n\n#define I2C_DIR_WRITE 0\n#define I2C_DIR_READ  1\n\n/*\n * 组装 7 位地址的 I2C 地址字节。\n * addr : 7 位从机地址，取值范围 0~127；0 为广播地址\n * dir  : I2C_DIR_WRITE 或 I2C_DIR_READ\n * 返回 : 组装后的地址字节；地址越界、方向非法或对广播地址发起读操作时返回 -1\n */\nint i2c_build_addr_byte(int addr, int dir)\n{\n    /* TODO: 依次做范围校验、方向校验、广播地址只允许写的校验，再按 (addr << 1) | dir 组装 */\n    return -1;\n}",
+      "expectedOutput": "地址合法时返回 `(addr << 1) | dir`（0~255）；地址越界、方向非法或广播地址配读方向时返回 -1。",
+      "testCases": [
+        { "input": "addr = 0x3C, dir = I2C_DIR_WRITE", "expectedOutput": "返回 0x78（0x3C << 1 = 0x78，方向位为 0）" },
+        { "input": "addr = 0x3C, dir = I2C_DIR_READ", "expectedOutput": "返回 0x79（方向位为 1）" },
+        { "input": "addr = 0, dir = I2C_DIR_WRITE", "expectedOutput": "返回 0x00（广播地址允许写）" },
+        { "input": "addr = 0, dir = I2C_DIR_READ", "expectedOutput": "返回 -1（广播地址不允许读）" },
+        { "input": "addr = 0x80, dir = I2C_DIR_WRITE", "expectedOutput": "返回 -1（超出 7 位地址范围）" }
+      ],
+      "solutionCode": "#include <stdint.h>\n\n#define I2C_DIR_WRITE 0\n#define I2C_DIR_READ  1\n\nint i2c_build_addr_byte(int addr, int dir)\n{\n    if (addr < 0 || addr > 0x7F) {\n        return -1;\n    }\n    if (dir != I2C_DIR_WRITE && dir != I2C_DIR_READ) {\n        return -1;\n    }\n    if (addr == 0 && dir == I2C_DIR_READ) {\n        return -1;\n    }\n    return (int)(((uint8_t)addr << 1) | (uint8_t)dir);\n}",
+      "hints": [
+        "三条校验有先后顺序：先判地址是否落在 0~127，再判方向取值，最后单独处理广播地址。",
+        "广播地址不是\"随便能用的地址\"：它只能用于向总线上所有从机发送写数据，因此 `addr == 0` 配读方向必须拒绝。",
+        "组装用移位加按位或：地址左移 1 位腾出最低位，再把方向位或进去。"
+      ],
+      "explanation": "本题把素材的 I2C 寻址规则落成可测试的\"地址帧组装\"逻辑，是每个 I2C 驱动都有的第一步。实现要点：① 7 位地址的编码空间是 0~127，`addr > 0x7F` 属于 10 位寻址或参数错误的范畴，必须拒绝而不是截断——截断会把错误的地址发上总线，命中另一个完全无关的从机；② 广播地址 0x00 只对写操作有意义，向广播地址发起读操作在协议上没有接收方能提供数据；③ `(addr << 1) | dir` 之所以成立，是因为地址占高 7 位、方向位占最低位；④ 返回 -1 与返回 0x00 语义完全不同——0x00 是一个合法的地址字节，若用 0 表示\"参数错误\"，调用方将无法与\"对广播地址写\"区分，这是 I2C 驱动里很典型的一类隐蔽 bug。",
+      "sourceRef": "03-驱动开发与外设编程/README.md#📌 I2C（集成电路间总线）",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    }
+  ]
+}

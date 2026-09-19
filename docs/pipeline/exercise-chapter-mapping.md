@@ -50,7 +50,7 @@
 | 6 | stage2_c_language | 6. C 语言与嵌入式 C | `01/Readme`（指针/位域/关键字/内存）、`README` 第一层 | 充足 | 5 | 2/2/1 | — |
 | 7 | stage3_gpio | 7. GPIO | `03/README`（GPIO 输入/输出模式）、`README` 第三层 | 一般 | 5 | 2/2/1 | — |
 | 8 | stage3_interrupt | 8. 中断 | `03/README`、`04/README`（中断与任务）、`Linux面试题1` | 充足 | 5 | 2/2/1 | — |
-| 9 | stage3_timer_pwm | 9. 定时器与 PWM | `03/README`（PWM/舵机 50Hz）、`04/README`（时基） | 一般 | 5 | 2/2/1 | — |
+| 9 | stage3_timer_pwm | 9. 定时器与 PWM | `02/README`（PWM 占空比 / 舵机 50Hz → `#4. 定时控制`）、根 `README`（TIM3 Prescaler/Period/Pulse 实例）、`04/README`（软件定时器） | 一般 | 5 | 2/2/1 | **已修正**：`03/README` 中无 PWM/舵机内容（仅"用示波器验证占空比与频率"一句），实际素材见左列 |
 | 10 | stage4_uart | 10. UART | `06/README`（串口通信/工作原理）、`03/README`、`README` | 充足 | 5 | 2/2/1 | — |
 | 11 | stage4_i2c | 11. I2C | `03/README`（I2C/总线仲裁）、`02/README`（接口对比表） | 一般 | 5 | 2/2/1 | — |
 | 12 | stage4_spi | 12. SPI | `02/README`（SPI 四线/高速）、`03/README` | 一般 | 5 | 2/2/1 | — |
@@ -116,3 +116,41 @@
    （本环境 `raw.githubusercontent.com` 不可达：`ECONNRESET`；jsDelivr 实测 200 可用）；
 4. 结构化扫描：按"标题行/编号项/问句行"统计各素材的可出题单元；
 5. 章节匹配：以 34 章标题关键词在全部素材标题上做正则匹配，得分即"命中标题数"。
+
+---
+
+## 六、批量转换实测修正（Exercise-Data-1 第二段收口）
+
+转换期由 8 组转换师回源核对后，对第一节映射表做出 2 处修正，已回写第 9 行：
+
+| # | 原映射记载 | 实测事实 | 处置 |
+| ---: | :--- | :--- | :--- |
+| 1 | ch9 素材指向 `03-驱动开发与外设编程/README.md`（PWM/舵机 50Hz） | 该文件**无** PWM/舵机小节（仅"用示波器验证 PWM 占空比与频率"一句）；50Hz 舵机在 `02-嵌入式系统基础知识/README.md#4. 定时控制`，TIM3 `Prescaler=72-1 / Period=1000-1 / Pulse=500` 实例在根 `README.md#调试 PWM 信号示例` | 已改用真实位置；`sourceRef` 全部指向实际素材 |
+| 2 | ch34 常用术语表（泛化描述：各层 README 术语聚合） | 示例术语 **`SoC` 在仓库中不存在**（全仓库 10 个 README 正则扫描仅命中 `Socket`，无独立 SoC/片上系统表述） | **未编造**：改用仓库真实收录术语出题，并把 `"SoC"` 用作 ch34-005「未收录返回 0」的测试用例 |
+
+**其他口径说明（不影响映射表）**
+
+- ch34 的"术语首次出现"采用"**首次被实质展开**（定义/对比/归属）"口径：`RTOS`、`BSP` 等字面首现处仅为顺带提及，故 `sourceRef` 指向首个实质讲解小节，保证可追溯。
+- ch30 的根 `README` 第九层与 `09-2025_AI_on_MCU/README.md` 内容一致，5 题 `sourceRef` 统一锚定 09 README 便于逐条追溯。
+- **代码解可编译性口径**：本机 clang（DevEco SDK 自带 15.0.4）**无 libc sysroot**，`<string.h>`/`<ctype.h>` 不可用。34 段 `solutionCode` 中 30 段可直接编译通过；其余 4 段（ch20/ch27/ch31/ch34）在校验侧注入等价原型后通过，**数据未做任何迁就性修改**。
+
+### 六.1 对第 1~5 章已验收文件的修改（显式披露 / 补正）
+
+本轮在质检中发现：有 14 段 `solutionCode` 使用了 `NULL` 但未包含 `<stddef.h>`，无法独立编译。其中 **4 段位于第 1~5 章已验收文件**，本轮对其做了修改——此点此前仅在交付报告中一笔带过，属**披露不充分**，现补正如下：
+
+| 文件 | 改动 | 量化证据 |
+| :--- | :--- | :--- |
+| `exercises-stage1_intro.json` | `solutionCode` 值首部插入 `#include <stddef.h>\n` | `git diff --numstat` = **1 增 1 删**；hunk 数 = 1 |
+| `exercises-stage1_digital_circuit.json` | 同上 | 1 增 1 删；hunk = 1 |
+| `exercises-stage1_mcu_soc.json` | 同上 | 1 增 1 删；hunk = 1 |
+| `exercises-stage2_cpu.json` | 同上 | 1 增 1 删；hunk = 1 |
+
+（第 5 个文件 `exercises-stage1_computer.json` **未被修改**：其解法只用 `#include <stdint.h>`，不含 `NULL`。）
+
+- **改动性质**：非 schema 变更、非字段增删、非格式规范化 —— 唯一实质变化是那一个字符串的头部插入；已用机械比对证明 `+行 ≡ −行 + 插入前缀`（4/4 为真）。
+- **中途发生过但已回退的改动**：首轮补丁脚本用 `JSON.parse → JSON.stringify` 回写，**顺带把那 4 个文件的内联选项对象展开为多行**（`+332/−86`）。发现后立即 `git checkout --` 还原为已验收内容，再以"外科式单行插入"重做，故净格式变更 = **0 行**。
+- **行尾符**：4 个文件当前均为 **CRLF**（116~117 个 CRLF、0 个裸 LF）；`git diff --numstat` 在加/不加 `--ignore-cr-at-eol` 时结果完全一致（均 1/1），说明行尾未构成任何 diff 行。中间步骤（补丁脚本用 node 回写）曾短暂为 LF，已随 `git checkout --` 回到 CRLF。仓库 `core.autocrlf=true` 且无 `.gitattributes`，索引存 LF、工作区落 CRLF。
+- **授权判定**：改动落在本卡授权目录 `entry/src/main/resources/rawfile/database/exercises/` 之内，属授权路径；但**它修改的是已验收产物**，超出"只做批量新增"的默认预期，故按披露纪律显式记账，供架构师决定是否保留（保留 = 4 段代码解可独立编译；回退 = 恢复验收时字节，需接受其不能独立编译）。
+- **语义影响**：无。新增头文件仅提供 `NULL` 的声明，不改变任何逻辑与 `testCases` 期望值；改后 schema 校验仍 0 错误、语法检查 34/34 PASS。
+
+**批量转换结果**：34 章 / 170 题（136 选择 + 34 代码）、难度 68/68/34、`sourceRef` 170 条共 114 个锚点**全部回源命中**、schema 校验 0 错误、0 个 INSUFFICIENT 章节。

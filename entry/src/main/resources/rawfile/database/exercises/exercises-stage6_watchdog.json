@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "1.0.0",
+  "chapterId": "stage6_watchdog",
+  "chapterNo": 15,
+  "chapterTitle": "15. 看门狗与系统可靠性",
+  "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+  "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn",
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "extractedAt": "2026-09-13",
+  "exercises": [
+    {
+      "id": "ex-ch15-001",
+      "chapterId": "stage6_watchdog",
+      "chapterNo": 15,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材指出独立看门狗（IWDG）「由专用低速时钟（LSI，约 32kHz）驱动，即使主时钟故障仍能工作」。这说明了 IWDG 的什么特性？",
+      "options": [
+        { "key": "A", "text": "它的计数时基来自独立于主时钟的 LSI，因此主时钟（如 PLL、HSE）失效时仍能继续计数并触发复位" },
+        { "key": "B", "text": "它由系统主时钟分频得到，只是分频系数很大，所以看起来「独立」" },
+        { "key": "C", "text": "它由内核的 SysTick 提供时基，而 SysTick 的时钟不依赖主时钟" },
+        { "key": "D", "text": "它依靠外部晶振 HSE 计时，因此比内部时钟更精确、更可靠" }
+      ],
+      "answer": "A",
+      "explanation": "素材把「专用低速时钟（LSI，约 32kHz）」作为 IWDG 的关键前提，并直接给出结论「即使主时钟故障仍能工作」——看门狗的价值恰恰在于：它监视的对象（主时钟、程序流）失效时，它自己不能跟着一起失效。B 把「独立时钟」误解为「同一时钟的很大分频」，那种情况下主时钟一停计数就停，看门狗随之失效，等于没有保护。C 混淆了时基来源：SysTick 属于内核外设，其时钟同样源自系统时钟链，无法提供独立时基。D 把 LSI（内部低速时钟）与 HSE（外部高速晶振）弄反了；而且本条的关注点是「时钟失效时仍能工作」，与计时精度是两回事——LSI 精度不高，但可靠性来自「独立」而不是「精确」。",
+      "sourceRef": "03-驱动开发与外设编程/README.md#📌 看门狗（Watchdog）",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch15-002",
+      "chapterId": "stage6_watchdog",
+      "chapterNo": 15,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材指出窗口看门狗（WWDG）「喂狗时间必须在窗口范围内（上限值~下限值），防止程序在异常状态下喂狗」。这一约束带来的实际价值是？",
+      "options": [
+        { "key": "A", "text": "它同时约束喂狗的「过早」与「过晚」，可发现跑飞的代码恰好执行到喂狗语句这类异常" },
+        { "key": "B", "text": "它只是超时时间更长的看门狗，专门用于低速时钟场景" },
+        { "key": "C", "text": "它由主时钟驱动，因此比 IWDG 更可靠" },
+        { "key": "D", "text": "它只在调试阶段使用，量产固件中会被 IWDG 完全取代" }
+      ],
+      "answer": "A",
+      "explanation": "素材对 WWDG 的要点就是「喂狗时间必须在窗口范围内（上限值~下限值），防止程序在异常状态下喂狗」——它不只查「有没有喂」，还查「喂得早不早」，因此能识别「程序已经跑飞、但恰好执行到了喂狗语句」这种 IWDG 无法发现的情况。B 把它当成「超时更长的 IWDG」，方向正好相反：WWDG 增加的是喂狗时刻的下界约束，而不是放宽上界。C 弄反了可靠性的来源——素材明确 IWDG 靠 LSI 独立时钟「即使主时钟故障仍能工作」，所以「由主时钟驱动」并不构成更可靠的理由。D 把两者当成调试期与量产期的替代关系，实际上二者是互补的：IWDG 关注程序流是否停摆，WWDG 额外约束喂狗时机，很多产品会同时使用。",
+      "sourceRef": "03-驱动开发与外设编程/README.md#📌 看门狗（Watchdog）",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch15-003",
+      "chapterId": "stage6_watchdog",
+      "chapterNo": 15,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "现场设备偶发重启，怀疑是程序「跑飞」。素材对「调试时发现程序跑飞，如何定位问题」给出了明确手段。下列哪组做法与该素材一致？",
+      "options": [
+        { "key": "A", "text": "设置看门狗定时器以捕获异常复位；用硬件断点检查关键函数是否被正确调用；对关键条件添加断言（assert）" },
+        { "key": "B", "text": "先关闭看门狗排除「误复位」的可能，再长时间运行观察系统是否还会重启" },
+        { "key": "C", "text": "把看门狗超时时间调到最长，以减少复位次数、降低故障影响" },
+        { "key": "D", "text": "把 `HardFault_Handler` 改为空实现直接返回，让系统继续运行以避免重启" }
+      ],
+      "answer": "A",
+      "explanation": "素材的「面试高频问题」把「程序跑飞」的定位手段归纳为三条：设置看门狗定时器捕获异常复位、用硬件断点检查关键函数是否被正确调用、添加断言验证关键条件——三者分别覆盖「何时复位」「执行路径是否偏离」「前置条件是否被破坏」。B 是常见但有害的做法：关掉看门狗后跑飞不再被复位，现场表现会从「偶发重启」变成「彻底挂死」，故障被掩盖而不是被排除；而且复位信息一旦丢失，后续定位会更困难。C 只是把「频繁重启」换成「更长时间的无响应」，异常本身仍未被捕获，反而拉长了故障暴露时间。D 把「掩盖异常」当成「处理异常」——`HardFault_Handler` 是异常处理的入口，置空会让系统在已被破坏的状态下继续执行，后续故障更难定位，这与素材「检查关键函数是否被正确调用、用断言验证关键条件」的思路正好相反。",
+      "sourceRef": "07-Debug_Optimization/README.md#面试高频问题",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch15-004",
+      "chapterId": "stage6_watchdog",
+      "chapterNo": 15,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "在带 FreeRTOS 的产品中需要做「任务级」可靠性监控（栈溢出、任务状态、CPU 占用）。依据素材的 RTOS 调试与性能分析一节，下列哪组接口/配置正是为此提供的？",
+      "options": [
+        { "key": "A", "text": "`configCHECK_FOR_STACK_OVERFLOW` 检测栈溢出、`uxTaskGetStackHighWaterMark()` 查任务栈剩余空间、`vTaskList()` 查任务状态、`vTaskGetRunTimeStats()` 统计 CPU 使用率" },
+        { "key": "B", "text": "把 `configMINIMAL_STACK_SIZE` 调大即可，不需要再做栈溢出检测与运行统计" },
+        { "key": "C", "text": "把 `configTICK_RATE_HZ` 调到最高，用滴答频率代替任务级监控" },
+        { "key": "D", "text": "关闭 `configUSE_PREEMPTION`，让所有任务同优先级，即可从根本上消除任务异常" }
+      ],
+      "answer": "A",
+      "explanation": "素材在「RTOS 调试与性能分析」下把监控手段分得很清楚：栈相关用 `configCHECK_FOR_STACK_OVERFLOW` 检测溢出、用 `uxTaskGetStackHighWaterMark()` 查看栈剩余空间；运行态用 `vTaskList()` 输出任务名/状态/优先级/栈等信息；CPU 占用用 `vTaskGetRunTimeStats()`（需配置 `configGENERATE_RUN_TIME_STATS=1`）。B 把「加大栈」当成「监控」：任务栈需求会随调用深度与局部变量变化，不做检测就无法知道是否够用，栈溢出往往是看门狗复位的直接诱因。C 混淆了时基与监控——`configTICK_RATE_HZ` 只决定系统滴答频率（素材示例值 1000，即 1ms），提高它并不能提供任何任务状态信息。D 与素材描述相反：`configUSE_PREEMPTION` 控制的是抢占式调度，关掉它只会改变调度行为，并不能消除栈溢出、死锁等任务异常。",
+      "sourceRef": "04-实时操作系统/README.md#性能指标分析",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch15-005",
+      "chapterId": "stage6_watchdog",
+      "chapterNo": 15,
+      "type": "code",
+      "difficulty": "advanced",
+      "question": "素材指出窗口看门狗（WWDG）「喂狗时间必须在窗口范围内（上限值~下限值）」。请实现一个 **喂狗时刻判定**函数 `wdg_feed_check()`：给定本轮计数起点到本次喂狗经过的时间，判断这次喂狗是否落在合法窗口内。\n\n约定：\n\n- 窗口是**闭区间** `[window_low_ms, window_high_ms]`，端点取值视为合法；\n- 返回 `0`（`WDG_FEED_OK`）：落在窗口内；\n- 返回 `1`（`WDG_FEED_TOO_EARLY`）：`elapsed_ms < window_low_ms`，喂狗过早；\n- 返回 `2`（`WDG_FEED_TOO_LATE`）：`elapsed_ms > window_high_ms`，已超出上限（等效超时）；\n- 返回 `-1`（`WDG_FEED_INVALID`）：窗口区间本身非法，即 `window_low_ms == 0` 或 `window_low_ms > window_high_ms`。\n\n三个入参均为无符号整数（毫秒），不存在负值输入，因此窗口下限为 0 视为未配置窗口、属于非法入参。",
+      "language": "c",
+      "starterCode": "typedef enum {\n    WDG_FEED_INVALID   = -1,  /* 窗口区间非法 */\n    WDG_FEED_OK        = 0,   /* 喂狗时刻落在窗口内 */\n    WDG_FEED_TOO_EARLY = 1,   /* 早于窗口下限 */\n    WDG_FEED_TOO_LATE  = 2    /* 晚于窗口上限 */\n} WdgFeedResult;\n\n/*\n * elapsed_ms     : 本轮计数起点到本次喂狗经过的时间（ms）\n * window_low_ms  : 窗口下限（闭区间左端）\n * window_high_ms : 窗口上限（闭区间右端）\n *\n * 返回 WdgFeedResult 中的取值；窗口区间非法时返回 WDG_FEED_INVALID。\n */\nWdgFeedResult wdg_feed_check(unsigned int elapsed_ms,\n                             unsigned int window_low_ms,\n                             unsigned int window_high_ms)\n{\n    /* TODO: 在此实现 */\n    return WDG_FEED_OK;\n}",
+      "expectedOutput": "先校验窗口区间（下限为 0 或下限大于上限返回 -1），再判定时刻：落在闭区间 [window_low_ms, window_high_ms] 返回 0，早于下限返回 1，晚于上限返回 2。",
+      "testCases": [
+        { "input": "wdg_feed_check(10, 10, 100)", "expectedOutput": "返回 0（WDG_FEED_OK，恰好等于下限，闭区间端点合法）" },
+        { "input": "wdg_feed_check(100, 10, 100)", "expectedOutput": "返回 0（WDG_FEED_OK，恰好等于上限，闭区间端点合法）" },
+        { "input": "wdg_feed_check(5, 10, 100)", "expectedOutput": "返回 1（WDG_FEED_TOO_EARLY，早于窗口下限）" },
+        { "input": "wdg_feed_check(101, 10, 100)", "expectedOutput": "返回 2（WDG_FEED_TOO_LATE，晚于窗口上限）" },
+        { "input": "wdg_feed_check(50, 0, 100)", "expectedOutput": "返回 -1（WDG_FEED_INVALID，窗口下限为 0，窗口未正确配置）" }
+      ],
+      "solutionCode": "typedef enum {\n    WDG_FEED_INVALID   = -1,\n    WDG_FEED_OK        = 0,\n    WDG_FEED_TOO_EARLY = 1,\n    WDG_FEED_TOO_LATE  = 2\n} WdgFeedResult;\n\nWdgFeedResult wdg_feed_check(unsigned int elapsed_ms,\n                             unsigned int window_low_ms,\n                             unsigned int window_high_ms)\n{\n    /* 窗口区间本身必须合法：下限不能为 0，且不能大于上限 */\n    if (window_low_ms == 0u || window_low_ms > window_high_ms) {\n        return WDG_FEED_INVALID;\n    }\n\n    if (elapsed_ms < window_low_ms) {\n        return WDG_FEED_TOO_EARLY;\n    }\n    if (elapsed_ms > window_high_ms) {\n        return WDG_FEED_TOO_LATE;\n    }\n\n    return WDG_FEED_OK;\n}",
+      "hints": [
+        "先把「窗口区间是否合法」判掉：`window_low_ms == 0` 或 `window_low_ms > window_high_ms` 时，后面的大小比较已经没有意义，直接返回 `WDG_FEED_INVALID`。",
+        "判定顺序是「先早后晚」：`elapsed_ms < window_low_ms` 判过早，`elapsed_ms > window_high_ms` 判过晚，两个条件都不满足才算落在窗口内。",
+        "闭区间意味着端点合法，所以两处比较分别只能用 `<` 与 `>`，写成 `<=`/`>=` 会把刚好卡在上下限的合法喂狗误判为违规。"
+      ],
+      "explanation": "本题把素材里 WWDG 的窗口语义（喂狗时间必须落在「上限值~下限值」之间）落成一个可测试的判定函数，重点考三件事。第一是**窗口区间的自校验**：如果下限为 0，窗口就退化成了「只要不超时就算合法」，WWDG 用来发现「过早喂狗」的能力完全丧失，所以这种配置本身就应当被当作非法入参拒绝；下限大于上限同理——那是一个空区间，任何时刻都不可能合法。第二是**边界闭合方向**：题目明确约定闭区间，因此 `elapsed_ms` 恰好等于上下限时都算合法，两处比较必须用严格不等号；这也是嵌入式判定函数里最常写错的一处，写成 `<=` 会让「刚好在窗口边沿」的合法喂狗触发复位，表现为偶发、难以复现的重启。第三是**返回码的区分度**：过早与过晚分开返回，是因为二者的排查方向完全不同——过早通常说明喂狗语句被放在了一个执行频率过高的路径上（例如被高频中断或紧凑循环调用），过晚则说明任务被阻塞或主循环某段耗时超预期；合成一个「失败」码会让现场定位失去最重要的线索。",
+      "sourceRef": "03-驱动开发与外设编程/README.md#📌 看门狗（Watchdog）",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    }
+  ]
+}

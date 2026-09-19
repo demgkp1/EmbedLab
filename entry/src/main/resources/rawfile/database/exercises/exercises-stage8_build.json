@@ -1,0 +1,180 @@
+{
+  "schemaVersion": "1.0.0",
+  "chapterId": "stage8_build",
+  "chapterNo": 23,
+  "chapterTitle": "23. 编译、链接与烧录",
+  "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+  "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn",
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "extractedAt": "2026-09-13",
+  "exercises": [
+    {
+      "id": "ex-ch23-001",
+      "chapterId": "stage8_build",
+      "chapterNo": 23,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材把**编译阶段**拆成一条链路：`源代码(.c/.cpp) → 预处理器 → 编译器 → 汇编代码(.s) → 汇编器 → 目标文件(.o)`，并列出关键步骤。下列哪项与该链路一致？",
+      "options": [
+        {
+          "key": "A",
+          "text": "预处理器处理 `#include`、`#define` 等指令；编译器把代码转换为汇编语言；汇编器生成机器码（目标文件）"
+        },
+        {
+          "key": "B",
+          "text": "编译器处理 `#include`、`#define` 并直接生成 `.o`；汇编器只负责把 `.o` 打包成 `.elf`"
+        },
+        {
+          "key": "C",
+          "text": "汇编器先输出汇编代码 `.s`，编译器再把 `.s` 汇编成 `.o`"
+        },
+        {
+          "key": "D",
+          "text": "预处理器负责合并多个目标文件并解析符号引用，最终生成 `.o`"
+        }
+      ],
+      "answer": "A",
+      "explanation": "素材的关键步骤写得很明确：预处理器处理 `#include`、`#define` 等指令；编译器将代码转换为汇编语言；汇编器生成机器码（目标文件），A 与之逐条对应。B 把预处理器的职责并给了编译器，又让汇编器去做链接器的活——把多个目标文件合并起来的是链接阶段，产物是 `.elf` 而不是汇编器的输出。C 把编译器与汇编器的输入输出对调了：`.s` 是编译器的输出、汇编器的输入。D 描述的「合并所有目标文件的段、解析符号引用」是素材列出的链接器工作，其产物是可执行文件而非 `.o`。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#编译与链接流程",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch23-002",
+      "chapterId": "stage8_build",
+      "chapterNo": 23,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材的 Makefile 示例写有 `CC = arm-none-eabi-gcc`、`LDFLAGS = -Tstm32f4.ld`，链接规则为 `$(CC) $(LDFLAGS) $(OBJS) -o $@`；CMake 示例中除设置交叉编译器外，还用 `add_custom_target` 调用 `${CMAKE_OBJCOPY} -O binary ${PROJECT_NAME}.elf ${PROJECT_NAME}.bin` 生成烧录镜像。下列关于这条构建链的说法，哪项正确？",
+      "options": [
+        {
+          "key": "A",
+          "text": "`-T` 把链接脚本交给链接器；`objcopy -O binary` 把链接产物 `.elf` 转成可烧录的 `.bin`"
+        },
+        {
+          "key": "B",
+          "text": "`-T` 用来指定目标芯片型号；`.bin` 由编译器 `arm-none-eabi-gcc` 直接输出"
+        },
+        {
+          "key": "C",
+          "text": "`-T` 用来指定编译优化等级；`objcopy` 的作用是反汇编 `.elf` 以便查看代码"
+        },
+        {
+          "key": "D",
+          "text": "链接脚本的位置必须写死在源码里，Makefile 与 CMake 无法向链接器传递该文件"
+        }
+      ],
+      "answer": "A",
+      "explanation": "素材中 `LDFLAGS = -Tstm32f4.ld` 出现在链接规则里，CMake 侧同样以 `-T${CMAKE_SOURCE_DIR}/STM32F407VGTx_FLASH.ld` 追加到 `CMAKE_EXE_LINKER_FLAGS`，可见 `-T` 就是把链接脚本交给链接器的选项。`.elf` 转 `.bin` 由 `${CMAKE_OBJCOPY} -O binary ...` 完成，素材的工具链清单也把 `arm-none-eabi-objcopy` 定义为「格式转换工具（如生成.bin/.hex文件）」。B 混淆了芯片型号与链接脚本：选芯片靠器件头文件/编译选项，而 `-T` 指向的是 `.ld` 文件。C 把 `-T` 误当成优化等级（优化用 `-O2`、`-Os`，素材的 `CFLAGS` 中正是这么写的），又把 `objcopy` 与 `objdump` 混为一谈——反汇编用的是 `arm-none-eabi-objdump -d`。D 与两处示例都矛盾：路径就是通过构建系统的变量（`LDFLAGS`、`CMAKE_EXE_LINKER_FLAGS`）传进去的。",
+      "sourceRef": "08-项目实战与工具链/README.md#1. **Makefile 基础**",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch23-003",
+      "chapterId": "stage8_build",
+      "chapterNo": 23,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材的链接脚本 MEMORY 区块示例为 `FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 512K` 与 `RAM (rwx) : ORIGIN = 0x20000000, LENGTH = 64K`，属性说明为「`r`：可读，`w`：可写，`x`：可执行。`ORIGIN`：起始地址，`LENGTH`：大小」。据此，下列哪项正确？",
+      "options": [
+        {
+          "key": "A",
+          "text": "`FLASH (rx)` 表示该区域可读、可执行；`ORIGIN` 是区域起始地址，`LENGTH` 是区域大小"
+        },
+        {
+          "key": "B",
+          "text": "`LENGTH` 表示区域的结束地址，因此 Flash 的地址到 512K 为止"
+        },
+        {
+          "key": "C",
+          "text": "`x` 表示该区域可以被链接器扩展（extend），与执行权限无关"
+        },
+        {
+          "key": "D",
+          "text": "每个区域都必须同时声明 `r`、`w`、`x` 三个属性，否则链接器会报错"
+        }
+      ],
+      "answer": "A",
+      "explanation": "素材的属性说明直接给出 `r`/`w`/`x` 分别是可读/可写/可执行，`ORIGIN` 是起始地址，`LENGTH` 是大小，因此 `FLASH (rx)` 是可读可执行的代码区，`RAM (rwx)` 是可读可写可执行的运行数据区。B 把 `LENGTH` 当成了结束地址，这是常见误解：结束地址需要由起始地址加上长度才能得到（本例 Flash 覆盖 `0x08000000` 起 512K 的范围），`LENGTH` 本身不是地址。C 把权限位 `x` 误解为 extend，若真按「可扩展」理解，就无法解释示例中 `RAM` 为什么要额外带上 `x`。D 与示例不符：`FLASH` 只声明了 `rx` 也能正常工作，属性是按区域实际需要声明的。另外要注意 MEMORY 只负责声明「有哪些存储区域」，具体把段放进哪个区域由 SECTIONS 中的 `> FLASH`、`> RAM` 决定。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#链接脚本（.ld）深入解析",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch23-004",
+      "chapterId": "stage8_build",
+      "chapterNo": 23,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材在「常见问题与调试技巧」中把**符号未定义**列为一种链接错误：「原因：调用未实现的函数或使用未定义的变量。解决：检查函数名拼写，确保目标文件包含该符号。」工程链接时报出 `undefined reference to 'sensor_init'`，下列哪种做法最符合素材给出的排查方向？",
+      "options": [
+        {
+          "key": "A",
+          "text": "确认 `sensor_init` 定义所在的源文件是否已参与构建并被链接进工程（如是否被 Makefile 的源文件集合收集），同时核对函数名拼写与声明是否一致"
+        },
+        {
+          "key": "B",
+          "text": "把该函数的声明加上 `volatile` 限定，让链接器保留这个符号"
+        },
+        {
+          "key": "C",
+          "text": "增大链接脚本中 RAM 区域的 `LENGTH`，为未定义的符号预留空间"
+        },
+        {
+          "key": "D",
+          "text": "把优化等级降到 `-O0`，因为高优化等级会丢弃尚未实现的符号"
+        }
+      ],
+      "answer": "A",
+      "explanation": "素材把符号未定义归因于「调用未实现的函数或使用未定义的变量」，解决方式是「检查函数名拼写，确保目标文件包含该符号」，所以排查方向就是三步：定义是否真的存在、该目标文件是否参与链接、函数名与声明是否一致——A 正是这个方向。B 误解了 `volatile`：它约束编译器对该对象的访问优化，与符号解析无关，也改变不了「没有定义」这一事实。C 混淆了两类链接错误：素材把「内存溢出」单列为代码或数据量超过 Flash/RAM 的问题，往 RAM 里加空间不会让缺失的符号出现。D 误解了优化等级的作用：`-O0` 只影响代码生成方式，不会凭空生成缺失的函数定义。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#常见问题与调试技巧",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch23-005",
+      "chapterId": "stage8_build",
+      "chapterNo": 23,
+      "type": "code",
+      "difficulty": "advanced",
+      "question": "素材的链接脚本用 MEMORY 区块的 `ORIGIN`/`LENGTH` 声明存储区域，用 SECTIONS 区块把段依次放进区域（`.text → FLASH`，`.data`/`.bss`/`.stack`/`.heap → RAM`），并在中断向量表段里用 `. = ALIGN(4);` 保证地址对齐；素材还把「根据链接脚本分配地址」列为链接器的工作之一。请实现一个模拟链接器**放置段**的函数：\n\n- 在区域 `[origin, origin + length)` 内，按 `specs` 的顺序依次为每段分配起始地址；\n- 第 i 段的起始地址 = 把当前游标向上对齐到 `specs[i].align` 的整数倍（`align` 为 2 的幂）；\n- 该段占用 `[start, start + size)`，随后游标推进到段末尾；\n- 若某段（含为对齐跳过的填充）越过区域末尾，返回 `1`（溢出）；\n- 全部放置成功时，把各段起始地址依次写入 `out_starts`，返回 `0`；\n- 入参非法返回 `-1`：`region`、`specs`、`out_starts` 任一为 `NULL`，`count <= 0`，`length == 0`，某段 `size == 0`，或某段 `align` 不是 2 的幂。",
+      "language": "c",
+      "starterCode": "typedef struct {\n    unsigned int origin;   /* MEMORY 区域起始地址（ORIGIN） */\n    unsigned int length;   /* MEMORY 区域大小（LENGTH） */\n} MemRegion;\n\ntypedef struct {\n    unsigned int size;     /* 段大小（字节） */\n    unsigned int align;    /* 段对齐字节数，必须是 2 的幂 */\n} SectionSpec;\n\n/*\n * 在 [origin, origin + length) 内按顺序为 count 个段分配起始地址，写入 out_starts。\n * 返回 0 成功 / 1 区域放不下 / -1 入参非法。\n */\nint layout_sections(const MemRegion *region, const SectionSpec *specs,\n                    int count, unsigned int *out_starts)\n{\n    /* TODO: 在此实现 */\n    return -1;\n}",
+      "expectedOutput": "按序为每段做向上对齐并推进游标：成功返回 0 并回写各段起始地址；某段（含对齐填充）超出区域返回 1；NULL、count、size、align 等入参非法返回 -1。",
+      "testCases": [
+        {
+          "input": "region = {origin 0x08000000, length 0x1000}, specs = [{size 4, align 4}, {size 8, align 4}]",
+          "expectedOutput": "返回 0，out_starts = {0x08000000, 0x08000004}"
+        },
+        {
+          "input": "region = {origin 0x08000000, length 0x1000}, specs = [{size 1, align 1}, {size 4, align 8}]",
+          "expectedOutput": "返回 0，out_starts = {0x08000000, 0x08000008}（第二段按 8 字节对齐，跳过 7 字节填充）"
+        },
+        {
+          "input": "region = {origin 0x08000000, length 0x14}, specs = [{size 7, align 1}, {size 13, align 8}]（两段之和 20 未超，但第二段对齐到 0x08000008 后需要 21 字节）",
+          "expectedOutput": "返回 1（对齐填充导致溢出，out_starts 不应作为有效结果使用）"
+        },
+        {
+          "input": "region = {origin 0x08000000, length 0x1000}, specs = [{size 8, align 3}]（align 不是 2 的幂）或 specs = [{size 0, align 4}]（size 为 0）",
+          "expectedOutput": "两种情况均返回 -1"
+        },
+        {
+          "input": "region = NULL，或 count = 0，或 region = {origin 0x08000000, length 0}",
+          "expectedOutput": "均返回 -1"
+        }
+      ],
+      "solutionCode": "#include <stddef.h>\ntypedef struct {\n    unsigned int origin;\n    unsigned int length;\n} MemRegion;\n\ntypedef struct {\n    unsigned int size;\n    unsigned int align;\n} SectionSpec;\n\nstatic int is_power_of_two(unsigned int value)\n{\n    return (value != 0u) && ((value & (value - 1u)) == 0u);\n}\n\nstatic int align_up(unsigned int addr, unsigned int align, unsigned int *out)\n{\n    unsigned int mask = align - 1u;\n    unsigned int aligned = (addr + mask) & ~mask;\n\n    if (aligned < addr) {\n        return -1;  /* 无符号回绕：地址空间已用尽 */\n    }\n    *out = aligned;\n    return 0;\n}\n\nint layout_sections(const MemRegion *region, const SectionSpec *specs,\n                    int count, unsigned int *out_starts)\n{\n    unsigned int cursor;\n    unsigned int limit;\n    int i;\n\n    if (region == NULL || specs == NULL || out_starts == NULL || count <= 0) {\n        return -1;\n    }\n    if (region->length == 0u) {\n        return -1;\n    }\n\n    limit = region->origin + region->length;\n    if (limit < region->origin) {\n        return -1;  /* ORIGIN + LENGTH 溢出，区域本身非法 */\n    }\n    cursor = region->origin;\n\n    for (i = 0; i < count; i++) {\n        unsigned int start = 0u;\n\n        if (specs[i].size == 0u || !is_power_of_two(specs[i].align)) {\n            return -1;\n        }\n        if (align_up(cursor, specs[i].align, &start) != 0) {\n            return 1;\n        }\n        if (start > limit || specs[i].size > limit - start) {\n            return 1;\n        }\n\n        out_starts[i] = start;\n        cursor = start + specs[i].size;\n    }\n\n    return 0;\n}",
+      "hints": [
+        "向上对齐公式：`(addr + align - 1) & ~(align - 1)`，成立前提是 `align` 为 2 的幂（用 `(v & (v - 1)) == 0` 判断）。",
+        "越界判断用减法避免无符号回绕：先确认 `start <= limit`，再判 `size > limit - start`。",
+        "把全部入参校验（NULL、count、size、align）放在布局之前，并区分返回 0 / 1 / -1 三种语义。"
+      ],
+      "explanation": "素材给出链接脚本的两块拼图：MEMORY 用 `ORIGIN`/`LENGTH` 声明区域，SECTIONS 用 `> FLASH`、`> RAM` 把段放进区域，并用 `. = ALIGN(4);` 保证关键数据（如中断向量表）落在对齐地址上；而「根据链接脚本分配地址」正是链接器的第三步工作。本题把这个过程写成可测试函数。三个关键点：一是对齐填充同样消耗空间，各段大小之和没超也可能因填充而放不下（测试用例 3 就是这种情形，这类溢出在手工核算时最容易被判成「放得下」）；二是地址运算要用无符号安全写法，`start + size` 一旦回绕就会被误判为合法，所以改成 `size > limit - start`；三是 `align` 必须是 2 的幂，否则位运算对齐公式不成立，必须当作非法入参拒绝。常见错误是忽略对齐填充、直接用 `start + size > limit` 这样的加法比较（回绕后会误判）、或把 `count == 0` 当作合法的空布局而返回 0。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#链接脚本（.ld）深入解析",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    }
+  ]
+}

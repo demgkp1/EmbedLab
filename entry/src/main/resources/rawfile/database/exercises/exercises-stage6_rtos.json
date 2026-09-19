@@ -1,0 +1,180 @@
+{
+  "schemaVersion": "1.0.0",
+  "chapterId": "stage6_rtos",
+  "chapterNo": 17,
+  "chapterTitle": "17. RTOS 与 FreeRTOS",
+  "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+  "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn",
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "extractedAt": "2026-09-13",
+  "exercises": [
+    {
+      "id": "ex-ch17-001",
+      "chapterId": "stage6_rtos",
+      "chapterNo": 17,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材把 RTOS 的「确定性（Determinism）」描述为任务执行时间可预测（如中断响应时间 ≤100μs），并对比指出通用操作系统（如 Linux）强调吞吐量、不保证实时性。据此判断，下列哪一项正确？",
+      "options": [
+        {
+          "key": "A",
+          "text": "实时性的关键在于响应时间可预测、有上界，而不是平均速度更快"
+        },
+        {
+          "key": "B",
+          "text": "RTOS 靠提高 CPU 主频来保证实时性，因此主频一定高于同芯片上的 Linux"
+        },
+        {
+          "key": "C",
+          "text": "确定性指系统启动后任务数量固定，运行时不允许再创建任务"
+        },
+        {
+          "key": "D",
+          "text": "确定性指 RTOS 不使用中断，只靠主循环轮询来保证时序"
+        }
+      ],
+      "answer": "A",
+      "explanation": "素材把「确定性」定义为任务执行时间可预测，并给出中断响应时间 ≤100μs 这样的量级作为例子，同时把它与通用操作系统「强调吞吐量，不保证实时性」对照——可见实时性的判据是**最坏情况下仍有时间上界**，而不是平均性能更好。B 混淆了实时性与主频：主频高只提升平均吞吐，如果调度不可预测，最坏响应时间仍可能超出期限；素材也从未把主频列为 RTOS 的特点。C 把「确定性」误解成「静态配置」：确定性说的是时间行为可预测，而 FreeRTOS 这类 RTOS 本身支持运行时创建任务，素材的 `xTaskCreate` 示例就是动态创建。D 与素材「可抢占内核」的描述直接矛盾：RTOS 不仅使用中断，还要求高优先级任务能立即抢占低优先级任务，靠主循环轮询恰恰是素材中「裸机前后台系统」的做法。",
+      "sourceRef": "04-实时操作系统/README.md#什么是 RTOS？",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch17-002",
+      "chapterId": "stage6_rtos",
+      "chapterNo": 17,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材给出任务状态转换图：就绪 —(调度器选择)→ 运行；运行 —(调用 `vTaskDelay`)→ ？；(超时/事件发生)→ 就绪。空缺处的状态、以及它回到就绪态的条件分别是？",
+      "options": [
+        {
+          "key": "A",
+          "text": "进入「阻塞」态；在延时到期或所等待的事件发生后回到「就绪」态"
+        },
+        {
+          "key": "B",
+          "text": "进入「就绪」态并立即重新参与调度，由调度器下一拍再次选中"
+        },
+        {
+          "key": "C",
+          "text": "进入「挂起」态；必须由其他任务显式调用恢复 API 才能回到「就绪」态"
+        },
+        {
+          "key": "D",
+          "text": "仍停留在「运行」态，只是把 CPU 让给同优先级的其他任务"
+        }
+      ],
+      "answer": "A",
+      "explanation": "素材的状态图明确画出了「运行 —调用 vTaskDelay→ 阻塞」与「阻塞 —超时/事件发生→ 就绪」两条边：调用 `vTaskDelay()` 让任务进入阻塞态，并在延时到期（或它等待的事件发生）后自动回到就绪态，等待被调度器再次选中。B 漏掉了中间的阻塞态，等于把延时当成立即让出、马上又能再运行，那样延时将失去意义，周期性任务的节拍也无从保证。C 混淆了「阻塞」与「挂起」：素材中进入挂起态的是「调用 `vTaskSuspend` 或挂起 API」，挂起态没有超时机制，必须被显式恢复，而阻塞态是可以自己「等到期」的。D 把它和同优先级任务的时间片轮转混为一谈——时间片轮转发生在就绪态的同优先级任务之间，而阻塞态任务根本不参与本轮调度。",
+      "sourceRef": "04-实时操作系统/README.md#任务状态转换",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch17-003",
+      "chapterId": "stage6_rtos",
+      "chapterNo": 17,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材的优先级反转示例中，低优先级任务 L 持有互斥锁执行长时间操作，高优先级任务 H 因等待该锁而迟迟得不到执行。素材给出的原因与解决方式是？",
+      "options": [
+        {
+          "key": "A",
+          "text": "原因是 L 持锁期间被中优先级任务 M 抢占；启用优先级继承后，L 持锁时被临时提升到 H 的优先级，从而不再被 M 抢占"
+        },
+        {
+          "key": "B",
+          "text": "原因是二值信号量没有计数能力；改用计数信号量即可解决"
+        },
+        {
+          "key": "C",
+          "text": "原因是 H 的优先级设置得过高；把 H 降到与 L 相同即可缓解"
+        },
+        {
+          "key": "D",
+          "text": "原因是互斥锁不能跨任务使用；改为在任务间共享一个全局标志位即可"
+        }
+      ],
+      "answer": "A",
+      "explanation": "素材的示例写得很明确：L 持有锁后被中优先级任务 M 抢占，导致 H 无法执行，这就是优先级反转；解决方式是启用优先级继承——L 持锁时临时提升至 H 的优先级，避免被 M 抢占，从而尽快执行完并释放锁。B 把「锁的语义」问题替换成了「计数能力」问题：素材指出互斥信号量本就是「二值信号量的特例，初始值为 1」，它的关键特性是优先级继承，换成计数信号量反而丢掉了这个特性。C 通过降低 H 的优先级来「消除」反转，等于把实时性要求一起降掉了，关键任务不再及时执行，问题被转移而不是被解决。D 混淆了互斥锁与普通标志位：素材把互斥信号量定位为「用于资源保护」的同步对象，全局标志位既不提供阻塞等待、也不提供优先级继承，还会引入忙等与竞态。",
+      "sourceRef": "04-实时操作系统/README.md#互斥信号量（用于资源保护）",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch17-004",
+      "chapterId": "stage6_rtos",
+      "chapterNo": 17,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "某系统有 3 台可被任务独占使用的打印机，任务在打印机全部被占用时需要阻塞等待。依据素材对各类同步对象的定位，应使用哪一种？",
+      "options": [
+        {
+          "key": "A",
+          "text": "计数信号量，如 `xSemaphoreCreateCounting(3, 3)`：取用前 `xSemaphoreTake()` 使计数减 1，用完后 `xSemaphoreGive()` 使其加 1"
+        },
+        {
+          "key": "B",
+          "text": "互斥信号量，如 `xSemaphoreCreateMutex()`，因为它专用于资源保护"
+        },
+        {
+          "key": "C",
+          "text": "二值信号量，如 `xSemaphoreCreateBinary()`，把它的计数值初始化为 3 即可表示 3 台打印机"
+        },
+        {
+          "key": "D",
+          "text": "事件组，如 `xEventGroupCreate()`，用 3 个事件位表示 3 台打印机空闲"
+        }
+      ],
+      "answer": "A",
+      "explanation": "素材在「计数信号量（共享资源数量）」下正好给出了这个场景：初始值为可用资源数量，`xSemaphoreTake()` 获取时计数减 1、计数为 0 则阻塞，`xSemaphoreGive()` 释放时计数加 1 并唤醒等待任务，素材举的例子就是「打印机池（假设有 3 台打印机）」，创建方式为 `xSemaphoreCreateCounting(3, 3)`。B 把「资源保护」与「资源计数」混为一谈：素材的面试高频问题明确「信号量可用于同步和资源计数，互斥锁专用于资源保护」，互斥锁的计数只有 0/1，无法表示 3 台。C 弄错了二值信号量的语义——它只有 0 和 1 两个取值，不存在「把计数值初始化为 3」的用法。D 的事件组在素材中的定位是「类似标志位，可用于多任务同步」，它不提供「资源耗尽时按顺序阻塞排队」的计数语义，用它模拟资源池还需要额外的竞争保护。",
+      "sourceRef": "04-实时操作系统/README.md#计数信号量（共享资源数量）",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch17-005",
+      "chapterId": "stage6_rtos",
+      "chapterNo": 17,
+      "type": "code",
+      "difficulty": "advanced",
+      "question": "素材给出任务栈空间的估算方法：「任务局部变量大小 + 函数调用深度 × 最大寄存器保存数」，并指出每个任务有独立栈空间、需要避免溢出。请实现 `task_stack_evaluate()`，估算某个任务的栈需求并判断当前分配是否充足。\n\n约定（32 位 Cortex-M 内核，每个寄存器按 4 字节计）：\n\n- 估算需求 `need = locals_bytes + call_depth × regs_per_frame × 4`，并把它写入 `*need_bytes`；\n- 返回 `0`：分配充足（`stack_alloc_bytes >= need`，**恰好相等也算充足**）；\n- 返回 `1`：分配不足（`stack_alloc_bytes < need`）；\n- 返回 `-1`：入参非法——`info` 或 `need_bytes` 为空指针，或 `locals_bytes`、`call_depth`、`regs_per_frame`、`stack_alloc_bytes` 中任何一个不是正整数。\n\n返回 `-1` 时不得写 `*need_bytes`。",
+      "language": "c",
+      "starterCode": "typedef struct {\n    int locals_bytes;       /* 任务局部变量总字节数 */\n    int call_depth;         /* 最大函数调用深度（层数） */\n    int regs_per_frame;     /* 每层调用需要保存的寄存器个数 */\n    int stack_alloc_bytes;  /* 实际分配给该任务的栈大小（字节） */\n} TaskStackInfo;\n\n/*\n * 估算栈需求 need = locals_bytes + call_depth * regs_per_frame * 4，\n * 写入 *need_bytes；\n * 返回 0 表示 stack_alloc_bytes >= need（含相等），\n * 返回 1 表示 stack_alloc_bytes < need，\n * 返回 -1 表示入参非法（空指针或任一字段不是正整数）。\n */\nint task_stack_evaluate(const TaskStackInfo *info, int *need_bytes)\n{\n    /* TODO: 在此实现 */\n    return 0;\n}",
+      "expectedOutput": "按公式算出 need 并写入 *need_bytes；alloc >= need 返回 0（含恰好相等），alloc < need 返回 1；空指针或任一字段不是正整数返回 -1 且不写 *need_bytes。",
+      "testCases": [
+        {
+          "input": "info = {locals_bytes 64, call_depth 4, regs_per_frame 8, stack_alloc_bytes 256}",
+          "expectedOutput": "返回 0；*need_bytes = 64 + 4×8×4 = 192（256 ≥ 192）"
+        },
+        {
+          "input": "info = {locals_bytes 100, call_depth 10, regs_per_frame 8, stack_alloc_bytes 256}",
+          "expectedOutput": "返回 1；*need_bytes = 100 + 10×8×4 = 420（256 < 420，分配不足）"
+        },
+        {
+          "input": "info = {locals_bytes 200, call_depth 5, regs_per_frame 8, stack_alloc_bytes 360}",
+          "expectedOutput": "返回 0；*need_bytes = 200 + 5×8×4 = 360（恰好相等，边界上算充足）"
+        },
+        {
+          "input": "info = {locals_bytes 0, call_depth 4, regs_per_frame 8, stack_alloc_bytes 256}",
+          "expectedOutput": "返回 -1（locals_bytes 不是正整数），且不写 *need_bytes"
+        },
+        {
+          "input": "info = NULL（或 info 有效但 need_bytes = NULL）",
+          "expectedOutput": "返回 -1（空指针），且不写 *need_bytes"
+        }
+      ],
+      "solutionCode": "#include <stddef.h>\ntypedef struct {\n    int locals_bytes;\n    int call_depth;\n    int regs_per_frame;\n    int stack_alloc_bytes;\n} TaskStackInfo;\n\nint task_stack_evaluate(const TaskStackInfo *info, int *need_bytes)\n{\n    if (info == NULL || need_bytes == NULL) {\n        return -1;\n    }\n\n    if (info->locals_bytes <= 0 || info->call_depth <= 0 ||\n        info->regs_per_frame <= 0 || info->stack_alloc_bytes <= 0) {\n        return -1;\n    }\n\n    int need = info->locals_bytes +\n               info->call_depth * info->regs_per_frame * 4;\n\n    *need_bytes = need;\n\n    return (info->stack_alloc_bytes >= need) ? 0 : 1;\n}",
+      "hints": [
+        "开头的空指针校验要**同时**检查 `info` 与 `need_bytes`——输出参数本身也要可用才能写回结果，漏掉它会在调用方传 NULL 时直接崩溃。",
+        "先算乘法再算加法：`call_depth * regs_per_frame * 4` 是整条调用链上需要保存的寄存器总字节数，再与 `locals_bytes` 相加才是总需求。",
+        "边界是 `stack_alloc_bytes == need`：判定要用 `>=` 返回 0，写成 `>` 会把「刚好够用」误判成不足；另外入参非法时要在计算出 need 之前就返回，避免写 `*need_bytes`。"
+      ],
+      "explanation": "本题把素材的栈估算式（局部变量 + 调用深度 × 最大寄存器保存数）变成可测试的判定逻辑，三个考点都来自 FreeRTOS 任务栈的工程实践。第一是**公式结构**：`call_depth × regs_per_frame × 4` 是调用链上寄存器保存的开销，它与局部变量占用是相加关系而不是取最大值——很多人的直觉是「按最深的那一层算」，但每一层都要在栈上留下自己的保存区，所以必须按深度累乘。第二是**边界方向**：恰好够用属于够用，判定用 `>=`；把边界判成不足会让本来安全的配置被误报，反之若在真实实现里用 `>` 放行，则会把「刚好卡满」的配置当成有余量，实际运行时一次中断嵌套就可能踩穿栈底。第三是**入参校验与输出参数**：`need_bytes` 是输出参数，它自己也可能为空指针；同时所有字段都要求正整数（`locals_bytes` 为 0 或负数在真实场景下都说明结构体未被正确初始化），非法时必须在校验阶段就返回，不能先写输出再返回错误，否则调用方会读到一个无意义的 `need_bytes`。素材另外提到栈溢出可用 `configCHECK_FOR_STACK_OVERFLOW` 检测、用 `uxTaskGetStackHighWaterMark()` 观察剩余空间——本函数给的是**事前估算**，两者配合才能既保证初始配置合理、又能在运行期发现估算偏差。",
+      "sourceRef": "04-实时操作系统/README.md#任务创建与内存布局",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    }
+  ]
+}

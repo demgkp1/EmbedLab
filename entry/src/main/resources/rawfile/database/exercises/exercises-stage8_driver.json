@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "1.0.0",
+  "chapterId": "stage8_driver",
+  "chapterNo": 26,
+  "chapterTitle": "26. 设备驱动",
+  "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+  "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn",
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "extractedAt": "2026-09-13",
+  "exercises": [
+    {
+      "id": "ex-ch26-001",
+      "chapterId": "stage8_driver",
+      "chapterNo": 26,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材给出 STM32 HAL 与 LL 的对比表（抽象程度、代码体积、执行效率、学习难度），并在面试高频问题中给出选择标准。下列描述哪一项与素材一致？",
+      "options": [
+        { "key": "A", "text": "HAL 抽象程度低、代码体积小、执行效率高；LL 抽象程度高、代码体积大、执行效率低" },
+        { "key": "B", "text": "HAL 抽象程度高、代码体积大、执行效率低、学习难度低；LL 抽象程度低、代码体积小、执行效率高、学习难度高" },
+        { "key": "C", "text": "HAL 与 LL 都只是寄存器封装，代码体积和执行效率基本相同，差别仅在函数命名" },
+        { "key": "D", "text": "LL 的抽象程度高于 HAL，因此更适合需要快速完成原型的场景" }
+      ],
+      "answer": "B",
+      "explanation": "素材对比表逐项给出：抽象程度 HAL 高 / LL 低，代码体积 HAL 大 / LL 小，执行效率 HAL 低 / LL 高，学习难度 HAL 低 / LL 高；面试高频问题的结论是“快速开发选 HAL，性能敏感场景选 LL”，并提醒要平衡开发效率与代码体积。A 把四项整体对调；C 忽略了素材对 LL“更接近寄存器操作”的定位——正因为更贴近寄存器，它才有更小的体积和更高的执行效率，二者不可能“基本相同”；D 把抽象程度与适用场景都弄反了：抽象程度高的是 HAL，快速开发应选 HAL，LL 属于学习难度更高的那一侧。",
+      "sourceRef": "03-驱动开发与外设编程/README.md#📌 STM32 LL（低层驱动）",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch26-002",
+      "chapterId": "stage8_driver",
+      "chapterNo": 26,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材的 Linux 面试题部分说明：Linux 中的设备分为字符设备与块设备（网卡是例外，不直接与设备文件对应），`mknod` 用于创建设备文件；字符设备驱动的关键数据结构是 `struct cdev`，`cdev_alloc()` 动态分配描述符、`cdev_add()` 注册描述符。下列描述哪一项正确？",
+      "options": [
+        { "key": "A", "text": "设备分为字符设备与块设备，网卡不直接对应设备文件；字符设备驱动用 `struct cdev` 描述，`cdev_add()` 用于注册该描述符" },
+        { "key": "B", "text": "包括网卡在内的所有设备都通过 `mknod` 创建对应的设备文件，设备编号只由次设备号组成" },
+        { "key": "C", "text": "对文件或设备的操作函数保存在 `struct cdev` 中，其中主设备号对应设备文件指向的具体设备" },
+        { "key": "D", "text": "设备编号 `dev_t` 中 20 位表示主设备号、12 位表示次设备号" }
+      ],
+      "answer": "A",
+      "explanation": "素材明确写着设备分字符设备与块设备，“网卡是例外，他不直接与设备文件对应”，`mknod` 用来创建设备文件；字符设备描述符是 `struct cdev`，`cdev_alloc()` 负责动态分配、`cdev_add()` 负责注册，`cdev` 内部还包含 `struct kobject`。B 两处都错——网卡正是素材点名的例外，而且设备编号由主设备号与次设备号共同组成；C 张冠李戴：操作函数（`open`/`read`/`write`/`llseek`/`release`）保存在 `struct file_operations`（素材第 41 问），主设备号标识的是“设备对应的驱动程序”，次设备号才对应设备文件指向的设备；D 与素材“12 位用于表示主设备号，20 位用于表示次设备号”正好对调。",
+      "sourceRef": "面试题与面经/Linux面试题1.md#53、字符设备驱动程序的关键数据结构是哪个?",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch26-003",
+      "chapterId": "stage8_driver",
+      "chapterNo": 26,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材的“平台驱动开发流程”列出四步：定义 `platform_device`、编写并注册 `platform_driver`、通过 `of_match_table` 匹配设备树节点、实现 `probe/remove` 等接口；驱动分层模型为“[硬件设备] ←→ [总线] ←→ [Device] ←→ [Driver] ←→ [内核]”。其中 `of_match_table` 的作用是？",
+      "options": [
+        { "key": "A", "text": "注册字符设备并返回主设备号，供 `mknod` 创建设备文件时使用" },
+        { "key": "B", "text": "保存 `open`/`read`/`write`/`release` 等操作函数，供虚拟文件系统调用" },
+        { "key": "C", "text": "由 `platform_driver` 提供，用于匹配设备树节点，使驱动与具体设备绑定并进入 `probe`" },
+        { "key": "D", "text": "在模块卸载时释放 `cdev` 描述符以及已占用的设备编号" }
+      ],
+      "answer": "C",
+      "explanation": "素材把“通过 `of_match_table` 匹配设备树节点”列为平台驱动开发流程的第 3 步，位置紧接在“定义 `platform_device`”与“注册 `platform_driver`”之后、“实现 `probe/remove`”之前——匹配成功正是 `probe` 被调用的前提，这也对应分层模型里 Device 与 Driver 需要通过总线完成配对。A 描述的是字符设备注册动作（素材字符设备框架里 `register_chrdev()` 返回主设备号）；B 描述的是 `struct file_operations`，属于字符设备驱动框架的内容；D 描述的是模块卸载时的清理工作，与设备树匹配无关。",
+      "sourceRef": "05-EmbeddedLinux/README.md#📌 平台驱动开发流程",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch26-004",
+      "chapterId": "stage8_driver",
+      "chapterNo": 26,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材的位操作技巧给出“同时设置 PA5、PA6 为输出”的写法：`GPIOA_MODER = (GPIOA_MODER & ~(0xF << 10)) | (0x5 << 10);`，注释说明这里的 `MODER[13:12]=01`、`MODER[11:10]=01`。对这条语句的理解，哪一项正确？",
+      "options": [
+        { "key": "A", "text": "`& ~(0xF << 10)` 的作用是把第 10~13 位全部置 1，方便后续 OR 写入新值" },
+        { "key": "B", "text": "该语句可以简化为 `GPIOA_MODER |= (0x5 << 10);`，两者结果完全等价" },
+        { "key": "C", "text": "`0x5 << 10` 表示把第 10~13 位这整个 4 位域写成 0101，因此 PA5 为输出、PA6 为复用功能" },
+        { "key": "D", "text": "先用 `& ~` 把第 10~13 位清零（PA5、PA6 各自的 2 位模式域），再写入 `0x5`，使两个模式域都等于 01（输出）" }
+      ],
+      "answer": "D",
+      "explanation": "每个引脚在 MODER 中占 2 位：`MODER[11:10]` 对应 PA5、`MODER[13:12]` 对应 PA6（素材注释给出的正是这两个值），所以两个引脚共占第 10~13 位，掩码写作 `0xF << 10`。清零是必需的——只有先 `& ~` 抹掉旧模式，OR 写入的 `0x5`（二进制 0101）才能让两个模式域都成为 01（输出）。A 把“取反后相与”说成“置 1”，实际 `& ~(mask)` 是清零；B 漏掉了清零步骤，旧模式位会与新值按位或，可能得到既非输出也非输入的组合；C 把 4 位当成一个整体域来读，而 0101 在这里是“两个 2 位域各为 01”，恰好对应两个引脚都配置为输出。",
+      "sourceRef": "03-驱动开发与外设编程/README.md#📌 位操作技巧",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch26-005",
+      "chapterId": "stage8_driver",
+      "chapterNo": 26,
+      "type": "code",
+      "difficulty": "advanced",
+      "question": "素材说明：Linux 使用设备编号唯一标识一个设备，编号分为主设备号与次设备号——主设备号标识设备对应的驱动程序，次设备号对应设备文件指向的设备；内核用 `dev_t` 表示，一般 32 位，其中 12 位为主设备号、20 位为次设备号，`MKDEV(major, minor)` 用于生成 `dev_t`。请按“主设备号在高 12 位、次设备号在低 20 位”的布局实现打包与拆分：\n\n- `dev_make()`：校验后把编号写入 `*out_dev`，成功返回 `0`；\n- `dev_split()`：从 `dev` 中取出两个编号，成功返回 `0`；\n- 越界（主设备号 > 4095 或次设备号 > 1048575）或有空指针时返回 `-1`，并且不修改输出参数。",
+      "language": "c",
+      "starterCode": "#include <stddef.h>\n#include <stdint.h>\n\n#define DEV_MAJOR_BITS 12u  /* 主设备号占 12 位 */\n#define DEV_MINOR_BITS 20u  /* 次设备号占 20 位 */\n\n/*\n * 打包：主设备号放高 12 位、次设备号放低 20 位。\n * 成功返回 0；越界或 out_dev 为 NULL 返回 -1（不修改 *out_dev）。\n */\nint dev_make(unsigned int major, unsigned int minor, uint32_t *out_dev)\n{\n    /* TODO: 在此实现 */\n    return -1;\n}\n\n/*\n * 拆分：从 dev 中取出主设备号与次设备号。\n * 成功返回 0；out_major / out_minor 任一为 NULL 返回 -1。\n */\nint dev_split(uint32_t dev, unsigned int *out_major, unsigned int *out_minor)\n{\n    /* TODO: 在此实现 */\n    return -1;\n}",
+      "expectedOutput": "`dev_make(4, 1, &d)` 得到 `d == 0x00400001`（即 `(4 << 20) | 1`）并返回 0；主设备号超过 4095（12 位全 1）或次设备号超过 1048575（20 位全 1）时返回 -1 且不改写输出参数；`dev_split()` 能还原两个编号，空指针返回 -1。",
+      "testCases": [
+        { "input": "dev_make(4, 1, &d)", "expectedOutput": "返回 0，d == 0x00400001（(4 << 20) | 1）；随后 dev_split(d, &maj, &min) 返回 0，maj == 4、min == 1" },
+        { "input": "dev_make(4095, 1048575, &d)（两个字段各自取满）", "expectedOutput": "返回 0，d == 0xFFFFFFFF；dev_split 能还原 maj == 4095、min == 1048575" },
+        { "input": "dev_make(4096, 0, &d)（主设备号超出 12 位）", "expectedOutput": "返回 -1，*out_dev 保持原值不变" },
+        { "input": "dev_make(0, 1048576, &d)（次设备号超出 20 位）", "expectedOutput": "返回 -1，*out_dev 保持原值不变" },
+        { "input": "dev_make(1, 2, NULL) 与 dev_split(0x00400001u, NULL, &min)", "expectedOutput": "均返回 -1（输出指针为空，不做任何写入）" }
+      ],
+      "solutionCode": "#include <stddef.h>\n#include <stdint.h>\n\n#define DEV_MAJOR_BITS 12u\n#define DEV_MINOR_BITS 20u\n\n#define DEV_MAJOR_MAX ((1u << DEV_MAJOR_BITS) - 1u)  /* 4095    */\n#define DEV_MINOR_MAX ((1u << DEV_MINOR_BITS) - 1u)  /* 1048575 */\n\nint dev_make(unsigned int major, unsigned int minor, uint32_t *out_dev)\n{\n    if (out_dev == NULL) {\n        return -1;\n    }\n    if (major > DEV_MAJOR_MAX || minor > DEV_MINOR_MAX) {\n        return -1;\n    }\n\n    *out_dev = ((uint32_t)major << DEV_MINOR_BITS) | (uint32_t)minor;\n    return 0;\n}\n\nint dev_split(uint32_t dev, unsigned int *out_major, unsigned int *out_minor)\n{\n    if (out_major == NULL || out_minor == NULL) {\n        return -1;\n    }\n\n    *out_major = (unsigned int)((dev >> DEV_MINOR_BITS) & DEV_MAJOR_MAX);\n    *out_minor = (unsigned int)(dev & DEV_MINOR_MAX);\n    return 0;\n}",
+      "hints": [
+        "先用位宽推导上界：主设备号 `(1u << 12) - 1 = 4095`、次设备号 `(1u << 20) - 1 = 1048575`，越界必须在写入之前拦下。",
+        "打包是 `((uint32_t)major << 20) | (uint32_t)minor`；拆分是 `dev >> 20` 取高位、`dev & ((1u << 20) - 1)` 取低位。",
+        "结果通过输出参数回传、用返回值只表示成功/失败，可避免错误码与合法编号撞车（本布局下 0xFFFFFFFF 是合法编号）。"
+      ],
+      "explanation": "设备编号是驱动里典型的“位域打包”数据：12 位主设备号 + 20 位次设备号刚好占满 32 位，与素材描述的 `dev_t` 布局一致，`MKDEV(major, minor)` 做的正是同样的事。实现要点有三个：一是用位宽推导上界（`(1u << N) - 1`）而不是硬编码魔数，位宽调整时校验会自动同步；二是先校验后写入，越界或空指针时保持输出参数不变，避免调用方拿到半成品；三是接口设计上不要让返回值兼作错误码——本布局下 `0xFFFFFFFF`（主设备号 4095、次设备号 1048575）是完全合法的编号，若让函数直接返回 `dev_t` 并把 `-1` 当错误，就会与合法值撞车。常见错误有两个：把 12 位与 20 位写反，导致打包后主次设备号互换，`mknod` 会创建设备号错误的节点；以及漏掉越界校验，让高位被静默截断——例如主设备号 4096 左移 20 位后溢出为 0，生成的编号“看起来合法”却指向错误的驱动。",
+      "sourceRef": "面试题与面经/Linux面试题1.md#55、如何唯一标识一个设备?",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    }
+  ]
+}

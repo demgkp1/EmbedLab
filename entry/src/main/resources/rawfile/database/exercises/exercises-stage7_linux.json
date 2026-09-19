@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "1.0.0",
+  "chapterId": "stage7_linux",
+  "chapterNo": 21,
+  "chapterTitle": "21. 嵌入式 Linux",
+  "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+  "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn",
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "extractedAt": "2026-09-13",
+  "exercises": [
+    {
+      "id": "ex-ch21-001",
+      "chapterId": "stage7_linux",
+      "chapterNo": 21,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材给出的嵌入式 Linux 系统组成为 `[Bootloader] → [Kernel] → [Root File System] → [User Application]`。下列关于这四层职责的对应，哪项正确？",
+      "options": [
+        { "key": "A", "text": "Bootloader 负责上电后初始化硬件并加载内核（如 U-Boot）；RootFS 是包含用户空间程序的根文件系统" },
+        { "key": "B", "text": "Bootloader 负责挂载根文件系统，Kernel 负责上电后最初的硬件初始化" },
+        { "key": "C", "text": "RootFS 就是内核本身，负责管理硬件与系统资源；Kernel 只是根文件系统中的一个目录" },
+        { "key": "D", "text": "User Application 在 Bootloader 阶段就开始运行，Kernel 与 RootFS 仅在需要调试时才加载" }
+      ],
+      "answer": "A",
+      "explanation": "素材「系统组成」逐项给出职责：Bootloader「负责上电后硬件初始化、加载内核（如 U-Boot）」；Kernel「Linux 内核，管理硬件与系统资源」；RootFS「根文件系统，包含用户空间程序」；应用层「运行用户程序、脚本、服务等」。B 把 Bootloader 与 Kernel 的职责对调——挂载根文件系统是内核启动并完成初始化之后的动作，不属于 Bootloader。C 混淆了内核与根文件系统：RootFS 是内核之外的用户空间文件集合，不是内核的一部分。D 颠倒了四层顺序，应用层是链路中最晚运行的一环，内核与根文件系统是运行应用的必要前提，并非可选的调试组件。",
+      "sourceRef": "05-EmbeddedLinux/README.md#📌 系统组成",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch21-002",
+      "chapterId": "stage7_linux",
+      "chapterNo": 21,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材给出的通用启动流程为 `Power On → BootROM → Bootloader (SPL/U-Boot) → Load & Decompress Kernel → Kernel 初始化 → 挂载 RootFS → 启动 init → Shell / App`。下列关于该流程的说法，哪项正确？",
+      "options": [
+        { "key": "A", "text": "内核的加载与解压由 Bootloader 完成；挂载 RootFS 与启动 init 都发生在这之后" },
+        { "key": "B", "text": "内核的加载与解压发生在 BootROM 阶段，Bootloader 只负责输出串口日志" },
+        { "key": "C", "text": "挂载 RootFS 必须早于内核解压，否则内核运行时没有文件系统可用" },
+        { "key": "D", "text": "init 由 BootROM 直接启动，因此在流程中排在 Bootloader 之前" }
+      ],
+      "answer": "A",
+      "explanation": "素材流程中 BootROM 之后是 Bootloader，由它「加载并解压内核」（U-Boot 的 `tftp` 下载 `zImage`、`bootz` 引导内核正是这一步），随后依次是内核初始化、挂载 RootFS、启动 init，最后才是 Shell/App。B 把加载内核的职责错放到 BootROM 上，而 Bootloader 的功能远不止串口输出——素材还列出 TFTP 下载、引导内核、环境变量配置等。C 颠倒了解压内核与挂载 RootFS 的先后：根文件系统要等内核初始化完成后才具备挂载条件。D 让 init 越过 Bootloader 与内核，与流程给出的顺序直接冲突。",
+      "sourceRef": "05-EmbeddedLinux/README.md#📌 通用启动流程",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch21-003",
+      "chapterId": "stage7_linux",
+      "chapterNo": 21,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材把 Linux 体系结构从大的方面分为用户空间（User Space）与内核空间（Kernel Space）两块。下列哪一组内容**全部**属于用户空间？",
+      "options": [
+        { "key": "A", "text": "用户应用程序（User Applications）与 C 库（C Library）" },
+        { "key": "B", "text": "系统调用接口（System Call Interface）与内核（Kernel）" },
+        { "key": "C", "text": "平台架构相关的代码（Architecture-Dependent Kernel Code）与设备驱动程序" },
+        { "key": "D", "text": "内核（Kernel）与 C 库（C Library）" }
+      ],
+      "answer": "A",
+      "explanation": "素材明确划分：用户空间包括「用户的应用程序（User Applications）、C 库（C Library）」；内核空间包括「系统调用接口（System Call Interface）、内核（Kernel）、平台架构相关的代码（Architecture-Dependent Kernel Code）」。B 的三项全部属于内核空间，系统调用接口正是用户空间进入内核空间的门户。C 中「平台架构相关的代码」素材已归入内核空间，设备驱动同样运行在内核空间（素材在「模块和应用程序分别运行在什么空间」一问中明确「模块运行在内核空间，应用程序运行在用户空间」）。D 是跨两界的混搭项：C 库属用户空间，内核属内核空间，不能整体算作用户空间。只有 A 的两项都在素材给出的用户空间清单内。",
+      "sourceRef": "面试题与面经/Linux面试题1.md#5、Linux 的体系结构?",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch21-004",
+      "chapterId": "stage7_linux",
+      "chapterNo": 21,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材讲解 `ps` 显示出来的进程状态符号：`D` 不可中断（usually IO）、`R` 正在运行或在队列中的进程、`S` 处于休眠状态、`T` 停止或被追踪、`Z` 僵尸进程；并说明不可中断状态指「进程处于睡眠状态，但是此刻进程是不可中断的……不响应异步信号」。若某进程正在等待 I/O 完成、且这一阶段不响应异步信号，它在 `ps` 中显示的状态符号应是？",
+      "options": [
+        { "key": "A", "text": "`D`" },
+        { "key": "B", "text": "`R`" },
+        { "key": "C", "text": "`S`" },
+        { "key": "D", "text": "`Z`" }
+      ],
+      "answer": "A",
+      "explanation": "素材把「不可中断状态」定义为睡眠中但不响应异步信号的状态，并在符号表中标注 `D` 为「不可中断 Uninterruptible（usually IO）」，正对应等待 I/O 且不能被信号打断的场景。`R` 表示正在运行或位于 run_queue 队列中的就绪进程，并没有在等待 I/O。`S` 是可中断的休眠状态，会因等待事件（如 socket、信号量）被挂起并可被信号唤醒，与「不响应异步信号」矛盾。`Z` 是僵尸进程，指子进程已结束但父进程尚未通过 `wait` 系列系统调用回收其 `task_struct`，与 I/O 等待无关。",
+      "sourceRef": "面试题与面经/Linux面试题2.md#问题十七",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch21-005",
+      "chapterId": "stage7_linux",
+      "chapterNo": 21,
+      "type": "code",
+      "difficulty": "advanced",
+      "question": "素材在「如何唯一标识一个设备」中说明：Linux 使用设备编号唯一标识设备，「在内核中使用 `dev_t` 来表示设备编号，一般它是 32 位长度，其中 12 位用于表示主设备号，20 位用于表示次设备号」，并提供 `MKDEV(int major, int minor)` 生成 `dev_t`；主设备号标识设备对应的驱动程序，次设备号对应该设备文件指向的设备。请按同一布局实现编码与解码：\n\n- 高 12 位 = 主设备号，低 20 位 = 次设备号；\n- `my_mkdev(major, minor)`：`major >= 2^12` 或 `minor >= 2^20` 视为非法，返回 `-1`，否则返回编码后的 32 位设备号；\n- `my_major(dev)`：`dev < 0` 视为非法，返回 `-1`，否则返回其中的主设备号。",
+      "language": "c",
+      "starterCode": "#define DEV_MAJOR_BITS 12u   /* 主设备号占高 12 位 */\n#define DEV_MINOR_BITS 20u   /* 次设备号占低 20 位 */\n\n/*\n * 按 dev_t 布局编码主/次设备号：高 12 位主设备号、低 20 位次设备号。\n * major >= 2^12 或 minor >= 2^20 视为非法，返回 -1。\n */\nlong long my_mkdev(unsigned int major, unsigned int minor)\n{\n    /* TODO: 在此实现 */\n    return -1;\n}\n\n/*\n * 从设备号中取出主设备号；dev < 0 视为非法，返回 -1。\n */\nint my_major(long long dev)\n{\n    /* TODO: 在此实现 */\n    return -1;\n}",
+      "expectedOutput": "my_mkdev 先做范围检查，再把主设备号左移 20 位与次设备号按位或，得到 32 位设备号；越界返回 -1。my_major 对负数返回 -1，否则右移 20 位并用掩码取出高 12 位主设备号（如 my_major(0x00400001) 得到 4）。",
+      "testCases": [
+        { "input": "my_mkdev(4, 1)", "expectedOutput": "0x00400001（4194305）" },
+        { "input": "my_mkdev(4095, 1048575)（主、次设备号均取上界）", "expectedOutput": "0xFFFFFFFF（4294967295）" },
+        { "input": "my_mkdev(4096, 0)（major = 2^12，越界）", "expectedOutput": "返回 -1" },
+        { "input": "my_mkdev(1, 1048576)（minor = 2^20，越界）", "expectedOutput": "返回 -1" },
+        { "input": "my_major(0x00400001) 与 my_major(-1)", "expectedOutput": "分别返回 4 与 -1" }
+      ],
+      "solutionCode": "#define DEV_MAJOR_BITS 12u\n#define DEV_MINOR_BITS 20u\n\nlong long my_mkdev(unsigned int major, unsigned int minor)\n{\n    const unsigned int major_max = 1u << DEV_MAJOR_BITS; /* 2^12 */\n    const unsigned int minor_max = 1u << DEV_MINOR_BITS; /* 2^20 */\n\n    if (major >= major_max || minor >= minor_max) {\n        return -1;\n    }\n    return (long long)((major << DEV_MINOR_BITS) | minor);\n}\n\nint my_major(long long dev)\n{\n    const unsigned int major_mask = (1u << DEV_MAJOR_BITS) - 1u;\n\n    if (dev < 0) {\n        return -1;\n    }\n    return (int)(((unsigned long long)dev >> DEV_MINOR_BITS) & major_mask);\n}",
+      "hints": [
+        "编码就是移位加按位或：`(major << 20) | minor`，但必须先做越界检查再移位。",
+        "n 位字段能表示的最大值是 2^n - 1，所以 `major >= (1u << 12)`、`minor >= (1u << 20)` 都属非法。",
+        "解码时先判 `dev < 0`，再右移 20 位并用掩码 `(1u << 12) - 1` 取低 12 位，避免高位残留。"
+      ],
+      "explanation": "素材给出 `dev_t` 的位分配（12 位主设备号 + 20 位次设备号，共 32 位）以及 `MKDEV` 的用途，本题把它转成可测试的编码/解码函数。三个考察点：一是「n 位字段的取值范围是 0 ~ 2^n − 1」，因此 4096（2^12）与 1048576（2^20）必须判为非法，这是最容易漏掉的边界；二是解码要用掩码取出高 12 位，否则在更宽的整数类型上会把无关高位带出来；三是错误码 `-1` 与合法值的关系——`my_mkdev(0, 0)` 的编码结果就是 0，所以判定失败只能依靠范围检查，不能写成「返回 0 即失败」。常见错误是把位数记成 8/24，或者用 32 位 `long` 承载 4294967295 导致在 LLP64 平台上被解释成负数，因此返回类型选用至少 64 位的 `long long`。",
+      "sourceRef": "面试题与面经/Linux面试题1.md#55、如何唯一标识一个设备?",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    }
+  ]
+}

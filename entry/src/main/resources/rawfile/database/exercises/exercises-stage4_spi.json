@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "1.0.0",
+  "chapterId": "stage4_spi",
+  "chapterNo": 12,
+  "chapterTitle": "12. SPI",
+  "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+  "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn",
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "extractedAt": "2026-09-13",
+  "exercises": [
+    {
+      "id": "ex-ch12-001",
+      "chapterId": "stage4_spi",
+      "chapterNo": 12,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材的接口对比表把 `SPI` 描述为\"全双工，同步，4 线（SCK/MOSI/MISO/CS）\"，典型应用是\"高速数据传输（如 OLED 屏幕）\"。据此，下列描述正确的是？",
+      "options": [
+        { "key": "A", "text": "SPI 由 SCK 提供同步时钟，MOSI 与 MISO 各自承担一个方向的数据传输，因此可以同时收发" },
+        { "key": "B", "text": "SPI 是异步接口，不需要时钟线，4 根线全部用于数据" },
+        { "key": "C", "text": "SPI 只有一根数据线，收发必须分时进行，因此是半双工" },
+        { "key": "D", "text": "SPI 的 CS 是时钟线，SCK 是片选线" }
+      ],
+      "answer": "A",
+      "explanation": "对比表给出的 4 线定义中，SCK 是同步时钟，MOSI（主出从入）与 MISO（主入从出）分别是两个方向的数据线，两条数据线同时有效即为\"全双工\"，SCK 的存在即为\"同步\"。B 与\"同步\"及 4 线定义冲突，SPI 恰恰是靠 SCK 同步的；C 把 SPI 说成半双工——半双工是 I2C 的特性（同一时刻 SDA 上只能有一个方向有效）；D 把两个引脚的功能对调，CS 是片选、SCK 才是时钟。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#2. 通信接口",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch12-002",
+      "chapterId": "stage4_spi",
+      "chapterNo": 12,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材的 SPI 模式配置列出：\"时钟极性（CPOL）：0（空闲时 SCLK 为低）或 1（空闲时 SCLK 为高）\"\"时钟相位（CPHA）：0（第一个边沿采样）或 1（第二个边沿采样）\"，并给出\"数据位宽：8 位或 16 位\"。下列哪项理解正确？",
+      "options": [
+        { "key": "A", "text": "CPOL 决定时钟空闲电平，CPHA 决定在第一个还是第二个边沿采样，两者组合出 4 种工作模式" },
+        { "key": "B", "text": "CPOL 与 CPHA 是两个档位的时钟分频系数，用来降低 SPI 速率" },
+        { "key": "C", "text": "CPOL 决定数据是 8 位还是 16 位，CPHA 决定主从角色" },
+        { "key": "D", "text": "CPOL 与 CPHA 必须都取 0，取 1 会导致通信失败" }
+      ],
+      "answer": "A",
+      "explanation": "素材把 CPOL 定义为时钟极性（空闲时 SCLK 为低或高）、CPHA 定义为时钟相位（在第一个边沿还是第二个边沿采样），两个参数各自有两种取值，组合起来就是 SPI 的 4 种工作模式，主机必须与从机配置一致。B 把极性与相位当成了分频系数，与\"时钟极性\"\"时钟相位\"的命名不符；C 把两个参数分别安到了数据位宽与主从角色上，而素材中数据位宽由独立的配置项给出（8 位或 16 位）、主从由主/从模式配置决定；D 与素材\"取值为 0 或 1\"的并列表述矛盾——取 1 是合法的模式配置，只是要求通信双方匹配。",
+      "sourceRef": "03-驱动开发与外设编程/README.md#📌 SPI（串行外设接口）",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch12-003",
+      "chapterId": "stage4_spi",
+      "chapterNo": 12,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材的驱动分层示例给出 SPI 抽象接口，其中收发合并为一个原语：`void (*transfer)(const uint8_t *tx_data, uint8_t *rx_data, uint32_t length);`。为什么 SPI 驱动普遍采用这种\"同时收发\"的接口，而不是分开的 `send()` 与 `receive()`？",
+      "options": [
+        { "key": "A", "text": "因为 SPI 是全双工同步总线：主机每输出一位的同时也在 MISO 上采入一位，收发由同一串时钟推动，所以用一次 transfer 把两个方向一起完成最贴合硬件行为" },
+        { "key": "B", "text": "因为 SPI 是半双工总线，同一时刻只能有一个方向有效，收发必须合并在一个函数里排队" },
+        { "key": "C", "text": "因为 SPI 没有时钟线，收发的节拍只能由软件在同一个函数里约定" },
+        { "key": "D", "text": "因为从设备不会主动发送数据，主机必须先把 `tx_data` 发完，之后才能调用 `rx_data` 接收" }
+      ],
+      "answer": "A",
+      "explanation": "SPI 由主机输出的 SCK 推动，每个时钟周期主机在 MOSI 上移出一位、同时在 MISO 上移入一位，收发天然是同一个物理过程，因此把两个方向合并成一次 `transfer(tx, rx, len)` 与硬件行为一一对应。B 把全双工说成半双工（半双工是 I2C 的特性）；C 与素材\"同步\"及 4 线定义冲突，SPI 有时钟线 SCK；D 的说法只对\"主机想读从机数据\"这一种用法成立：从机虽然不能主动发起传输，但它可以在主机发送字节的同时把数据移出到 MISO，所以主机无需先发完再单独接收——一次 transfer 内两个方向同时进行。",
+      "sourceRef": "README.md#2. SPI驱动示例",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch12-004",
+      "chapterId": "stage4_spi",
+      "chapterNo": 12,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材的面试高频问题给出：\"SPI 与 I2C 的区别：SPI：高速（可达数十 Mbps），4 线，点对点；I2C：低速（标准 100kbps），2 线，支持多设备\"；同一节还给出选型口径\"短距离高速：SPI；多设备低速：I2C\"。现有两块功能完全相同的传感器可选，某设计既要挂 6 个传感器，又要把板内走线控制在最少，应如何选型？",
+      "options": [
+        { "key": "A", "text": "选 I2C 接口的型号：6 个器件共用 SCL/SDA 两根线，靠设备地址区分；SPI 虽然更快但每个从机要单独占一条片选线，6 个器件会把布线与引脚开销放大" },
+        { "key": "B", "text": "选 SPI 接口的型号：SPI 是点对点 2 线接口，比 I2C 的 4 线更省线" },
+        { "key": "C", "text": "选 SPI 接口的型号：一次传输可以用片选电平同时选中全部 6 个从机，读取速度还更快" },
+        { "key": "D", "text": "两者布线开销一样，随便选：SPI 与 I2C 都是 2 线总线，只是速率不同" }
+      ],
+      "answer": "A",
+      "explanation": "本题的约束是\"设备数量多\"与\"走线最少\"，正好落在选型口径的\"多设备低速：I2C\"一侧：I2C 的两根线可以被多个器件共享，靠地址寻址区分，器件增加几乎不增加连线。B 把两者的线数说反了（SPI 是 4 线，I2C 是 2 线）；C 违背片选的作用——片选是每个从机一条独立控制线，用同一电平同时选中 6 个从机等于让 6 个器件同时驱动 MISO，会造成数据冲突；D 忽略了\"点对点\"与\"支持多设备\"这一关键差异，布线开销并不相同。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#面试高频问题",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch12-005",
+      "chapterId": "stage4_spi",
+      "chapterNo": 12,
+      "type": "code",
+      "difficulty": "advanced",
+      "question": "SPI 是全双工同步总线：主机每输出一位，就同时从 MISO 采入一位。素材的 SPI 模式配置给出\"数据位宽：8 位或 16 位\"。请实现一个**传输位预算**函数，在真正驱动 SCK 之前算出这次 `transfer` 需要多少个时钟周期，并拦住非法配置。\n\n规则：\n1. 位宽 `bit_mode` 只支持 1、2、4、8，其他取值返回 `-1`；\n2. `chunk_count <= 0` 或 `tx_data == NULL` 或 `rx_data == NULL` 返回 `-2`；\n3. 合法时返回总位数 = `chunk_count * bit_mode`；\n4. 失败时把 `*total_bits` 置为 `0`，避免调用方读到未初始化值。",
+      "language": "c",
+      "starterCode": "#include <stdint.h>\n#include <stddef.h>\n\n/*\n * 计算一次全双工 SPI 传输需要的时钟周期数。\n * tx_data     : 发送缓冲区\n * rx_data     : 接收缓冲区（与发送同时进行）\n * chunk_count : 待传输的数据单元个数\n * bit_mode    : 每个单元的位宽，只支持 1/2/4/8\n * total_bits  : 出参，写入 chunk_count * bit_mode\n * 返回        : 总位数；bit_mode 非法返回 -1；指针为空或 chunk_count 非正返回 -2\n */\nint spi_transfer_bits(const uint8_t *tx_data, uint8_t *rx_data,\n                      int chunk_count, int bit_mode, int *total_bits)\n{\n    /* TODO: 先做非法检查（同时把 *total_bits 清零），再计算总位数 */\n    return -1;\n}",
+      "expectedOutput": "合法时返回 `chunk_count * bit_mode` 并把结果写入 `*total_bits`；`bit_mode` 不在 1/2/4/8 中返回 -1；指针为空或 `chunk_count <= 0` 返回 -2；两种失败情形下 `*total_bits` 均为 0。",
+      "testCases": [
+        { "input": "tx_data, rx_data 均有效, chunk_count = 16, bit_mode = 8", "expectedOutput": "返回 128，*total_bits = 128" },
+        { "input": "tx_data, rx_data 均有效, chunk_count = 16, bit_mode = 4", "expectedOutput": "返回 64，*total_bits = 64" },
+        { "input": "tx_data 有效, rx_data = NULL, chunk_count = 16, bit_mode = 8", "expectedOutput": "返回 -2，*total_bits = 0" },
+        { "input": "tx_data, rx_data 均有效, chunk_count = 0, bit_mode = 8", "expectedOutput": "返回 -2，*total_bits = 0" },
+        { "input": "tx_data, rx_data 均有效, chunk_count = 16, bit_mode = 32", "expectedOutput": "返回 -1，*total_bits = 0（32 不在支持位宽集合内）" }
+      ],
+      "solutionCode": "#include <stdint.h>\n#include <stddef.h>\n\nint spi_transfer_bits(const uint8_t *tx_data, uint8_t *rx_data,\n                      int chunk_count, int bit_mode, int *total_bits)\n{\n    if (total_bits != NULL) {\n        *total_bits = 0;\n    }\n\n    if (bit_mode != 1 && bit_mode != 2 && bit_mode != 4 && bit_mode != 8) {\n        return -1;\n    }\n    if (tx_data == NULL || rx_data == NULL || chunk_count <= 0) {\n        return -2;\n    }\n\n    int bits = chunk_count * bit_mode;\n    if (total_bits != NULL) {\n        *total_bits = bits;\n    }\n    return bits;\n}",
+      "hints": [
+        "全双工意味着\"发送\"与\"接收\"共用同一串时钟，所以总位数与方向无关，只由数据单元个数与每个单元的位宽决定。",
+        "两条错误路径要给出不同返回码：位宽不支持是配置错误（返回 -1），缓冲区为空或长度非正是运行参数错误（返回 -2）。",
+        "出参要在函数入口就先清零，这样任何一条失败分支都不会让调用方读到未初始化值。"
+      ],
+      "explanation": "本题把 SPI\"全双工同步\"这一核心机制转成可测试的资源预算逻辑：一次 transfer 里 MOSI 与 MISO 由同一串 SCK 推动，因此时钟周期数就是数据单元个数乘以每个单元的位宽——这正是\"收发同时进行、不需要分别计时\"的量化体现。实现要点：① 位宽必须落在硬件支持集合内，否则算出来的数字毫无意义，属于配置错误；② 缓冲区为空、长度为非正是运行期参数错误，与配置错误分开返回便于定位；③ 出参在入口清零，保证失败路径下调用方拿到的也是确定值；④ 最容易被忽略的是\"失败时也要写出参\"——嵌入式代码如果只写成功路径，调用方读到的就是栈上的随机值，可能被误当成一次合法的传输长度。",
+      "sourceRef": "03-驱动开发与外设编程/README.md#📌 SPI（串行外设接口）",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    }
+  ]
+}

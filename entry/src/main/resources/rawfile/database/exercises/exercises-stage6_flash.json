@@ -1,0 +1,180 @@
+{
+  "schemaVersion": "1.0.0",
+  "chapterId": "stage6_flash",
+  "chapterNo": 16,
+  "chapterTitle": "16. Flash、EEPROM 与文件系统",
+  "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+  "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn",
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "extractedAt": "2026-09-13",
+  "exercises": [
+    {
+      "id": "ex-ch16-001",
+      "chapterId": "stage6_flash",
+      "chapterNo": 16,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材在「存储器：程序与数据的载体」中对比了 NOR Flash 与 NAND Flash。下列哪一项符合素材的描述？",
+      "options": [
+        {
+          "key": "A",
+          "text": "NOR 读取速度快、支持 XIP（就地执行），适合代码存储；NAND 容量大、成本低，适合存储大量数据"
+        },
+        {
+          "key": "B",
+          "text": "NOR 容量大、成本低，适合存储大量数据；NAND 读取速度快、支持 XIP，适合代码存储"
+        },
+        {
+          "key": "C",
+          "text": "两者都支持 XIP，区别仅在于擦写寿命的长短"
+        },
+        {
+          "key": "D",
+          "text": "两者都属于易失性存储器，断电后数据会丢失，因此必须配后备电池"
+        }
+      ],
+      "answer": "A",
+      "explanation": "素材的「Flash 存储器」一节按「速度/XIP」与「容量/成本」两条线给二者分工：NOR 读取速度快、支持 XIP（就地执行），因此适合代码存储；NAND 容量大、成本低，适合存储大量数据（素材举的例子是 SSD、SD 卡）。B 把两者的特点整体对调了。C 抓住「都支持 XIP」这一点做了放大：支持 XIP 是 NOR 的特点，素材也并未把寿命说成二者的唯一区别，实际上它们的差别首先是读取方式与容量成本定位。D 与素材开篇的定性直接矛盾——Flash 的功能就是「存储程序代码（固件），掉电不丢失」，属于非易失存储器；素材紧接着介绍的 SRAM 才是运行时数据存储、掉电即失的那一类。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#1. **Flash存储器**",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch16-002",
+      "chapterId": "stage6_flash",
+      "chapterNo": 16,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "某设备需要高频率地记录运行数据（例如每分钟一次），并希望介质的擦写寿命尽量长、数据掉电不丢失。依据素材对各类存储器的定位，应优先选用哪一类？",
+      "options": [
+        {
+          "key": "A",
+          "text": "FRAM——素材指出其读写速度快、寿命长（10^12 次擦写），用于数据记录"
+        },
+        {
+          "key": "B",
+          "text": "EEPROM——素材指出其适合存储少量关键参数（如设备 ID）"
+        },
+        {
+          "key": "C",
+          "text": "SRAM——素材指出其访问速度是纳秒级，速度最快"
+        },
+        {
+          "key": "D",
+          "text": "MCU 内置 Flash——素材指出其用于存储程序代码（固件），掉电不丢失"
+        }
+      ],
+      "answer": "A",
+      "explanation": "素材对 FRAM 的定位正是「读写速度快、寿命长（10^12 次擦写），用于数据记录」，与本场景的两个硬要求（高频写入、超长擦写寿命）完全对应。B 记错了 EEPROM 的定位：素材明确它用于「存储少量关键参数（如设备 ID）」，而不是承担高频数据记录。C 只看速度不看掉电特性：SRAM 是运行时数据存储，掉电即失，无法承担长期记录，纳秒级访问速度在这里帮不上忙。D 混淆了「掉电不丢失」与「适合高频写入」——素材把内置 Flash 的职责定位为存储程序代码（固件），并未把它列为高频数据记录的介质；「掉电不丢失」只是必要条件，还要看擦写寿命与写入粒度是否匹配高频写入。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#3. **其他存储类型**",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch16-003",
+      "chapterId": "stage6_flash",
+      "chapterNo": 16,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "某嵌入式产品的只读内容分区在出厂后不再修改，且对占用空间非常敏感。依据素材「根文件系统构建」中列出的常见文件系统类型，最合适的是？",
+      "options": [
+        {
+          "key": "A",
+          "text": "`squashfs`——素材描述为只读压缩文件系统，适合嵌入式"
+        },
+        {
+          "key": "B",
+          "text": "`ext4`——素材描述为标准 Linux 文件系统"
+        },
+        {
+          "key": "C",
+          "text": "`initramfs`——素材描述为内存文件系统"
+        },
+        {
+          "key": "D",
+          "text": "`/proc` 所对应的虚拟文件系统——素材描述为内核虚拟文件系统目录，是系统内存的映射"
+        }
+      ],
+      "answer": "A",
+      "explanation": "素材把 squashfs 明确定位为「只读压缩文件系统，适合嵌入式」：只读正好匹配「出厂后不再修改」，压缩则直接降低占用空间，两条要求同时满足。B 的 ext4 是通用可读写文件系统，素材并未把它描述为压缩型；对本场景来说可读写是多余甚至有害的（存在被改写、以及写入过程掉电导致损坏的风险）。C 的 initramfs 存在于内存中，掉电即失，无法作为持久化的出厂内容载体。D 混淆了「虚拟文件系统」与「存储型文件系统」：素材说 `/proc` 是内核虚拟文件系统目录、是系统内存的映射，它本身不占用持久存储、也不存放产品内容，只是内核运行时信息的一个访问入口。",
+      "sourceRef": "05-EmbeddedLinux/README.md#📌 常见文件系统类型",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch16-004",
+      "chapterId": "stage6_flash",
+      "chapterNo": 16,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "依据面试素材对 `inode` 以及硬链接、软链接的说明，下列哪一项正确？",
+      "options": [
+        {
+          "key": "A",
+          "text": "`inode` 保存文件的元信息（大小、所有者、存取许可、文件类型等），硬链接指向同一个 `inode`，软链接则新建一个 `inode` 并保存原文件的路径"
+        },
+        {
+          "key": "B",
+          "text": "硬链接会新建一个 `inode` 并复制一份文件数据，软链接只是指向原 `inode` 的指针"
+        },
+        {
+          "key": "C",
+          "text": "硬链接可以跨分区建立，软链接不可以跨分区"
+        },
+        {
+          "key": "D",
+          "text": "每建立一个硬链接，原文件的 `inode` 号就会随之改变"
+        }
+      ],
+      "answer": "A",
+      "explanation": "素材说明 `inode` 是「储存文件元信息的区域」，其中包含文件大小、文件所有者、存取许可方式与文件类型等信息，最重要的内容是磁盘地址表；硬链接「可以认为是一个指针，指向文件索引节点的指针，系统并不为它重新分配 inode」，而软链接「要系统分配额外的空间用于建立新的索引节点和保存原文件的路径」。B 把两者对调了——硬链接既不新建 inode 也不复制数据，复制数据恰恰不是硬链接的行为。C 与素材相反：素材明确「硬链接不可以跨分区，软链接可以跨分区」，因为硬链接指向的是本分区内的 inode 编号，跨分区无法解析。D 与素材「每添加一个硬链接，文件的链接数就加 1」矛盾——增加的是链接计数而不是 inode 号；多个文件名共享同一个 inode，正是硬链接能共享同一份数据的前提。",
+      "sourceRef": "面试题与面经/Linux面试题1.md#21、什么是 inode ？；面试题与面经/Linux面试题1.md#22、什么是硬链接和软链接？",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch16-005",
+      "chapterId": "stage6_flash",
+      "chapterNo": 16,
+      "type": "code",
+      "difficulty": "advanced",
+      "question": "素材指出 EEPROM「适合存储少量关键参数（如设备 ID）」，而 FRAM 的价值在于「寿命长（10^12 次擦写）」——擦写寿命是这类小容量非易失存储的关键指标。为降低单点写坏与擦写磨损，工程上常把同一份参数在多个槽之间轮转保存，并用序号标注新旧。请实现 `param_select_slot()`：从 `count` 个参数槽中选出**应当读取**的那一个。\n\n约定：\n\n- 仅当 `slots[i].magic == PARAM_MAGIC`（`0xA5`）时该槽才算「已写入」，`magic` 不匹配的槽一律跳过，不参与比较；\n- 槽的写入序号 `seq` 是 8 位无符号数，会从 255 回绕到 0，因此必须用**环形差值**判断新旧：对候选槽与当前最优槽计算 `delta = (unsigned char)(candidate.seq - best.seq)`，其中 `best` 是当前已选中的最优槽；\n  - `delta` 落在 `1~127`：候选槽更新，替换最优槽；\n  - `delta == 0`：视为同一序号，保留先遇到（下标更小）的那个；\n  - `delta` 落在 `128~255`：候选槽更旧，不替换；\n- 遍历结束后返回最优槽的下标；若没有任何有效槽，返回 `-1`；\n- 若 `slots` 为空指针或 `count <= 0`，返回 `-2`。",
+      "language": "c",
+      "starterCode": "#define PARAM_MAGIC 0xA5u\n\ntypedef struct {\n    unsigned char magic;    /* 等于 PARAM_MAGIC 表示该槽已写入有效参数 */\n    unsigned char seq;      /* 写入序号，8 位回绕 */\n    unsigned char data[8];  /* 参数内容 */\n} ParamSlot;\n\n/*\n * 返回应当读取的槽下标；无有效槽返回 -1；slots 为空或 count <= 0 返回 -2。\n * 新旧判定用环形差值 delta = (unsigned char)(candidate.seq - best.seq)：\n *   1~127   -> candidate 更新，替换 best\n *   0       -> 视为同一序号，保留先遇到（下标更小）的\n *   128~255 -> candidate 更旧，不替换\n */\nint param_select_slot(const ParamSlot *slots, int count)\n{\n    /* TODO: 在此实现 */\n    return -1;\n}",
+      "expectedOutput": "返回序号最新且 magic 有效的槽下标；无有效槽返回 -1；slots 为空指针或 count <= 0 返回 -2；序号回绕（255 → 0）时必须仍能正确判出新旧。",
+      "testCases": [
+        {
+          "input": "slots = 3 个槽，magic 均为 0xA5，seq 依次为 10、11、12",
+          "expectedOutput": "返回 2（下标 2 的序号最新）"
+        },
+        {
+          "input": "slots = 3 个槽，magic 均为 0xA5，seq 依次为 254、255、0",
+          "expectedOutput": "返回 2（序号回绕：delta = 0 - 255 = 1，下标 2 比下标 1 新）"
+        },
+        {
+          "input": "slots = 3 个槽：下标 0 = {magic 0xA5, seq 5}，下标 1 = {magic 0xFF, seq 200}，下标 2 = {magic 0xA5, seq 4}",
+          "expectedOutput": "返回 0（下标 1 未写入被跳过；下标 2 的 delta = 4 - 5 = 255 ≥ 128，视为更旧，保留下标 0）"
+        },
+        {
+          "input": "slots = 2 个槽，magic 均为 0x00（全为擦除态，无有效槽）",
+          "expectedOutput": "返回 -1"
+        },
+        {
+          "input": "slots = NULL，或 slots 有效但 count = 0",
+          "expectedOutput": "返回 -2（入参非法）"
+        }
+      ],
+      "solutionCode": "#include <stddef.h>\n#define PARAM_MAGIC 0xA5u\n\ntypedef struct {\n    unsigned char magic;\n    unsigned char seq;\n    unsigned char data[8];\n} ParamSlot;\n\nint param_select_slot(const ParamSlot *slots, int count)\n{\n    if (slots == NULL || count <= 0) {\n        return -2;\n    }\n\n    int best = -1;\n\n    for (int i = 0; i < count; i++) {\n        if (slots[i].magic != PARAM_MAGIC) {\n            continue;  /* 未写入的槽不参与比较 */\n        }\n\n        if (best < 0) {\n            best = i;\n            continue;\n        }\n\n        unsigned char delta = (unsigned char)(slots[i].seq - slots[best].seq);\n\n        if (delta >= 1u && delta <= 127u) {\n            best = i;  /* 候选槽更新 */\n        }\n        /* delta == 0（同一序号）或 delta >= 128（候选更旧）：保留当前最优槽 */\n    }\n\n    return best;\n}",
+      "hints": [
+        "先做入参校验：`slots == NULL || count <= 0` 直接返回 -2，这与「没有任何有效槽」的 -1 是两个不同的含义，不要合并。",
+        "不要用 `slots[i].seq > slots[best].seq` 判新旧——序号是 8 位回绕的，过了 255 会跳回 0，必须算环形差值 `(unsigned char)(slots[i].seq - slots[best].seq)`。",
+        "环形差值只有三种有意义的结果：`1~127` 表示候选更新（替换 best）、`0` 表示同一序号（保留先遇到的）、`128~255` 表示候选更旧（不动）。"
+      ],
+      "explanation": "本题把素材里 EEPROM「适合存储少量关键参数」与 FRAM「寿命长（10^12 次擦写）」这两条定位落到工程做法上：参数不再固定写死在一个地址，而是在多个槽之间轮转，写坏的槽可以跳过，擦写次数也被摊薄——这也是为什么擦写寿命会成为这类小容量非易失存储的选型关注点。真正的难点是**序号回绕**：`seq` 只有 8 位，从 255 走到 0 表示「更新」而不是「变旧」，所以必须用 `(unsigned char)(candidate.seq - best.seq)` 的环形差值来判断，落在 1~127 表示候选更新，落在 128~255 表示候选更旧，等于 0 表示同一序号。直接比较 `candidate.seq > best.seq` 是最常见的错误，它在回绕点会把最新数据判成最旧，读出的参数会莫名「倒退」一整轮，而且这种故障只在序号刚好跨过回绕点时出现，极难复现。另一个易错点是 `magic` 过滤必须放在比较之前，否则擦除态空槽里的随机 `seq` 会参与竞争、把有效数据挤掉；最后，`count <= 0` 与空指针要单独返回 -2，与「没有任何有效槽」的 -1 区分开，便于上层判断究竟是「参数尚未初始化」还是「调用参数写错了」。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#3. **其他存储类型**",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    }
+  ]
+}

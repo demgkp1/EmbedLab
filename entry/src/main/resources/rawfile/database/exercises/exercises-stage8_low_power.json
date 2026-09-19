@@ -1,0 +1,180 @@
+{
+  "schemaVersion": "1.0.0",
+  "chapterId": "stage8_low_power",
+  "chapterNo": 25,
+  "chapterTitle": "25. 低功耗",
+  "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+  "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn",
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "extractedAt": "2026-09-13",
+  "exercises": [
+    {
+      "id": "ex-ch25-001",
+      "chapterId": "stage8_low_power",
+      "chapterNo": 25,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材的“电源转换”小节对比了 LDO 与 DC-DC 转换器。下列描述哪一项与素材一致？",
+      "options": [
+        {
+          "key": "A",
+          "text": "DC-DC 转换器可升压/降压，效率高（可达 90% 以上），适合电池供电设备；LDO 电路简单、输出纹波小，但效率低且输入输出压差越大效率越低"
+        },
+        {
+          "key": "B",
+          "text": "LDO 没有开关损耗，因此效率高于 DC-DC，电池供电设备应优先选 LDO"
+        },
+        {
+          "key": "C",
+          "text": "DC-DC 效率高说明它的输出纹波也小，可以直接替代 LDO 给高精度模拟电路供电"
+        },
+        {
+          "key": "D",
+          "text": "LDO 的效率与压差无关，压差越大效率反而越高"
+        }
+      ],
+      "answer": "A",
+      "explanation": "素材对两者的定位很明确：LDO（如 AMS1117-3.3）电路简单、输出纹波小，缺点是“效率低（输入输出压差越大，效率越低）”；DC-DC 可升压/降压、效率可达 90% 以上（如 TPS62160），适合电池供电设备。B 只看到“线性稳压没有开关动作”，忽略了素材点明的低效率，对靠电池续航的设备不利；C 把“效率高”外推成“纹波小”，而“输出纹波小”恰恰是素材给 LDO 的优点，DC-DC 的开关工作方式与低纹波并不能划等号；D 与素材“压差越大效率越低”的结论正好相反。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#1. 电源转换",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch25-002",
+      "chapterId": "stage8_low_power",
+      "chapterNo": 25,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材给出 Cortex-M 三种主要低功耗模式的唤醒时间、功耗与保留内容。下列关于三种模式的描述，哪一项正确？",
+      "options": [
+        {
+          "key": "A",
+          "text": "Standby 保留 SRAM 内容，唤醒时间为几十 μs，功耗为几 μA"
+        },
+        {
+          "key": "B",
+          "text": "Sleep 保留 CPU 寄存器与 SRAM 内容（功耗几 mA）；Stop 保留 SRAM 内容与部分寄存器（功耗几 μA）；Standby 仅保留备份寄存器（如 RTC），功耗几十 nA"
+        },
+        {
+          "key": "C",
+          "text": "三种模式中 Sleep 功耗最低，因为它的唤醒时间最短（数 μs）"
+        },
+        {
+          "key": "D",
+          "text": "Stop 的功耗为几十 nA、Standby 的功耗为几 μA，两者只是唤醒时间不同"
+        }
+      ],
+      "answer": "B",
+      "explanation": "按素材表格逐项对应：Sleep 唤醒数 μs、功耗几 mA、保留 CPU 寄存器与 SRAM 内容；Stop 唤醒几十 μs、功耗几 μA、保留 SRAM 内容与部分寄存器；Standby 唤醒几 ms、功耗几十 nA、仅保留备份寄存器（如 RTC）。A 把 Stop 的唤醒时间与功耗特征记到了 Standby 上，且 Standby 并不保留 SRAM；C 把因果搞反了——功耗越低唤醒越慢，Sleep 唤醒最快但功耗最高（几 mA）；D 把 Stop 与 Standby 的功耗对调，而两者的差别也不只是唤醒时间，保留内容从“SRAM + 部分寄存器”缩减到“仅备份寄存器”，这正是唤醒后需要重新初始化的原因。",
+      "sourceRef": "07-Debug_Optimization/README.md#低功耗模式优化",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch25-003",
+      "chapterId": "stage8_low_power",
+      "chapterNo": 25,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材的低功耗优化技巧给出外设时钟管理示例：`vReadSensor()` 先 `__HAL_RCC_I2C1_CLK_ENABLE()`，读取传感器数据后立刻 `__HAL_RCC_I2C1_CLK_DISABLE()`。对这一做法的理解，哪一项正确？",
+      "options": [
+        {
+          "key": "A",
+          "text": "应该在上电初始化时把所有外设时钟一次使能，运行时不再开关，这样最省电"
+        },
+        {
+          "key": "B",
+          "text": "关闭 I2C1 时钟在省电的同时会把 I2C 的通信速率一并降低"
+        },
+        {
+          "key": "C",
+          "text": "关闭 I2C1 时钟等同于降低 CPU 主频，因此会影响所有任务的执行速度"
+        },
+        {
+          "key": "D",
+          "text": "不用的外设时钟是动态功耗的来源之一，用完立即关闭可以省电；代价是下次使用前必须重新使能该外设时钟"
+        }
+      ],
+      "answer": "D",
+      "explanation": "素材的优化技巧有两条并列内容：“禁用未使用的外设时钟”（如 `__HAL_RCC_GPIOA_CLK_DISABLE()`、`__HAL_RCC_SPI1_CLK_DISABLE()`）与“仅在需要时启用外设”，读传感器时开 I2C1 时钟、读完立刻关闭正是后者的示例。A 与素材“禁用未使用的外设时钟”直接冲突，常开的外设时钟会持续消耗动态功耗；B 混淆了两件事：`CLK_ENABLE`/`CLK_DISABLE` 控制的是外设时钟的“通/断”，与通信速率（分频、波特率）无关；C 把外设时钟门控说成 CPU 主频调整，而示例中的宏只作用于 I2C1 这单个外设，CPU 主频与其他任务并不受影响。",
+      "sourceRef": "07-Debug_Optimization/README.md#优化技巧：",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch25-004",
+      "chapterId": "stage8_low_power",
+      "chapterNo": 25,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材的“低功耗设计案例”描述了智能手环：平时 MCU 处于休眠，加速度计检测运动状态；定时唤醒 GPS 模块采集位置数据，通过 BLE 上传手机。这个案例体现的低功耗策略组合是？",
+      "options": [
+        {
+          "key": "A",
+          "text": "提高 MCU 主频以缩短唤醒时间，并让 GPS 常开以保证定位连续"
+        },
+        {
+          "key": "B",
+          "text": "关闭加速度计与 GPS，只靠 BLE 定时上传固定数据"
+        },
+        {
+          "key": "C",
+          "text": "MCU 平时休眠并关闭非必要外设，用低功耗的加速度计常驻检测运动状态，高功耗的 GPS 按需定时唤醒，数据用低功耗的 BLE 上传"
+        },
+        {
+          "key": "D",
+          "text": "用 LDO 替代 DC-DC 提高电源效率，从而免去休眠与唤醒的复杂度"
+        }
+      ],
+      "answer": "C",
+      "explanation": "案例的策略分三个层次：主控“平时 MCU 处于休眠”（对应素材的低功耗设计——关闭非必要外设、仅保留唤醒源），感知用加速度计常驻判断运动状态，耗电最大的 GPS 只“定时唤醒”采集，数据走 BLE 上传；素材的面试高频问题也把“低功耗设计的关键策略”归纳为休眠模式、动态电压调整、关闭非必要外设、使用低功耗通信协议（如 BLE）。A 与案例相反：GPS 是耗电大户，常开会让续航急剧下降；B 关掉加速度计就无法检测运动状态，而案例恰恰把它当作常驻的低功耗触发器；D 弄反了电源器件特性——素材指出 LDO 效率低（压差越大越低），DC-DC 效率可达 90% 以上，用 LDO 替代 DC-DC 只会更费电。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#3. 低功耗设计案例",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch25-005",
+      "chapterId": "stage8_low_power",
+      "chapterNo": 25,
+      "type": "code",
+      "difficulty": "advanced",
+      "question": "素材给出了相差三个数量级的电流量级（活动几 mA、Stop 几 μA、Standby 几十 nA），并建议“在 STM32 上实现功耗测量（使用外部电流表或内部 ADC 监测 VDD 电流）”；智能手环案例则是典型的“短时活动 + 长时间休眠”占空比工作方式。要把这种占空比换算成可比较的平均电流，请实现：\n\n平均电流（μA）= (active_ua × active_ms + sleep_ua × sleep_ms) / (active_ms + sleep_ms)，结果四舍五入到整数 μA。\n\n入参非法时返回 `-1`：`p` 为 `NULL`、任一字段为负、或周期 `active_ms + sleep_ms == 0`。",
+      "language": "c",
+      "starterCode": "/*\n * 占空比功耗画像：电流单位 μA，时间单位 ms。\n * 例：活动 20000 μA 持续 5 ms + 休眠 5 μA 持续 995 ms。\n */\ntypedef struct {\n    int active_ua;  /* 活动期间的电流（μA） */\n    int sleep_ua;   /* 休眠期间的电流（μA） */\n    int active_ms;  /* 每个周期内的活动时间（ms） */\n    int sleep_ms;   /* 每个周期内的休眠时间（ms） */\n} PowerProfile;\n\n/*\n * 返回平均电流（μA，四舍五入到整数）；入参非法返回 -1。\n */\nint avg_current_ua(const PowerProfile *p)\n{\n    /* TODO: 在此实现 */\n    return 0;\n}",
+      "expectedOutput": "按时间加权计算平均电流：`(active_ua×active_ms + sleep_ua×sleep_ms) / (active_ms + sleep_ms)`，四舍五入到整数 μA；`p == NULL`、任一字段为负、或周期为 0 时返回 -1。",
+      "testCases": [
+        {
+          "input": "p = {active_ua 20000, sleep_ua 5, active_ms 5, sleep_ms 995}",
+          "expectedOutput": "返回 105（(20000×5 + 5×995) / 1000 = 104.975，四舍五入为 105 μA）"
+        },
+        {
+          "input": "p = {active_ua 20000, sleep_ua 5, active_ms 10, sleep_ms 0}",
+          "expectedOutput": "返回 20000（整周期都在活动，休眠时间为 0 是合法边界）"
+        },
+        {
+          "input": "p = {active_ua 20000, sleep_ua 5, active_ms 0, sleep_ms 1000}",
+          "expectedOutput": "返回 5（整周期都在休眠，只统计休眠电流）"
+        },
+        {
+          "input": "p = {active_ua 1000, sleep_ua 0, active_ms 1, sleep_ms 2}",
+          "expectedOutput": "返回 333（1000/3 = 333.33…，四舍五入为 333 μA）"
+        },
+        {
+          "input": "p = {active_ua 20000, sleep_ua 5, active_ms 0, sleep_ms 0}；以及 p = NULL",
+          "expectedOutput": "均返回 -1（周期为 0 时平均电流无定义；空指针属非法入参，负值同样返回 -1）"
+        }
+      ],
+      "solutionCode": "#include <stddef.h>\ntypedef struct {\n    int active_ua;\n    int sleep_ua;\n    int active_ms;\n    int sleep_ms;\n} PowerProfile;\n\nint avg_current_ua(const PowerProfile *p)\n{\n    if (p == NULL) {\n        return -1;\n    }\n    if (p->active_ua < 0 || p->sleep_ua < 0 ||\n        p->active_ms < 0 || p->sleep_ms < 0) {\n        return -1;\n    }\n\n    long long total_ms = (long long)p->active_ms + (long long)p->sleep_ms;\n    if (total_ms == 0) {\n        return -1;  /* 周期为 0，平均电流无定义 */\n    }\n\n    /* 一个周期内的电荷量（μA·ms）；用 64 位承接，避免 32 位溢出 */\n    long long charge = (long long)p->active_ua * (long long)p->active_ms\n                     + (long long)p->sleep_ua * (long long)p->sleep_ms;\n\n    /* 整数四舍五入：先加半个周期再整除 */\n    return (int)((charge + total_ms / 2) / total_ms);\n}",
+      "hints": [
+        "平均电流是时间加权平均：分子是“一个周期内的电荷量”（μA × ms），分母是周期总时长（ms）。",
+        "先把非法情况挡在门外：`NULL`、任一字段为负、`active_ms + sleep_ms == 0`（否则会除零）。",
+        "四舍五入不必用浮点：整数运算下 `(charge + total_ms / 2) / total_ms` 即可；乘积可能很大，用 `long long` 承接。"
+      ],
+      "explanation": "功耗优化不能只看“休眠电流有多低”，还要看活动时间占比——素材的智能手环案例正是“平时休眠 + 定时唤醒 GPS”的占空比模型，07 的实践项目也建议用外部电流表或内部 ADC 实测 VDD 电流来验证效果。本题把该模型写成可测试的整数运算：平均电流 =（活动电流×活动时间 + 休眠电流×休眠时间）/ 周期总时长。三个易错点：一是直接用 `int` 相乘，电流到 mA 级（10³）再乘 ms 级时间（10³）就可能逼近 32 位上限，必须用 `long long`；二是整数除法直接截断，104.975 μA 会被算成 104，需要用 `(charge + total_ms/2) / total_ms` 做四舍五入；三是漏掉边界——整周期只活动（`sleep_ms == 0`）或只休眠（`active_ms == 0`）都是合法输入，而周期为 0 必须按非法处理，否则会除零。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#2. 低功耗设计",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    }
+  ]
+}

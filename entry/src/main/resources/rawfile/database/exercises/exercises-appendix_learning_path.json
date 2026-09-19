@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "1.0.0",
+  "chapterId": "appendix_learning_path",
+  "chapterNo": 33,
+  "chapterTitle": "33. 学习路线",
+  "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+  "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn",
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "extractedAt": "2026-09-13",
+  "exercises": [
+    {
+      "id": "ex-ch33-001",
+      "chapterId": "appendix_learning_path",
+      "chapterNo": 33,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "根 `README.md` 的目录把学习路线划分为九层。下列哪一项正确给出了**相邻**层次的先后关系？",
+      "options": [
+        { "key": "A", "text": "第三层 驱动开发与外设编程 → 第四层 实时操作系统（RTOS） → 第五层 嵌入式 Linux 开发基础" },
+        { "key": "B", "text": "第四层 实时操作系统（RTOS） → 第三层 驱动开发与外设编程 → 第五层 嵌入式 Linux 开发基础" },
+        { "key": "C", "text": "第五层 嵌入式 Linux 开发基础 → 第六层 网络通信与物联网协议 → 第九层 2025 新趋势" },
+        { "key": "D", "text": "第二层 嵌入式系统基础知识 → 第一层 C/C++ 语言基础与进阶 → 第三层 驱动开发与外设编程" }
+      ],
+      "answer": "A",
+      "explanation": "根 `README.md` 目录中的层次顺序是：第一层 C/C++ 语言基础与进阶（必修）→ 第二层 嵌入式系统基础知识 → 第三层 驱动开发与外设编程 → 第四层 实时操作系统（RTOS）→ 第五层 嵌入式 Linux 开发基础 → 第六层 网络通信与物联网协议 → 第七层 调试与性能优化 → 第八层 项目实战与工具链 → 第九层 2025 新趋势。B 把第三、四层对调。D 把第一、二层对调——语言基础排在最前，且被特别标注为\"必修\"。C 的第五、六层顺序正确，但它跳过了第七层（调试与性能优化）和第八层（项目实战与工具链），把第六层直接接到第九层，二者并不相邻。",
+      "sourceRef": "README.md#目录",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch33-002",
+      "chapterId": "appendix_learning_path",
+      "chapterNo": 33,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材的\"开发与调试工具\"按硬件工具与软件工具两组给出建议。下列哪项与素材一致？",
+      "options": [
+        { "key": "A", "text": "硬件工具：开发板（STM32 Nucleo、Arduino、ESP32 DevKit）、调试器（ST-Link、J-Link）、逻辑分析仪（Saleae Logic）" },
+        { "key": "B", "text": "硬件工具：调试器只有 ST-Link 一种选择，开发板统一使用 Arduino" },
+        { "key": "C", "text": "软件工具：用 STM32CubeMX 即可完成编译与烧录，不需要 IDE 或调试器" },
+        { "key": "D", "text": "软件工具：OpenOCD 属于硬件工具，GDB 属于驱动配置工具" }
+      ],
+      "answer": "A",
+      "explanation": "素材\"1. 硬件工具\"列出三行：开发板为 STM32 Nucleo、Arduino、ESP32 DevKit；调试器为 ST-Link、J-Link；逻辑分析仪为 Saleae Logic（用于分析通信协议波形）。B 把并列举例读成了唯一选择，漏掉了 J-Link 与 ESP32 DevKit 等项。C 混淆了工具职责：素材中 STM32CubeMX 的定位是\"驱动配置（自动生成初始化代码）\"，而 IDE 另有 Keil MDK、STM32CubeIDE、Arduino IDE，OpenOCD（开源调试协议）与 GDB（调试器）才是调试工具。D 把分组完全弄反：OpenOCD 与 GDB 都列在\"2. 软件工具\"之下。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#1. **硬件工具**",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch33-003",
+      "chapterId": "appendix_learning_path",
+      "chapterNo": 33,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "学习路线按九层组织。若要学习\"设备树（Device Tree）\"与\"根文件系统构建\"，按根 `README.md` 目录应定位到哪一层？",
+      "options": [
+        { "key": "A", "text": "第五层 嵌入式 Linux 开发基础" },
+        { "key": "B", "text": "第三层 驱动开发与外设编程" },
+        { "key": "C", "text": "第六层 网络通信与物联网协议" },
+        { "key": "D", "text": "第八层 项目实战与工具链" }
+      ],
+      "answer": "A",
+      "explanation": "根 `README.md` 目录在\"嵌入式 Linux 开发基础\"之下集中列出了系统概览、启动流程详解、设备树、Linux 驱动开发模型、根文件系统构建、工具链与调试手段等条目，设备树与根文件系统构建都在其中。B 第三层聚焦寄存器级开发与通用外设驱动（GPIO/UART/SPI/I2C/ADC/RTC、DMA、看门狗、CAN），不涉及设备树与根文件系统。C 第六层是串口与 Socket 通信、无线协议（Wi-Fi/BLE/LoRa/ZigBee）、物联网协议栈（MQTT/HTTP/CoAP）以及云平台接入与 OTA 实现。D 第八层是 Git 工程管理、Makefile/CMake 构建、CI 流水线、BSP 与驱动分层、开发工具链，属于工程与构建侧。",
+      "sourceRef": "README.md#目录",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch33-004",
+      "chapterId": "appendix_learning_path",
+      "chapterNo": 33,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "根 `README.md` 在第六层末尾给出\"推荐学习顺序\"共四步：① 学习 UART 通信与基本网络 socket 原理；② 掌握 Wi-Fi/BLE 开发流程（推荐 ESP32/nRF52）；③ 理解 MQTT 协议与平台接入逻辑；④ 实践 OTA 升级流程，构建远程维护能力。下列做法哪项与素材一致？",
+      "options": [
+        { "key": "A", "text": "先用 ESP32/nRF52 打通 Wi-Fi/BLE，再理解 MQTT 与平台接入，最后实践 OTA 升级" },
+        { "key": "B", "text": "先实践 OTA 升级流程，再回头学习 UART 通信与 socket 原理" },
+        { "key": "C", "text": "先理解 MQTT 与平台接入逻辑，再学习 UART 与 socket 原理，最后掌握 Wi-Fi/BLE" },
+        { "key": "D", "text": "四步之间不存在先后关系，素材说明可任选其中一步入门" }
+      ],
+      "answer": "A",
+      "explanation": "素材的四步是递进关系：先具备 UART/Socket 这类通信底座，才能开展 Wi-Fi/BLE 无线链路开发（素材还给出了 ESP32/nRF52 的推荐平台），有了链路才谈得上理解 MQTT 与平台接入，最后才可能实践 OTA 远程维护——每一步都是下一步的前置。B 把最依赖前序能力的 OTA 放到最前。C 把 MQTT 与 UART/Socket 对调，等于在链路尚未打通前先学协议接入。D 与素材明确的编号相矛盾：该小节以 1→2→3→4 编号列出\"推荐学习顺序\"，本身就是顺序约定，而非并列可选清单。",
+      "sourceRef": "README.md#推荐学习顺序",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch33-005",
+      "chapterId": "appendix_learning_path",
+      "chapterNo": 33,
+      "type": "code",
+      "difficulty": "advanced",
+      "question": "九层学习路线是逐层递进的，第六层还专门给出\"推荐学习顺序\"。请实现一个**学习顺序校验器**：给定每层的前置层编号与一份学习计划顺序，判断该计划是否满足全部前置约束。\n\n- `prereq[i]` 表示第 `i+1` 层的前置层编号，`0` 表示无前置；否则必须落在 `1..n` 内且不等于 `i+1`（不允许自依赖）；\n- `order[k]` 表示第 `k` 个学习的层次编号，必须是 `1..n` 的一个排列（不重复、不越界）；\n- 若某层出现在它的前置层之前，则计划不合法。\n\n返回 `1` 合法、`0` 存在前置约束被违反、`-1` 入参非法（指针为 `NULL`、`n` 不在 `1..9`、前置编号越界或自依赖、`order` 不是 `1..n` 的排列）。",
+      "language": "c",
+      "starterCode": "#include <stddef.h>\n\n/*\n * 学习顺序校验器（九层路线，n <= 9）。\n * prereq[i] : 第 i+1 层的前置层编号，0 表示无前置\n * order[k]  : 第 k 个学习的层次编号，取值 1..n\n *\n * 返回： 1 = 顺序合法\n *        0 = 存在\"前置未学先学后置\"\n *       -1 = 入参非法\n */\nint check_study_order(const int *prereq, const int *order, int n)\n{\n    /* TODO: 在此实现 */\n    return 0;\n}",
+      "expectedOutput": "满足全部前置约束返回 1；存在\"后置层排在其前置层之前\"返回 0；指针为 `NULL`、`n` 不在 `1..9`、前置编号越界或自依赖、`order` 不是 `1..n` 的排列时返回 -1。",
+      "testCases": [
+        { "input": "prereq = {0, 1, 2}, order = {1, 2, 3}, n = 3", "expectedOutput": "返回 1（1→2→3 逐层递进，前置均满足）" },
+        { "input": "prereq = {0, 1, 2}, order = {1, 3, 2}, n = 3", "expectedOutput": "返回 0（学第 3 层时，其前置第 2 层尚未学习）" },
+        { "input": "prereq = {0, 1, 1}, order = {1, 3, 2}, n = 3", "expectedOutput": "返回 1（第 2、3 层都以第 1 层为前置，二者之间无先后约束）" },
+        { "input": "prereq = {0, 1, 2}, order = {1, 1, 3}, n = 3", "expectedOutput": "返回 -1（order 中第 1 层重复出现，不是 1..3 的排列）" },
+        { "input": "prereq = {0, 2, 2}, order = {1, 2, 3}, n = 3", "expectedOutput": "返回 -1（第 2 层的前置是它自己，属于自依赖，入参非法）" }
+      ],
+      "solutionCode": "#include <stddef.h>\n\nint check_study_order(const int *prereq, const int *order, int n)\n{\n    int learned[10];\n    int i, k, layer, need;\n\n    if (prereq == NULL || order == NULL || n <= 0 || n > 9) {\n        return -1;\n    }\n\n    /* 前置表合法性：0 表示无前置，否则必须落在 1..n 且不能自依赖 */\n    for (i = 0; i < n; ++i) {\n        if (prereq[i] < 0 || prereq[i] > n || prereq[i] == i + 1) {\n            return -1;\n        }\n    }\n\n    /* order 必须是 1..n 的一个排列 */\n    for (i = 0; i <= n; ++i) {\n        learned[i] = 0;\n    }\n    for (k = 0; k < n; ++k) {\n        if (order[k] < 1 || order[k] > n || learned[order[k]] != 0) {\n            return -1;\n        }\n        learned[order[k]] = 1;\n    }\n\n    /* 按计划逐项检查：学第 order[k] 层时，其前置层必须已经学完 */\n    for (i = 0; i <= n; ++i) {\n        learned[i] = 0;\n    }\n    for (k = 0; k < n; ++k) {\n        layer = order[k];\n        need = prereq[layer - 1];\n\n        if (need != 0 && learned[need] == 0) {\n            return 0;\n        }\n        learned[layer] = 1;\n    }\n\n    return 1;\n}",
+      "hints": [
+        "先把两类入参校验做干净：前置表逐项检查 `0 <= prereq[i] <= n` 且 `prereq[i] != i + 1`；`order` 用一张标记表验证它确实是 `1..n` 的排列。",
+        "约束检查阶段另起一张标记表，从头扫 `order`：学到第 `layer` 层时，若 `prereq[layer - 1] != 0` 且该前置层还没被标记，就返回 0。",
+        "`n` 最大为 9（九层路线），标记数组开 `int learned[10]`、下标用 0..n，每次使用前整体清零。"
+      ],
+      "explanation": "本题把\"九层学习路线\"与第六层的\"推荐学习顺序\"抽象成前置依赖校验，考察三点。第一是**入参校验要覆盖结构性非法**：除了指针为 `NULL`，`order` 重复或越界、`prereq` 自依赖（`prereq[i] == i + 1`）同样属于非法输入；若只查指针，后续用 `order[k]` 当下标写标记数组就会越界。第二是**排列校验与约束校验要分开做**：先用标记表确认 `order` 是 `1..n` 的排列，再判断\"学到某层时其前置是否已学\"，否则重复项会掩盖真正的顺序问题（如 `{1, 1, 3}` 里第 2 层从未被学，却看不出报错原因）。第三是**依据直接前置而不是\"上一层\"**：判定条件应写 `prereq[layer - 1]`，而不是简单要求 `order[k] == order[k-1] + 1`，后者会把合法的并列分支（多层共享同一前置）误判为非法。",
+      "sourceRef": "README.md#目录",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    }
+  ]
+}

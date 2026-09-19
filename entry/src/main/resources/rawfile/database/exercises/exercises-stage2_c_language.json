@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "1.0.0",
+  "chapterId": "stage2_c_language",
+  "chapterNo": 6,
+  "chapterTitle": "6. C 语言与嵌入式 C",
+  "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+  "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn",
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "extractedAt": "2026-09-13",
+  "exercises": [
+    {
+      "id": "ex-ch06-001",
+      "chapterId": "stage2_c_language",
+      "chapterNo": 6,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材的关键字表把 `volatile` 说明为\"防止编译器优化，常用于寄存器\"，并给出 `volatile uint32_t *reg = (uint32_t *)0x40021000;` 这样的寄存器访问写法。这里的 `volatile` 起什么作用？",
+      "options": [
+        { "key": "A", "text": "告诉编译器该对象的值可能在程序控制流之外被改变，因此不能把它缓存到寄存器里，也不能删除看似多余的读写" },
+        { "key": "B", "text": "建议编译器把该变量放进 CPU 寄存器，以便更快地访问" },
+        { "key": "C", "text": "把该变量限定为只读，任何写操作都会被编译器拒绝" },
+        { "key": "D", "text": "让该变量具有外部链接，可以在其他源文件中被引用" }
+      ],
+      "answer": "A",
+      "explanation": "`volatile` 的语义是\"易变\"：让编译器假定该对象的值可能被当前控制流之外的因素改变（素材点名的典型场景就是硬件寄存器），因此每次访问都真实发生，既不缓存到寄存器、也不合并或删除。B 描述的是素材关键字表中并列出现的 `register`；C 是 `const`（只读限定符）的语义；D 是 `extern`（声明外部变量/函数）的作用。这四个关键字在素材里同表列出，正是最容易互相张冠李戴的一组。",
+      "sourceRef": "01-C语言基础与进阶/Readme.md#📌 关键字（Keywords）",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch06-002",
+      "chapterId": "stage2_c_language",
+      "chapterNo": 6,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材对比了栈与堆：栈\"自动分配与释放，函数调用时分配栈帧，函数返回时自动释放\"，且\"空间有限，栈空间通常较小（如 Linux 默认 8MB），过大的局部变量可能导致栈溢出\"；堆用 `malloc`/`free` 手动管理，\"频繁分配和释放可能导致内存碎片\"，访问时\"需通过指针间接访问，效率低于栈\"。据此，下列哪项说法正确？",
+      "options": [
+        { "key": "A", "text": "函数返回时栈上的局部变量自动释放；堆内存必须由程序员 `free`，且堆的访问要经指针间接进行，效率低于栈" },
+        { "key": "B", "text": "函数内 `malloc` 得到的内存在函数返回时会随栈帧一起自动释放" },
+        { "key": "C", "text": "栈空间通常比堆大，所以大数组更适合定义在栈上" },
+        { "key": "D", "text": "频繁分配和释放只会影响堆的访问速度，不会产生内存碎片" }
+      ],
+      "answer": "A",
+      "explanation": "素材把两者的边界划得很清楚：栈由编译器自动管理、函数退出即释放，堆的生命周期\"由程序员控制，需手动释放\"，且堆的访问\"需通过指针间接访问，效率低于栈\"。B 把栈的自动释放特性错安到堆上，是内存泄漏的经典根源；C 与素材相反——素材强调栈空间\"通常较小\"，过大的局部变量会导致栈溢出；D 直接否认了素材中\"频繁分配和释放可能导致内存碎片\"的结论。",
+      "sourceRef": "01-C语言基础与进阶/Readme.md#✅ 栈 和 堆（内存管理）",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch06-003",
+      "chapterId": "stage2_c_language",
+      "chapterNo": 6,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材给出 `const` 与指针的三种组合：`const int * p1 = &a;` 中 `p1 = &b;` 正确而 `*p1 = 100;` 报错；`int * const p2 = &a;` 中 `p2 = &b;` 错误而 `*p2 = 100;` 正确；`const int * const p3 = &a;` 中两者都错误。下列判断哪项与素材一致？",
+      "options": [
+        { "key": "A", "text": "`const int *p1` 中 p1 本身可以改指向别的变量，但不能通过 p1 修改所指对象的值" },
+        { "key": "B", "text": "`int * const p2` 中 p2 可以改指向，只是不能通过 p2 修改所指对象的值" },
+        { "key": "C", "text": "`const int * const p3` 定义后仍能写 `p3 = &b;` 改指向，只是不能写 `*p3 = 100;`" },
+        { "key": "D", "text": "三种写法语义完全相同，都表示指针本身和所指对象都不可修改" }
+      ],
+      "answer": "A",
+      "explanation": "素材给的技巧是\"看 const 右侧紧跟着的是指针还是常量\"：`const int *p1` 里 const 紧挨着 `int`，锁定的是所指对象，指针自身可改，所以 A 正确。B 把 p1 与 p2 的语义对调了——`int * const p2` 中 const 直接修饰指针名，锁的是指针，所指对象反而可写（`*p2 = 100;` 正确）；C 把 p3 说成\"只锁一半\"，而 `const int * const p3` 两处都被 const 限定，定义后既不能改指向也不能改值；D 抹掉了前两种写法之间的区别，只有 p3 才是\"双锁\"。",
+      "sourceRef": "01-C语言基础与进阶/Readme.md#const修饰指针",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch06-004",
+      "chapterId": "stage2_c_language",
+      "chapterNo": 6,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材的位域示例为 `struct Flags { unsigned int ready : 1; unsigned int error : 1; unsigned int mode : 2; };`，并给出注意事项：\"位域不能取地址（`&f.ready` 不合法）\"、\"字段数值不能超过位数范围（2^n - 1）\"、\"与具体编译器实现密切相关（跨平台需小心）\"。对于 `struct Flags f;`，下列哪项正确？",
+      "options": [
+        { "key": "A", "text": "`f.mode` 占 2 位，可表示 0~3；对 `f.ready` 或 `f.mode` 取地址都不合法" },
+        { "key": "B", "text": "`mode : 2` 表示 mode 是结构体中的第 2 个字段，因此它实际只占 1 位" },
+        { "key": "C", "text": "`&f.ready` 合法，因为 `ready` 只占 1 位，可以单独寻址" },
+        { "key": "D", "text": "位域的内存布局由 C 标准统一规定，在任何编译器上结果都一致" }
+      ],
+      "answer": "A",
+      "explanation": "素材的示例注释直接给出\"占 2 位，最大为 11（二进制）即 3\"，对应注意事项里的\"字段数值不能超过位数范围（2^n - 1）\"：2 位字段的上界是 2²−1 = 3，所以 A 正确。B 把冒号后的数字当成字段序号了——`: 2` 是字段宽度（多少比特），不是第几个字段；C 错在取地址与字段宽度无关，素材明确\"位域不能取地址\"，因为位域可能不与字节边界对齐，普通指针无法表示；D 恰好否认了素材的第三条提醒——位域布局\"与具体编译器实现密切相关\"，跨平台移植时要格外小心。",
+      "sourceRef": "01-C语言基础与进阶/Readme.md#📌 位域（Bit Field）",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch06-005",
+      "chapterId": "stage2_c_language",
+      "chapterNo": 6,
+      "type": "code",
+      "difficulty": "advanced",
+      "question": "素材的位操作小节给出：`#define LED_PIN (1 << 2)`、`PORT |= LED_PIN;`（置位）、`PORT &= ~LED_PIN;`（清零）、`PORT ^= LED_PIN;`（翻转），并说明这些写法\"用于设置寄存器位、控制硬件\"；位域小节则说明 `mode : 2` 这样的字段占据固定比特数。请把单比特写法推广为**通用位段写入**函数：\n\n- 把 `*reg` 中从 `offset` 位开始、宽度为 `width` 位的字段整体替换为 `value`，寄存器其余位保持不变；\n- 成功返回 `0`；\n- 入参非法时返回 `-1`，且**不修改** `*reg`：`reg` 为 `NULL`、`width == 0`、`width > 32`、`offset + width > 32`、或 `value` 超出 `width` 位可表示的范围（`value > 2^width - 1`）；\n- `width == 32` 时允许整字替换（此时 `offset` 只能为 0）。",
+      "language": "c",
+      "starterCode": "#include <stdint.h>\n#include <stddef.h>\n\n/*\n * 把 *reg 中 [offset + width - 1 : offset] 这一段位域整体写为 value，其余位保持不变。\n * 成功返回 0；入参非法（reg 为 NULL / width 为 0 / width > 32 /\n * offset + width > 32 / value 超出 width 位可表示的范围）返回 -1，且不修改 *reg。\n */\nint reg_write_field(uint32_t *reg, unsigned int offset, unsigned int width, uint32_t value)\n{\n    /* TODO: 先按 width 构造掩码并清掉目标位，再把 value 移入 offset 处 */\n    return -1;\n}",
+      "expectedOutput": "合法入参下返回 0，并让 *reg 的目标位段等于 value、其他位保持原值；width == 32 时可整字替换；任何非法入参返回 -1 且完全不改动 *reg。",
+      "testCases": [
+        { "input": "reg 指向 0x00000000，offset = 10, width = 4, value = 0x5", "expectedOutput": "*reg = 0x00001400，返回 0（等价于素材的 `0x5 << 10`）" },
+        { "input": "reg 指向 0xFFFFFFFF，offset = 10, width = 4, value = 0x0", "expectedOutput": "*reg = 0xFFFFC3FF，返回 0（只清掉第 10~13 位，邻近位不受影响）" },
+        { "input": "reg 指向 0x12345678，offset = 0, width = 8, value = 0xAB", "expectedOutput": "*reg = 0x123456AB，返回 0" },
+        { "input": "reg 指向 0x00000000，offset = 28, width = 4, value = 0xF", "expectedOutput": "*reg = 0xF0000000，返回 0（写满最高位段）" },
+        { "input": "reg 指向 0x00000000，offset = 30, width = 4, value = 0x1（越界）；另一组 width = 4, value = 0x10（超出位宽）", "expectedOutput": "两种情况都返回 -1，*reg 仍为 0x00000000" }
+      ],
+      "solutionCode": "#include <stdint.h>\n#include <stddef.h>\n\nint reg_write_field(uint32_t *reg, unsigned int offset, unsigned int width, uint32_t value)\n{\n    uint32_t mask;\n\n    if (reg == NULL || width == 0u || width > 32u) {\n        return -1;\n    }\n    if (offset > 31u || offset + width > 32u) {\n        return -1;\n    }\n\n    /* width == 32 时 1u << 32 是未定义行为，必须单独给出全 1 掩码 */\n    mask = (width == 32u) ? 0xFFFFFFFFu : ((1u << width) - 1u);\n    if (width < 32u && value > mask) {\n        return -1;\n    }\n\n    *reg = (*reg & ~(mask << offset)) | ((value & mask) << offset);\n    return 0;\n}",
+      "hints": [
+        "先按 `width` 构造掩码：`width` 个 1 就是 `(1u << width) - 1`；注意 `width == 32` 时不能直接左移 32 位（未定义行为），要单独返回 `0xFFFFFFFFu`。",
+        "写入分两步，正是素材\"清零 + 置位\"的组合：`*reg &= ~(mask << offset);` 然后 `*reg |= (value & mask) << offset;`。",
+        "校验要在写寄存器之前全部做完：指针非空、`width` 在 1~32、`offset + width <= 32`、`value` 不超过掩码；任一条不满足直接返回 -1，绝不先写 `*reg`。"
+      ],
+      "explanation": "本题把素材里的单比特写法（`PORT |= LED_PIN` / `PORT &= ~LED_PIN`）推广成任意宽度位段的\"读—改—写\"，它正是寄存器编程中配置多比特字段（如 2 位的引脚模式、4 位的中断优先级分组）的标准动作。要点有三个：一是必须先清零再置位，只做 `|=` 无法把原来是 1 的位写成 0；二是 `width == 32` 的左移是未定义行为，必须单独处理掩码；三是非法入参要在写之前拦住，其中 `value` 超出位宽若不校验就会静默截断，实际写进寄存器的值与调用者期望不符——这类\"看起来生效了\"的错误在硬件调试时最难定位。",
+      "sourceRef": "01-C语言基础与进阶/Readme.md#✅ 位操作",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    }
+  ]
+}

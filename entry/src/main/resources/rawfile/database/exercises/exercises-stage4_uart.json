@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "1.0.0",
+  "chapterId": "stage4_uart",
+  "chapterNo": 10,
+  "chapterTitle": "10. UART",
+  "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+  "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn",
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "extractedAt": "2026-09-13",
+  "exercises": [
+    {
+      "id": "ex-ch10-001",
+      "chapterId": "stage4_uart",
+      "chapterNo": 10,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材把串口通信定义为\"点对点、串行、异步\"通信方式，并强调\"发送方和接收方不需要共用同一个时钟信号\"。那么收发双方靠什么保证每一位数据在时间上对齐？",
+      "options": [
+        { "key": "A", "text": "双方事先约定相同的波特率（每秒传输的位数），并靠每帧的起始位重新对齐" },
+        { "key": "B", "text": "额外增加一根时钟线，由发送方输出位同步时钟" },
+        { "key": "C", "text": "每个字节自带完整时钟信息，接收方据此恢复出时钟" },
+        { "key": "D", "text": "由主机定期发送同步握手命令，逐字节协商传输节奏" }
+      ],
+      "answer": "A",
+      "explanation": "异步串口的\"异步\"正是指不共用时钟线：双方按约定好的波特率各自计时，并在每个数据帧的起始位到来时重新对齐采样节拍，因此只要双方波特率一致（误差在可容忍范围内）就能正确采样。B 描述的是 SPI 这类同步接口的做法，UART 没有时钟线；C 混淆了帧结构（起始位、数据位、校验位、停止位）与时钟恢复；D 属于协议层的握手，异步串口并不逐字节协商节奏，那样会破坏\"简单、直接\"的特点。",
+      "sourceRef": "06-NetworkIot/README.md#2. 核心特点",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch10-002",
+      "chapterId": "stage4_uart",
+      "chapterNo": 10,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材描述异步串口一帧数据的组成顺序为：空闲高电平 → 起始位 → 数据位 →（可选）校验位 → 停止位 → 回到空闲。下列哪项与该描述一致？",
+      "options": [
+        { "key": "A", "text": "起始位是低电平，数据位常为 8 位且先发低位，校验位可选，停止位是高电平" },
+        { "key": "B", "text": "起始位是高电平，数据位常为 8 位且先发低位，停止位是低电平" },
+        { "key": "C", "text": "起始位是低电平，数据位常为 8 位且先发高位，停止位是低电平" },
+        { "key": "D", "text": "起始位是低电平，数据位固定为 5 位，校验位必须存在，停止位是高电平" }
+      ],
+      "answer": "A",
+      "explanation": "素材写明：起始位\"发送一个低电平信号\"表示帧开始；数据位\"5 到 9 位，通常是 8 位，先发低位\"；校验位\"可选\"（奇校验或偶校验）；停止位\"发送一个高电平信号\"表示帧结束，可一位、一位半或两位。B 把起始与停止位的极性整体写反；C 除了停止位极性错误外，还把位序写成先发高位；D 把数据位说成固定 5 位、校验位说成必需，与素材的\"5~9 位\"\"可选\"都不符。",
+      "sourceRef": "06-NetworkIot/README.md#3. 工作原理",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch10-003",
+      "chapterId": "stage4_uart",
+      "chapterNo": 10,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材说明 UART 帧中的校验位\"用于检测数据传输中是否出错（奇校验或偶校验）\"。据此判断，奇偶校验能可靠检出的错误是？",
+      "options": [
+        { "key": "A", "text": "数据位中出现奇数个位翻转的错误；而偶数个位同时翻转会改变不了 1 的个数的奇偶性，因而可能漏检" },
+        { "key": "B", "text": "任何位翻转错误都能被发现，包括偶数个位同时翻转" },
+        { "key": "C", "text": "校验位不仅能检出错误，还能自动纠正出错的位" },
+        { "key": "D", "text": "校验位用来保证一个字节内 1 的个数固定不变，因此不依赖数据内容" }
+      ],
+      "answer": "A",
+      "explanation": "奇偶校验只统计\"1 的个数\"这一条奇偶性信息：单个位翻转（奇数个错误位）必然破坏奇偶性而被检出；但两个位同时翻转时 1 的个数奇偶性不变，校验位无法察觉，所以它的检错能力有限。B 把\"能检出部分错误\"夸大成了\"能检出全部错误\"；C 把检错与纠错混淆——奇偶校验位只够发现异常，没有足够信息定位并纠正错误位；D 的说法与事实相反：正因为校验基于数据内容计算，数据变化才会引起校验值变化，否则校验就失去意义。",
+      "sourceRef": "06-NetworkIot/README.md#3. 工作原理",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch10-004",
+      "chapterId": "stage4_uart",
+      "chapterNo": 10,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材的接口对比表给出：`UART` = 全双工、异步、2 线（TX/RX），典型应用是\"调试信息输出、与模块通信（如 GPS）\"；`I2C` = 半双工、同步、2 线（SCL/SDA），典型应用是\"多设备通信（如连接多个传感器）\"。某节点需要一块 GPS 模块外加 4 个 I2C 传感器，下列方案描述正确的是？",
+      "options": [
+        { "key": "A", "text": "GPS 走 UART：点对点、异步且无需时钟线；4 个传感器共用 I2C 总线的 SCL/SDA 两根线，靠设备地址区分" },
+        { "key": "B", "text": "GPS 走 UART，并把 4 个传感器也挂到 UART 的 TX/RX 上，用不同地址区分" },
+        { "key": "C", "text": "把 4 个传感器分别接到 4 组 UART 上，因为 I2C 是全双工且不支持多设备" },
+        { "key": "D", "text": "GPS 与传感器都改走 SPI，因为 SPI 只用 2 根线，比 UART 和 I2C 都省线" }
+      ],
+      "answer": "A",
+      "explanation": "对比表把 UART 定位为点对点异步 2 线接口、把 I2C 定位为支持多设备通信的同步 2 线接口，因此\"GPS 用 UART + 多传感器共用 I2C\"正好各取所长。B 混用了两者的寻址方式：UART 是点对点接口、没有地址机制，把多个从机挂到同一对 TX/RX 上会互相冲突，这也是对比表把\"多设备通信\"归给 I2C 的原因；C 把 I2C 的特性说反了（I2C 是半双工而非全双工，且它的设计目标就是多设备共享总线）；D 与对比表冲突，SPI 是 4 线（SCK/MOSI/MISO/CS）而非 2 线。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#2. 通信接口",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch10-005",
+      "chapterId": "stage4_uart",
+      "chapterNo": 10,
+      "type": "code",
+      "difficulty": "advanced",
+      "question": "素材给出了异步串口帧的完整结构：空闲高电平 → 起始位（低）→ 数据位（5~9 位，通常 8 位，先发低位）→ 可选校验位 → 停止位（高）→ 空闲。请实现一个**接收帧合法性检查**函数，用软件方式复现接收端的判帧逻辑。\n\n入参：\n- `bytes`：接收到的电平序列，每个元素为 0 或 1；\n- `len`：序列长度；\n- `data_bits`：本帧约定的数据位数（取 5~9）；\n- `parity`：`PARITY_NONE` / `PARITY_EVEN`（偶校验）/ `PARITY_ODD`（奇校验）。\n\n校验规则：\n1. 帧长必须与配置相符——起始位 1 位 + `data_bits` 位数据 + 校验位（`PARITY_NONE` 时为 0 位，否则 1 位）+ 停止位 1 位；\n2. 起始位必须为 0，停止位必须为 1；\n3. `PARITY_NONE` 时序列中不应出现校验位；偶校验要求\"数据位中 1 的个数 + 校验位\"为偶数，奇校验要求为奇数；\n4. 任一被考查的电平不是 0 或 1（如引脚读到 2 之类的非法码值）视为帧非法；\n5. 返回 `1` 表示合法，`0` 表示帧非法，`-1` 表示入参本身非法（空指针、`len <= 0`、`data_bits` 不在 5~9、`parity` 取值未知）。",
+      "language": "c",
+      "starterCode": "#include <stdint.h>\n#include <stddef.h>\n\n#define PARITY_NONE 0\n#define PARITY_EVEN 1\n#define PARITY_ODD  2\n\n/*\n * 检查一帧 UART 接收电平序列是否合法。\n * bytes     : 电平序列，元素应为 0 或 1\n * len       : 序列长度\n * data_bits : 数据位数，约定 5~9\n * parity    : PARITY_NONE / PARITY_EVEN / PARITY_ODD\n * 返回      : 1 = 合法；0 = 帧非法；-1 = 入参非法\n */\nint uart_frame_check(const uint8_t *bytes, int len, int data_bits, int parity)\n{\n    /* TODO: 先算期望帧长，再逐位验证起始位/数据位/校验位/停止位 */\n    return -1;\n}",
+      "expectedOutput": "按\"1 起始位 + data_bits 数据位 + 可选 1 位校验位 + 1 停止位\"核对帧长与各位电平，校验通过返回 1，帧内容不合法返回 0，入参非法返回 -1。",
+      "testCases": [
+        { "input": "bytes = {0,1,0,1,0,1,0,1,0, 1, 1}, len = 11, data_bits = 8, parity = PARITY_EVEN", "expectedOutput": "返回 1（数据位有四个 1，校验位 1 使 1 的总数为偶）" },
+        { "input": "bytes = {1,1,0,1,0,1,0,1,0, 1, 1}, len = 11, data_bits = 8, parity = PARITY_EVEN", "expectedOutput": "返回 0（起始位为高，帧非法）" },
+        { "input": "bytes = {0,1,0,1,0,1,0,1,0, 1, 0}, len = 11, data_bits = 8, parity = PARITY_EVEN", "expectedOutput": "返回 0（停止位为低，帧非法）" },
+        { "input": "bytes = {0,1,0,1,0,1,0,1,0, 0}, len = 10, data_bits = 8, parity = PARITY_EVEN", "expectedOutput": "返回 0（缺少偶校验位，帧长不足）" },
+        { "input": "bytes = {0,1,1,1,0,1,1,0,0}, len = 9, data_bits = 8, parity = PARITY_NONE", "expectedOutput": "返回 1（无校验配置下帧长恰为 1+8+1，起始位 0、停止位 1）" }
+      ],
+      "solutionCode": "#include <stdint.h>\n#include <stddef.h>\n\n#define PARITY_NONE 0\n#define PARITY_EVEN 1\n#define PARITY_ODD  2\n\nstatic int count_ones(const uint8_t *p, int n)\n{\n    int ones = 0;\n    for (int i = 0; i < n; i++) {\n        if (p[i] == 1) {\n            ones++;\n        }\n    }\n    return ones;\n}\n\nint uart_frame_check(const uint8_t *bytes, int len, int data_bits, int parity)\n{\n    if (bytes == NULL || len <= 0 || data_bits < 5 || data_bits > 9) {\n        return -1;\n    }\n    if (parity != PARITY_NONE && parity != PARITY_EVEN && parity != PARITY_ODD) {\n        return -1;\n    }\n\n    int has_parity = (parity != PARITY_NONE) ? 1 : 0;\n    int expect_len = 1 + data_bits + has_parity + 1;\n\n    if (len != expect_len) {\n        return 0;\n    }\n    if (bytes[0] != 0 || bytes[expect_len - 1] != 1) {\n        return 0;\n    }\n    for (int i = 0; i < expect_len; i++) {\n        if (bytes[i] != 0 && bytes[i] != 1) {\n            return 0;\n        }\n    }\n\n    if (has_parity) {\n        int ones = count_ones(&bytes[1], data_bits) + (int)bytes[1 + data_bits];\n        if (parity == PARITY_EVEN) {\n            if ((ones & 1) != 0) {\n                return 0;\n            }\n        } else {\n            if ((ones & 1) != 1) {\n                return 0;\n            }\n        }\n    }\n    return 1;\n}",
+      "hints": [
+        "先由 data_bits 与 parity 反推期望帧长 `1 + data_bits + has_parity + 1`，长度不符就没有继续校验的必要。",
+        "起始位、停止位的电平判定与数据位、校验位的取值合法性检查要分开做：前者判 0/1 极性，后者拒收 0/1 之外的码值。",
+        "偶校验看\"1 的个数是否为偶数\"，奇校验看\"是否为奇数\"——把数据位与校验位的 1 一起统计，用 `(ones & 1)` 判断。"
+      ],
+      "explanation": "本题把素材的帧结构描述（起始位 / 数据位 / 可选校验位 / 停止位）转成可测试的判帧逻辑，是 UART 中断接收回调里最常见的校验动作。实现要点：① 帧长是\"配置的函数\"，校验位存在与否直接改变长度，必须先算期望长度再比对；② 电平合法性（0/1）与极性判定是两件事，忙碌的总线上可能采到非 0/1 的异常码值；③ 奇偶校验只需统计 1 的个数，用 `(ones & 1)` 比分支判断更简洁；④ 入参非法返回 -1、帧非法返回 0，两者语义不能混——若把非法入参也返回 0，调用方无法区分\"这一帧坏了\"与\"参数配错了\"，这正是嵌入式协议栈里最难查的一类问题。",
+      "sourceRef": "06-NetworkIot/README.md#3. 工作原理",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    }
+  ]
+}

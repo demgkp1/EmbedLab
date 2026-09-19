@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "1.0.0",
+  "chapterId": "stage3_interrupt",
+  "chapterNo": 8,
+  "chapterTitle": "8. 中断",
+  "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+  "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn",
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "extractedAt": "2026-09-13",
+  "exercises": [
+    {
+      "id": "ex-ch08-001",
+      "chapterId": "stage3_interrupt",
+      "chapterNo": 8,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材给出外部中断的\"中断配置步骤\"共 4 步：① 配置 GPIO 为输入模式；② 配置 `SYSCFG_EXTICR` 寄存器选择中断源；③ 配置 `EXTI_IMR`（中断屏蔽）、`EXTI_RTSR`（上升沿触发）/`FTSR`（下降沿触发）；④ 在 NVIC 中使能并设置中断优先级。下列哪项与素材的顺序一致？",
+      "options": [
+        { "key": "A", "text": "配置 GPIO 为输入模式 → 配置 `SYSCFG_EXTICR` 选择中断源 → 配置 `EXTI_IMR` / `EXTI_RTSR` / `EXTI_FTSR` → 在 NVIC 中使能并设置中断优先级" },
+        { "key": "B", "text": "在 NVIC 中使能并设置中断优先级 → 配置 `EXTI_IMR` / `EXTI_RTSR` / `EXTI_FTSR` → 配置 `SYSCFG_EXTICR` 选择中断源 → 配置 GPIO 为输入模式" },
+        { "key": "C", "text": "配置 `EXTI_IMR` / `EXTI_RTSR` / `EXTI_FTSR` → 配置 GPIO 为输入模式 → 在 NVIC 中使能并设置中断优先级 → 配置 `SYSCFG_EXTICR` 选择中断源" },
+        { "key": "D", "text": "配置 `SYSCFG_EXTICR` 选择中断源 → 在 NVIC 中使能并设置中断优先级 → 配置 GPIO 为输入模式 → 配置 `EXTI_IMR` / `EXTI_RTSR` / `EXTI_FTSR`" }
+      ],
+      "answer": "A",
+      "explanation": "素材的四步顺序是\"先有引脚、再选源、后配边沿与屏蔽、最后交给 NVIC\"：引脚本身要先工作在输入模式，`SYSCFG_EXTICR` 才谈得上把某条 EXTI 线映射到这个引脚的端口，然后才由 `EXTI_IMR` 打开中断线、由 `RTSR`/`FTSR` 决定触发边沿，最后在 NVIC 中使能并设置优先级。B 把整个流程倒了过来，在引脚尚未配成输入、中断源尚未指定时就先去使能 NVIC；C 把选择中断源放到了最后，此时 EXTI 的屏蔽与边沿配置落到了错误的线上；D 同样先设 NVIC、把 GPIO 输入模式与 EXTI 配置排到最后，违背了素材\"配置 GPIO 为输入模式\"是第 1 步的前提。",
+      "sourceRef": "03-驱动开发与外设编程/README.md#📌 GPIO（通用输入输出）",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch08-002",
+      "chapterId": "stage3_interrupt",
+      "chapterNo": 8,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材在中断配置第 3 步写明要配置 `EXTI_IMR`（中断屏蔽）、`EXTI_RTSR`（上升沿触发）/`FTSR`（下降沿触发），示例为 `EXTI->IMR |= EXTI_IMR_IM0;` 与 `EXTI->RTSR |= EXTI_RTSR_TR0;`。若某信号在按键按下瞬间由高电平跳变到低电平，希望就在这一刻触发中断（以中断线 0 为例），应如何配置？",
+      "options": [
+        { "key": "A", "text": "置位 `EXTI->FTSR` 中对应的第 0 位，选择下降沿触发" },
+        { "key": "B", "text": "置位 `EXTI->RTSR` 中对应的第 0 位，选择上升沿触发" },
+        { "key": "C", "text": "只置位 `EXTI->IMR` 的第 0 位即可，屏蔽寄存器会自动判断触发边沿" },
+        { "key": "D", "text": "在 `SYSCFG->EXTICR[0]` 中写入触发边沿的编码" }
+      ],
+      "answer": "A",
+      "explanation": "素材把两个边沿寄存器对应得很清楚：`EXTI_RTSR` 管上升沿、`EXTI_FTSR` 管下降沿。高电平跳到低电平是下降沿，所以要置位 `FTSR` 的对应位。B 选了上升沿寄存器，会在按键\"松开\"（低跳高）时才触发，与需求相反；C 把 `IMR` 当成了边沿选择器——素材明确它是\"中断屏蔽\"，只决定这条中断线是否被使能，本身不含边沿信息；D 用错了寄存器：`SYSCFG_EXTICR` 负责把 EXTI 线映射到具体的 GPIO 端口（素材示例中用它\"选择 PA0\"），与触发边沿无关。",
+      "sourceRef": "03-驱动开发与外设编程/README.md#📌 GPIO（通用输入输出）",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch08-003",
+      "chapterId": "stage3_interrupt",
+      "chapterNo": 8,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材的\"中断处理优化\"给出两条原则：中断服务函数（ISR）应尽量简短、避免耗时操作；关键数据传递使用原子操作或关中断保护。示例为 `volatile uint32_t g_flag __attribute__((aligned(4)));`，并在 `EXTI0_IRQHandler` 中用 `__disable_irq(); g_flag = 1; __enable_irq();` 传递标志。下列判断哪项正确？",
+      "options": [
+        { "key": "A", "text": "`volatile` 保证对 `g_flag` 的访问真实发生、不被优化掉；短暂关中断则让这次写入不被其他中断打断" },
+        { "key": "B", "text": "`volatile` 让编译器把 `g_flag` 缓存在寄存器里以提高效率，因此不必再关中断" },
+        { "key": "C", "text": "既然关中断能保证一致性，把耗时的数据处理一并放进这段临界区里更安全" },
+        { "key": "D", "text": "`aligned(4)` 的作用是限定只有主循环才能读写 `g_flag`" }
+      ],
+      "answer": "A",
+      "explanation": "`volatile` 的语义是防止优化：编译器必须假定该对象可能被当前控制流之外的因素改变，所以每次读写都真实访问内存，正对应素材\"关键数据传递使用原子操作\"里的那半句前提。B 恰好说反了——把变量缓存到寄存器正是 `volatile` 要禁止的优化，而且缓存之后连关中断也救不回来。C 违背素材的第一条原则：ISR 应尽量简短，临界区越长，其他中断被推迟得越久，实时性越差；关中断只应包住最少的共享数据操作。D 混淆了对齐与访问权限：`aligned(4)` 让变量按 4 字节边界存放，便于以一次总线访问完成读写，它不限制谁能访问。",
+      "sourceRef": "03-驱动开发与外设编程/README.md#2. 中断处理优化",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch08-004",
+      "chapterId": "stage3_interrupt",
+      "chapterNo": 8,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材在回答\"软中断和工作队列的作用\"时指出：软中断一般是\"可延迟函数\"的总称，\"它不能睡眠，不能阻塞，它处于中断上下文\"，且\"软中断不能被自己打断，只能被硬件中断打断（上半部）\"；而\"工作队列中的函数处在进程上下文中，它可以睡眠，也能被阻塞\"。按这一区分，一段需要睡眠等待的延迟处理应放在哪里？",
+      "options": [
+        { "key": "A", "text": "工作队列——它运行在进程上下文中，允许睡眠和阻塞" },
+        { "key": "B", "text": "软中断——它是可延迟函数的总称，可延迟就意味着可以睡眠" },
+        { "key": "C", "text": "硬件中断的上半部——上半部与软中断性质相反，可以睡眠" },
+        { "key": "D", "text": "三者都可以，区别只是执行速度快慢" }
+      ],
+      "answer": "A",
+      "explanation": "素材把两者的上下文写得很明确：软中断处于中断上下文，\"不能睡眠，不能阻塞\"；工作队列处于进程上下文，\"可以睡眠，也能被阻塞\"。因此需要睡眠等待的延迟处理只能放进工作队列。B 把\"可延迟\"误读成了\"可睡眠\"——软中断虽然被推迟执行，但仍运行在中断上下文，一旦睡眠就没有进程上下文可供调度器切回；C 说反了：素材把软中断标注为\"上半部\"相关的硬中断语境，硬件中断处理同样处于中断上下文，同样不能睡眠；D 抹掉了上下文约束这一根本区别，而\"能不能睡眠\"决定了哪些内核 API 可以调用。",
+      "sourceRef": "面试题与面经/Linux面试题1.md#57、Linux 软中断和工作队列的作用是什么?",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch08-005",
+      "chapterId": "stage3_interrupt",
+      "chapterNo": 8,
+      "type": "code",
+      "difficulty": "advanced",
+      "question": "素材给出 EXTI 中断配置中两个决定触发时机的寄存器：`EXTI_RTSR`（上升沿触发，示例 `EXTI->RTSR |= EXTI_RTSR_TR0;`）与 `FTSR`（下降沿触发），每条中断线在其中各占 1 位。请实现配置**触发沿**的函数：\n\n- 对指定的中断线 `line`，按 `trigger` 重设 `*rtsr` 与 `*ftsr` 中对应的位，**其他中断线的配置必须保持不变**；\n- `EXTI_TRIG_NONE` 表示关闭该线的边沿触发（两个寄存器对应位都清零），`EXTI_TRIG_RISING` 只置 RTSR 位，`EXTI_TRIG_FALLING` 只置 FTSR 位，`EXTI_TRIG_BOTH` 两个都置；\n- 成功返回 `0`；\n- 入参非法时返回 `-1` 且**不修改**两个寄存器：`rtsr` 或 `ftsr` 为 `NULL`、`line > 31`、或 `trigger` 不在上述枚举取值之内。",
+      "language": "c",
+      "starterCode": "#include <stdint.h>\n#include <stddef.h>\n\ntypedef enum {\n    EXTI_TRIG_NONE = 0,     /* 关闭该线的边沿触发 */\n    EXTI_TRIG_RISING = 1,   /* 仅上升沿 */\n    EXTI_TRIG_FALLING = 2,  /* 仅下降沿 */\n    EXTI_TRIG_BOTH = 3      /* 双边沿 */\n} ExtiTrigger;\n\n/*\n * 按 trigger 重设第 line 条中断线在 *rtsr / *ftsr 中的配置位，其他线保持不变。\n * 成功返回 0；入参非法（指针为空 / line > 31 / trigger 非法）返回 -1，且不修改寄存器。\n */\nint exti_config_trigger(uint32_t *rtsr, uint32_t *ftsr, unsigned int line, ExtiTrigger trigger)\n{\n    /* TODO: 先清掉该线的旧配置位，再按 trigger 分别置位 RTSR / FTSR */\n    return -1;\n}",
+      "expectedOutput": "返回 0 时，两条寄存器中第 `line` 位被重设为 trigger 指定的组合，其他位保持原值；指针为空、line 越界或 trigger 非法时返回 -1，两个寄存器都不被修改。",
+      "testCases": [
+        { "input": "rtsr = 0x00000000, ftsr = 0x00000000, line = 0, trigger = EXTI_TRIG_RISING", "expectedOutput": "rtsr = 0x00000001, ftsr = 0x00000000，返回 0（等价于素材的 `EXTI->RTSR |= EXTI_RTSR_TR0`）" },
+        { "input": "rtsr = 0x00000001, ftsr = 0x00000001, line = 0, trigger = EXTI_TRIG_FALLING", "expectedOutput": "rtsr = 0x00000000, ftsr = 0x00000001，返回 0（必须清掉 RTSR 旧位，否则会变成双边沿）" },
+        { "input": "rtsr = 0x00000000, ftsr = 0x00000000, line = 13, trigger = EXTI_TRIG_BOTH", "expectedOutput": "rtsr = 0x00002000, ftsr = 0x00002000，返回 0" },
+        { "input": "rtsr = 0xFFFFFFFF, ftsr = 0xFFFFFFFF, line = 5, trigger = EXTI_TRIG_NONE", "expectedOutput": "rtsr = 0xFFFFFFDF, ftsr = 0xFFFFFFDF，返回 0（只关掉第 5 线）" },
+        { "input": "rtsr = NULL；另一组 line = 32；第三组 trigger = 7", "expectedOutput": "三种情况都返回 -1，两个寄存器的内容均未被修改" }
+      ],
+      "solutionCode": "#include <stdint.h>\n#include <stddef.h>\n\ntypedef enum {\n    EXTI_TRIG_NONE = 0,\n    EXTI_TRIG_RISING = 1,\n    EXTI_TRIG_FALLING = 2,\n    EXTI_TRIG_BOTH = 3\n} ExtiTrigger;\n\nint exti_config_trigger(uint32_t *rtsr, uint32_t *ftsr, unsigned int line, ExtiTrigger trigger)\n{\n    uint32_t mask;\n\n    if (rtsr == NULL || ftsr == NULL || line > 31u) {\n        return -1;\n    }\n    if (trigger != EXTI_TRIG_NONE && trigger != EXTI_TRIG_RISING &&\n        trigger != EXTI_TRIG_FALLING && trigger != EXTI_TRIG_BOTH) {\n        return -1;\n    }\n\n    mask = 1u << line;\n\n    /* 先清掉该线的旧配置，避免只用 |= 时出现“只增不减”的残留 */\n    *rtsr &= ~mask;\n    *ftsr &= ~mask;\n\n    if (trigger == EXTI_TRIG_RISING || trigger == EXTI_TRIG_BOTH) {\n        *rtsr |= mask;\n    }\n    if (trigger == EXTI_TRIG_FALLING || trigger == EXTI_TRIG_BOTH) {\n        *ftsr |= mask;\n    }\n\n    return 0;\n}",
+      "hints": [
+        "每条中断线在 `RTSR` 与 `FTSR` 中各占 1 位，先按 `line` 算出掩码 `1u << line`。",
+        "素材示例只演示了 `|=`（置位），但\"重设触发沿\"必须先 `&= ~mask` 清掉两条寄存器里的旧位，否则从上升沿改成下降沿时会留下双边沿。",
+        "用 `trigger` 分别决定是否置 RTSR 位与 FTSR 位：上升沿只置 RTSR，下降沿只置 FTSR，双边沿都置，`EXTI_TRIG_NONE` 两个都不置；非法取值要在写寄存器之前返回 -1。"
+      ],
+      "explanation": "触发沿配置是外部中断能否\"在该来的时候来、不该来时别来\"的关键：按键抖动、信号毛刺都会造成多余的边沿，选错寄存器会表现为\"按下不响应、松开才响应\"。本题的工程要点有两个。第一是读—改—写：`RTSR`/`FTSR` 是整条端口共用的寄存器，直接赋值会清掉其他中断线的配置，只做 `|=` 又无法取消旧边沿，因此必须\"先清该位、再按需置位\"，这与素材 GPIO 章节里\"先清零再写入\"的思路完全一致。第二是非法取值必须在访问寄存器之前拦掉：`line > 31` 会移出寄存器宽度，`trigger` 越界会让两个条件判断都落空，此时若已清零就会把该线的触发配置静默抹掉。",
+      "sourceRef": "03-驱动开发与外设编程/README.md#📌 GPIO（通用输入输出）",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    }
+  ]
+}

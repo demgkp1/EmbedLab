@@ -1,0 +1,180 @@
+{
+  "schemaVersion": "1.0.0",
+  "chapterId": "stage5_dma",
+  "chapterNo": 14,
+  "chapterTitle": "14. DMA",
+  "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+  "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn",
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "extractedAt": "2026-09-13",
+  "exercises": [
+    {
+      "id": "ex-ch14-001",
+      "chapterId": "stage5_dma",
+      "chapterNo": 14,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材在 DMA 控制器的「通道选择」中给出通道与外设的对应示例。据此，`USART1_RX` 与 `USART1_TX` 分别对应哪个 DMA 通道？",
+      "options": [
+        {
+          "key": "A",
+          "text": "`USART1_RX` → DMA2 通道 5；`USART1_TX` → DMA2 通道 4"
+        },
+        {
+          "key": "B",
+          "text": "`USART1_RX` → DMA2 通道 4；`USART1_TX` → DMA2 通道 5"
+        },
+        {
+          "key": "C",
+          "text": "两者共用 DMA2 通道 4，收发方向由寄存器中的方向位区分"
+        },
+        {
+          "key": "D",
+          "text": "通道号由软件在运行时任意指定，与具体外设无关"
+        }
+      ],
+      "answer": "A",
+      "explanation": "素材在「通道选择」下写明：每个 DMA 控制器包含多个通道，不同外设对应不同通道，并给出示例——`USART1_RX` 对应 DMA2 通道 5、`USART1_TX` 对应 DMA2 通道 4。B 把收发通道对调了：接收与发送是两条独立的数据通路，各自占用一个通道，不存在「同一通道靠方向位区分收发」的做法。C 正是这一误解的另一种表述，它把通道当成可以由方向位复用的资源，而素材强调的是通道与外设请求线之间的固定对应。D 把通道当成可自由分配的软件资源，忽略了「不同外设对应不同通道」这一硬件映射关系。",
+      "sourceRef": "03-驱动开发与外设编程/README.md#📌 DMA 控制器",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch14-002",
+      "chapterId": "stage5_dma",
+      "chapterNo": 14,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材的「面试高频问题」归纳了「DMA 与 CPU 直接传输的优缺点」。下列哪一项与该归纳一致？",
+      "options": [
+        {
+          "key": "A",
+          "text": "优点是释放 CPU 资源、实现高速数据传输；缺点是配置复杂、占用总线带宽"
+        },
+        {
+          "key": "B",
+          "text": "优点是不占用总线带宽；缺点是必须由 CPU 逐字节参与搬运"
+        },
+        {
+          "key": "C",
+          "text": "优点是可以替代中断控制器；缺点是必须使用双缓冲区才能工作"
+        },
+        {
+          "key": "D",
+          "text": "优点是可以提高 CPU 主频；缺点是会增大 Flash 占用"
+        }
+      ],
+      "answer": "A",
+      "explanation": "素材的该条问答给出的正是「优点：释放 CPU 资源，实现高速数据传输；缺点：配置复杂，占用总线带宽」。B 把代价说反了：DMA 搬运同样要经过总线，因此会占用总线带宽，这恰恰是素材列出的缺点；「逐字节由 CPU 参与」则是 DMA 想要取代的方式，而不是它的缺点。C 混淆了 DMA 与中断控制器（NVIC）的职责——DMA 只负责数据搬运，不能替代中断控制；「必须双缓冲」也不成立，素材把双缓冲区模式定位为适合大数据量传输的模式，而非使用 DMA 的前提。D 把数据搬运与主频、代码体积混为一谈：主频由时钟树（PLL 倍频/分频）决定，Flash 占用取决于编译与链接结果，二者都与是否使用 DMA 无关。",
+      "sourceRef": "03-驱动开发与外设编程/README.md#六、面试高频问题",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch14-003",
+      "chapterId": "stage5_dma",
+      "chapterNo": 14,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材在 DMA 控制器一节介绍了「双缓冲区模式」（示例中 `BufferSize = 2`）。该模式的核心作用是？",
+      "options": [
+        {
+          "key": "A",
+          "text": "一个缓冲区用于当前传输，另一个准备下一次传输，从而减少大数据量连续传输之间的等待"
+        },
+        {
+          "key": "B",
+          "text": "把同一份数据同时写入两个缓冲区，由硬件比对实现冗余校验"
+        },
+        {
+          "key": "C",
+          "text": "让两个外设共享同一个 DMA 通道，实现真正的并发搬运"
+        },
+        {
+          "key": "D",
+          "text": "把单次可搬运的数据量翻倍，因此传输速率也随之翻倍"
+        }
+      ],
+      "answer": "A",
+      "explanation": "素材原文指出双缓冲区模式「适合大数据量传输，一个缓冲区用于当前传输，另一个准备下一次传输」，即用两个缓冲区交替（乒乓）来隐藏准备下一批数据的时间，示例里的 `BufferSize = 2` 就是这个含义。B 把双缓冲误解为数据冗余与校验——DMA 控制器只做地址推进与数据搬移，本身不比对数据内容；要做校验需要在搬运完成后由 CPU 侧计算校验值（如 CRC）。C 混淆了「缓冲区数量」与「通道数量」：通道与外设的对应关系是固定的，增加缓冲区并不会让两个外设共用一条通道。D 把缓冲深度当成带宽倍增——双缓冲减少的是两次传输之间的准备停顿，并不会提高总线本身的传输速率，总带宽上限仍由总线决定（这也是素材所说「占用总线带宽」这一缺点的来源）。",
+      "sourceRef": "03-驱动开发与外设编程/README.md#📌 DMA 控制器",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch14-004",
+      "chapterId": "stage5_dma",
+      "chapterNo": 14,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材描述总线架构：AHB（高级高性能总线）连接高速外设、APB（高级外设总线）连接低速外设，并给出「GPIOA 位于 AHB1 总线，基地址 `0x40020000`；USART1 位于 APB2 总线，基地址 `0x40011000`」。据此判断，下列哪项正确？",
+      "options": [
+        {
+          "key": "A",
+          "text": "`GPIOA` 挂在 AHB1、`USART1` 挂在 APB2，两者的基地址都落在外设寄存器映射区"
+        },
+        {
+          "key": "B",
+          "text": "`GPIOA` 挂在 APB2、`USART1` 挂在 AHB1，因为 GPIO 属于低速外设"
+        },
+        {
+          "key": "C",
+          "text": "总线类型只影响访问性能，不影响外设地址；基地址由编译器在链接时分配"
+        },
+        {
+          "key": "D",
+          "text": "外设基地址可以任意指定，只要寄存器访问代码中前后保持一致即可"
+        }
+      ],
+      "answer": "A",
+      "explanation": "素材把 AHB 定位为连接高速外设、APB 定位为连接低速外设的总线，并明确给出 GPIOA 在 AHB1（基地址 `0x40020000`）、USART1 在 APB2（基地址 `0x40011000`）；另一份素材的存储器映射表进一步说明 `0x40000000-0x5FFFFFFF` 这一段是「外设寄存器（APB/AHB 总线）」区，因此两者的基地址都落在该映射区内。B 把两条总线上的外设对调，与素材的示例直接矛盾。C 与 D 都忽略了外设地址是芯片硬件固定的寄存器映射：链接脚本只能把段安排到真实存在的存储器区域，编译器同样无权改动外设寄存器地址，一旦地址写错，寄存器读写就会落到别的外设或空洞地址上——这类错误往往不报错，只表现为现象诡异（例如配置了一个「看起来生效但行为不符」的外设）。",
+      "sourceRef": "03-驱动开发与外设编程/README.md#📌 地址映射与寄存器偏移",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch14-005",
+      "chapterId": "stage5_dma",
+      "chapterNo": 14,
+      "type": "code",
+      "difficulty": "advanced",
+      "question": "素材的 DMA 双缓冲区示例给出关键初始化字段：`Direction = DMA_PERIPH_TO_MEMORY`、`PeriphInc = DMA_PINC_DISABLE`、`MemInc = DMA_MINC_ENABLE`、`BufferSize = 2`（双缓冲区）。请实现一个 **DMA 配置校验**函数 `dma_check_config()`，按下面的规则返回问题标志的位组合：\n\n- `bit0`（值 1）：`periph_inc` 非 0 —— 外设数据寄存器地址应固定，不应递增；\n- `bit1`（值 2）：`mem_inc` 为 0 —— 内存缓冲区需要逐项递增地址；\n- `bit2`（值 4）：缓冲区容量不足 —— 未启用双缓冲（`buf_b_size == 0`）时 `buf_a_size < count`；启用双缓冲时 `buf_a_size` 与 `buf_b_size` 中任一小于 `count`；\n- 配置合法时返回 `0`；多个问题同时存在时各标志位按位置位（不覆盖）；\n- 入参非法时返回 `-1`：`cfg` 为空指针、`count <= 0`、`direction` 不是 `0` 或 `1`、任一缓冲区容量为负。\n\n`periph_inc` 与 `mem_inc` 按布尔量理解：`0` 表示地址固定，非 `0` 表示地址递增。",
+      "language": "c",
+      "starterCode": "typedef struct {\n    int direction;   /* 0 = 外设→内存(PERIPH_TO_MEMORY)，1 = 内存→外设(MEMORY_TO_PERIPH) */\n    int periph_inc;  /* 0 = 外设地址固定，非 0 = 外设地址递增 */\n    int mem_inc;     /* 0 = 内存地址固定，非 0 = 内存地址递增 */\n    int count;       /* 本次要搬运的数据项数 */\n    int buf_a_size;  /* 缓冲区 A 的容量（项数） */\n    int buf_b_size;  /* 缓冲区 B 的容量（项数），0 表示不使用双缓冲区 */\n} DmaConfig;\n\n/*\n * 返回问题标志的位组合（0 表示配置合法）：\n *   bit0(1)：periph_inc 非 0，外设地址不应递增\n *   bit1(2)：mem_inc 为 0，内存缓冲区需要逐项递增地址\n *   bit2(4)：缓冲区容量不足（双缓冲时两个缓冲区都要装得下 count）\n * 入参非法返回 -1。\n */\nint dma_check_config(const DmaConfig *cfg)\n{\n    /* TODO: 在此实现 */\n    return 0;\n}",
+      "expectedOutput": "配置合法时返回 0；外设地址递增、内存地址未递增、缓冲区容量不足分别置位 bit0/bit1/bit2，可同时置位；`cfg` 为空指针、`count <= 0`、`direction` 非 0/1 或任一容量为负时返回 -1。",
+      "testCases": [
+        {
+          "input": "cfg = {direction 0(外设→内存), periph_inc 0, mem_inc 1, count 64, buf_a_size 64, buf_b_size 0}",
+          "expectedOutput": "返回 0（外设地址固定、内存递增、单缓冲区容量 64 ≥ 64）"
+        },
+        {
+          "input": "cfg = {direction 0, periph_inc 1, mem_inc 1, count 64, buf_a_size 64, buf_b_size 0}",
+          "expectedOutput": "返回 1（bit0：外设地址被设成递增）"
+        },
+        {
+          "input": "cfg = {direction 1(内存→外设), periph_inc 0, mem_inc 0, count 16, buf_a_size 16, buf_b_size 0}",
+          "expectedOutput": "返回 2（bit1：内存地址未递增）"
+        },
+        {
+          "input": "cfg = {direction 0, periph_inc 0, mem_inc 1, count 128, buf_a_size 64, buf_b_size 128}",
+          "expectedOutput": "返回 4（bit2：启用双缓冲，缓冲区 A 只有 64 项，装不下 128 项）"
+        },
+        {
+          "input": "cfg = {direction 2, periph_inc 0, mem_inc 1, count 64, buf_a_size 64, buf_b_size 0}",
+          "expectedOutput": "返回 -1（direction 不是 0/1，入参非法）"
+        }
+      ],
+      "solutionCode": "#include <stddef.h>\ntypedef struct {\n    int direction;\n    int periph_inc;\n    int mem_inc;\n    int count;\n    int buf_a_size;\n    int buf_b_size;\n} DmaConfig;\n\nint dma_check_config(const DmaConfig *cfg)\n{\n    if (cfg == NULL) {\n        return -1;\n    }\n    if (cfg->count <= 0) {\n        return -1;\n    }\n    if (cfg->direction != 0 && cfg->direction != 1) {\n        return -1;\n    }\n    if (cfg->buf_a_size < 0 || cfg->buf_b_size < 0) {\n        return -1;\n    }\n\n    int flags = 0;\n\n    if (cfg->periph_inc != 0) {\n        flags |= 1;  /* 外设数据寄存器地址应固定 */\n    }\n    if (cfg->mem_inc == 0) {\n        flags |= 2;  /* 内存缓冲区地址需要逐项递增 */\n    }\n\n    if (cfg->buf_b_size > 0) {\n        if (cfg->buf_a_size < cfg->count || cfg->buf_b_size < cfg->count) {\n            flags |= 4;\n        }\n    } else {\n        if (cfg->buf_a_size < cfg->count) {\n            flags |= 4;\n        }\n    }\n\n    return flags;\n}",
+      "hints": [
+        "先做入参校验：`cfg` 为空指针、`count <= 0`、`direction` 不在 {0, 1}、任一容量为负，都应直接返回 -1，不要继续往下算。",
+        "三个问题用三个独立的位标志分别记录，最后按位或返回——这样多个错误同时存在时不会被前一个掩盖。",
+        "容量检查分两种情况：`buf_b_size > 0` 表示启用双缓冲，两个缓冲区都必须装得下 `count`；否则只检查 `buf_a_size`。"
+      ],
+      "explanation": "本题把素材里 DMA 初始化的几个关键字段（`Direction`、`PeriphInc`、`MemInc`、`BufferSize`）从「照抄配置」变成「校验配置」，考察三个易错点：一是外设侧地址必须固定，素材示例写的正是 `PeriphInc = DMA_PINC_DISABLE`——外设的数据寄存器只有一个地址，地址递增会访问到相邻的无关寄存器，现象是数据「对了一部分又莫名其妙错位」；二是内存侧必须递增（`MemInc = DMA_MINC_ENABLE`），否则整批数据会反复覆盖同一个内存单元，最终只留下最后一项；三是双缓冲区模式下两个缓冲区都必须能容纳一整批数据，否则素材所说的「另一个准备下一次传输」在语义上无法成立。返回值采用位组合而不是单一错误码，是因为配置错误常常同时出现，单一错误码会让后面的错误被前面的掩盖。常见错误是只校验容量而忽略方向与外设地址递增，这类配置在编译期完全合法，要到运行期才以数据错乱的形式暴露。",
+      "sourceRef": "03-驱动开发与外设编程/README.md#📌 DMA 控制器",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    }
+  ]
+}

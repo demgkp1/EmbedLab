@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "1.0.0",
+  "chapterId": "appendix_glossary",
+  "chapterNo": 34,
+  "chapterTitle": "34. 常用术语表",
+  "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+  "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn",
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "extractedAt": "2026-09-13",
+  "exercises": [
+    {
+      "id": "ex-ch34-001",
+      "chapterId": "appendix_glossary",
+      "chapterNo": 34,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材的\"系统构成\"表把各模块与术语并列：MCU 是\"核心控制器，如 ARM Cortex-M\"，外设为\"GPIO、UART、SPI、I2C、ADC、PWM 等\"，通信模块为\"WiFi、BLE、LoRa、CAN、NB-IoT 等\"，电源管理为\"电池、LDO、DC-DC，支持低功耗模式\"。下列术语与模块的对应，哪一项正确？",
+      "options": [
+        { "key": "A", "text": "`LDO`、`DC-DC` 属于电源管理" },
+        { "key": "B", "text": "`BLE`、`LoRa` 属于外设" },
+        { "key": "C", "text": "`ADC`、`PWM` 属于通信模块" },
+        { "key": "D", "text": "`MCU` 属于传感器" }
+      ],
+      "answer": "A",
+      "explanation": "按素材表格，电源管理一行给出的正是\"电池、LDO、DC-DC，支持低功耗模式\"，二者是同一种供电方案的两类实现。B 把无线通信归到了外设：BLE（蓝牙低功耗）与 LoRa（扩频技术）在表中属于通信模块。C 把模拟接口与定时控制归到了通信模块：ADC 与 PWM 出现在外设一行的\"GPIO、UART、SPI、I2C、ADC、PWM\"里。D 把 MCU 归为传感器：表中 MCU 是\"核心控制器，如 ARM Cortex-M\"，传感器一行是\"温湿度、光照、姿态等\"，二者是被采集对象与控制器之间的关系。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#系统构成（MCU、存储器、传感器、外设）",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch34-002",
+      "chapterId": "appendix_glossary",
+      "chapterNo": 34,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材把 `HAL` 展开为\"硬件抽象层\"，并说明其架构包含\"核心层：提供外设初始化、控制和状态检查函数\"以及\"回调函数\"。按素材，`HAL_UART_TxCpltCallback()` 这类回调函数的实现机制是？",
+      "options": [
+        { "key": "A", "text": "通过弱函数（weak）实现，用户可重写以接管回调" },
+        { "key": "B", "text": "通过宏定义替换，用户必须在头文件中重新定义同名宏" },
+        { "key": "C", "text": "由 HAL 在运行时通过函数指针表注册，未注册时编译报错" },
+        { "key": "D", "text": "由中断向量表直接指向用户函数，无需任何默认实现" }
+      ],
+      "answer": "A",
+      "explanation": "素材在 STM32 HAL 小节写明\"回调函数：通过弱函数（weak）实现，用户可重写\"，并给出重写 `HAL_UART_TxCpltCallback()` 的示例。B 混淆了\"弱符号\"与\"宏替换\"：弱函数是链接期的符号选择机制——用户定义的强符号会覆盖库里的默认弱定义，与预处理宏无关。C 引入了素材没有的运行时注册表，而弱函数机制恰恰保证\"未重写\"也能正常链接，不会编译报错。D 把回调与中断向量表混为一谈：向量表指向的是中断服务函数，回调则是 HAL 在中断处理流程内部调用的上层钩子。",
+      "sourceRef": "03-驱动开发与外设编程/README.md#STM32 HAL（硬件抽象层）",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch34-003",
+      "chapterId": "appendix_glossary",
+      "chapterNo": 34,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材给出 JTAG 与 SWD 的对比表：JTAG 为 5 线（TMS、TCK、TDI、TDO、TRST），中低速（典型 1-10MHz），支持多设备级联（通过 TAP 控制器），适用\"复杂芯片调试（如 FPGA）\"；SWD 为 2 线（SWDIO、SWCLK），高速（可达 50MHz 以上），不支持级联，适用\"嵌入式 MCU（如 STM32）\"。据此判断，下列哪项正确？",
+      "options": [
+        { "key": "A", "text": "引脚受限的 MCU 更适合用 SWD；需要级联调试多个器件时应选 JTAG" },
+        { "key": "B", "text": "SWD 支持多设备级联，而 JTAG 只能点对点调试单个器件" },
+        { "key": "C", "text": "JTAG 只有 2 根线，因此比 5 线的 SWD 更省 GPIO" },
+        { "key": "D", "text": "SWD 的速度低于 JTAG，因为它只有两根线、带宽受限" }
+      ],
+      "answer": "A",
+      "explanation": "对比表把 SWD 的\"适用场景\"写成\"嵌入式 MCU（如 STM32）\"、\"占用资源\"写成\"低（仅 2 个 GPIO）\"，把 JTAG 的级联能力写成\"支持多设备（通过 TAP 控制器）\"，因此引脚紧张选 SWD、需要级联选 JTAG。B 把级联能力对调了——表中明确 SWD\"不支持级联\"。C 把引脚数记反了：JTAG 是 5 线、SWD 是 2 线；正因如此，素材的配置示例才用 `__HAL_AFIO_REMAP_SWJ_NOJTAG()`\"禁用 JTAG，保留 SWD\"来释放 GPIO。D 与素材相反：SWD 被标为\"高速（可达 50MHz 以上）\"，JTAG 才是\"中低速（典型 1-10MHz）\"，线数少并不等于速度低。",
+      "sourceRef": "07-Debug_Optimization/README.md#JTAG / SWD 接口",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch34-004",
+      "chapterId": "appendix_glossary",
+      "chapterNo": 34,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材把嵌入式 Linux 的系统组成表示为 `[Bootloader] → [Kernel] → [Root File System] → [User Application]`，并逐项解释其职责。下列描述哪项正确？",
+      "options": [
+        { "key": "A", "text": "`Bootloader` 负责上电后硬件初始化并加载内核（如 U-Boot）" },
+        { "key": "B", "text": "`Kernel` 就是根文件系统，包含用户空间程序" },
+        { "key": "C", "text": "`RootFS` 负责加载内核并引导系统启动" },
+        { "key": "D", "text": "`User Application` 负责管理硬件与系统资源" }
+      ],
+      "answer": "A",
+      "explanation": "素材对四部分的解释是：Bootloader 负责上电后硬件初始化、加载内核（如 U-Boot）；Kernel 是 Linux 内核，管理硬件与系统资源；RootFS 是根文件系统，包含用户空间程序；应用层运行用户程序、脚本、服务等。B 把 Kernel 与 RootFS 的职责对调。C 把\"加载内核\"这一 Bootloader 的职责安到了 RootFS 上。D 把\"管理硬件与系统资源\"这一 Kernel 的职责安到了应用层。素材的\"通用启动流程\"可交叉印证该分工：`BootROM → Bootloader (SPL/U-Boot) → Load & Decompress Kernel → Kernel 初始化 → 挂载 RootFS → 启动 init`，可见先由 Bootloader 载入内核，内核初始化后才挂载 RootFS。",
+      "sourceRef": "05-EmbeddedLinux/README.md#系统组成",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch34-005",
+      "chapterId": "appendix_glossary",
+      "chapterNo": 34,
+      "type": "code",
+      "difficulty": "advanced",
+      "question": "根 `README.md` 的目录按九层组织各术语所属的知识领域。请实现一个**术语溯源函数**：把常见缩写映射到它所属的层号，作为术语表的检索入口。\n\n映射表（大小写不敏感，允许首尾空白）：\n\n- 第二层：`MCU`、`LDO`\n- 第三层：`DMA`、`HAL`\n- 第四层：`RTOS`\n- 第五层：`RootFS`\n- 第六层：`OTA`\n- 第七层：`JTAG`、`SWD`\n- 第八层：`BSP`\n- 第九层：`TinyML`\n\n返回层号 `2`～`9`；仓库各层 README 未收录的术语返回 `0`；`abbr` 为 `NULL` 或去掉空白后为空时返回 `-1`。",
+      "language": "c",
+      "starterCode": "#include <stddef.h>\n#include <string.h>\n#include <ctype.h>\n\n/*\n * 术语溯源：返回该缩写所属的层号（2~9）。\n *   - 表中未收录的术语返回 0\n *   - abbr 为 NULL 或去掉空白后为空返回 -1\n *\n * 匹配规则：大小写不敏感，忽略首尾空白。\n */\nint layer_of_term(const char *abbr)\n{\n    /* TODO: 在此实现 */\n    return -1;\n}",
+      "expectedOutput": "命中映射表返回对应层号（2～9）；大小写与首尾空白不影响结果；仓库未收录的术语返回 0；`abbr` 为 `NULL` 或仅含空白（如 `\"   \"`）返回 -1。",
+      "testCases": [
+        { "input": "layer_of_term(\"dma\")", "expectedOutput": "返回 3（大小写不敏感）" },
+        { "input": "layer_of_term(\" RootFS \")", "expectedOutput": "返回 5（忽略首尾空白）" },
+        { "input": "layer_of_term(\"TinyML\")", "expectedOutput": "返回 9" },
+        { "input": "layer_of_term(\"SoC\")", "expectedOutput": "返回 0（仓库各层 README 未收录该术语）" },
+        { "input": "layer_of_term(NULL)", "expectedOutput": "返回 -1（入参非法）" }
+      ],
+      "solutionCode": "#include <stddef.h>\n#include <string.h>\n#include <ctype.h>\n\ntypedef struct {\n    const char *abbr;\n    int          layer;\n} term_entry_t;\n\nstatic const term_entry_t TERM_TABLE[] = {\n    { \"MCU\",    2 },\n    { \"LDO\",    2 },\n    { \"DMA\",    3 },\n    { \"HAL\",    3 },\n    { \"RTOS\",   4 },\n    { \"ROOTFS\", 5 },\n    { \"OTA\",    6 },\n    { \"JTAG\",   7 },\n    { \"SWD\",    7 },\n    { \"BSP\",    8 },\n    { \"TINYML\", 9 }\n};\n\nint layer_of_term(const char *abbr)\n{\n    char buf[16];\n    size_t i;\n    size_t n = 0;\n\n    if (abbr == NULL) {\n        return -1;\n    }\n\n    /* 归一化：跳过首部空白，取到下一个空白为止的词元，并统一转为大写 */\n    while (*abbr != '\\0' && isspace((unsigned char)*abbr) != 0) {\n        ++abbr;\n    }\n    while (*abbr != '\\0' && isspace((unsigned char)*abbr) == 0) {\n        if (n + 1 >= sizeof(buf)) {\n            return 0;               /* 超长输入必然不在表中 */\n        }\n        buf[n] = (char)toupper((unsigned char)*abbr);\n        ++n;\n        ++abbr;\n    }\n    buf[n] = '\\0';\n\n    if (n == 0) {\n        return -1;                  /* 只含空白，等同空串 */\n    }\n\n    for (i = 0; i < sizeof(TERM_TABLE) / sizeof(TERM_TABLE[0]); ++i) {\n        if (strcmp(TERM_TABLE[i].abbr, buf) == 0) {\n            return TERM_TABLE[i].layer;\n        }\n    }\n\n    return 0;                       /* 未收录 */\n}",
+      "hints": [
+        "先做输入归一化：跳过首尾空白、逐字符 `toupper()` 拷进本地缓冲区，再与表中的大写缩写比较，否则 `\"dma\"` 这类输入查不到。",
+        "用一张静态的 `{缩写, 层号}` 表加循环 `strcmp`，不要写一长串 `if` 分支——表驱动更易扩展，也便于逐条对应到根 `README.md` 目录中的层次。",
+        "边界有三种：`NULL` 返回 -1；归一化后为空（如 `\"   \"`）也返回 -1；超长输入直接判为未收录返回 0。往缓冲区拷贝之前必须先做长度检查。"
+      ],
+      "explanation": "本题把\"术语表\"做成可检索的映射，考察三点。第一是**输入归一化**：术语表的键是缩写，而用户输入常带大小写差异或多余空白，必须先 `toupper` 并去掉空白再比较，否则 `\"dma\"`、`\" RootFS \"` 都会查不到。第二是**表驱动而非硬编码分支**：用 `{缩写, 层号}` 静态表配合 `strcmp` 循环，新增术语只需改表；表中每一项都能对应到根 `README.md` 目录的九层结构（`DMA 控制器` 在第三层、`根文件系统构建` 在第五层、`云平台接入 & OTA 实现` 在第六层、`通用 BSP 构建` 在第八层、`TinyML / TensorFlow Lite Micro` 在第九层）。第三是**边界与非法入参**：`NULL` 与\"仅空白\"返回 -1（与\"未收录\"的 0 区分开），拷入缓冲区前必须做长度检查以防超长输入溢出。把\"未收录\"与\"非法\"用不同返回值表达，调用方才能分别给出\"术语表中暂无该词\"与\"输入无效\"两种提示。",
+      "sourceRef": "README.md#目录",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    }
+  ]
+}

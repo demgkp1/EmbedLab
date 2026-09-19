@@ -1,0 +1,180 @@
+{
+  "schemaVersion": "1.0.0",
+  "chapterId": "stage9_robotics",
+  "chapterNo": 29,
+  "chapterTitle": "29. 机器人与嵌入式",
+  "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+  "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn",
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "extractedAt": "2026-09-13",
+  "exercises": [
+    {
+      "id": "ex-ch29-001",
+      "chapterId": "stage9_robotics",
+      "chapterNo": 29,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材在\"定时控制\"中说明 PWM \"通过占空比控制输出电压平均值，用于电机调速、LED调光\"，并同时给出了一个与舵机相关的频率要求。该要求是？",
+      "options": [
+        {
+          "key": "A",
+          "text": "舵机控制需 `50Hz` 的 PWM"
+        },
+        {
+          "key": "B",
+          "text": "舵机控制需 `1kHz` 的 PWM，与素材示波器调试示例中 TIM3 的配置相同"
+        },
+        {
+          "key": "C",
+          "text": "舵机控制频率越高越好，需工作在 MHz 级"
+        },
+        {
+          "key": "D",
+          "text": "舵机只关心占空比，对 PWM 频率没有任何要求"
+        }
+      ],
+      "answer": "A",
+      "explanation": "素材在\"定时控制\"里写明 PWM 的\"频率范围：几Hz~MHz（如舵机控制需50Hz PWM）\"，50Hz 是素材唯一给出的舵机频率条件。B 的 1kHz 来自根 README\"调试 PWM 信号示例\"中的演示配置（`Prescaler = 72 - 1`、`Period = 1000 - 1`），那段代码是为了在示波器上验证一个 1kHz、50% 的通用 PWM 波形，属于仪器调试示例，并非舵机的工作要求；C 把素材给出的 PWM 频率范围上限（几Hz~MHz）误当成了舵机的工作点；D 忽略了素材把频率与舵机写在同一句话里——频率与占空比共同决定输出波形，是舵机控制的前提条件之一，不能被忽略。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#4. **定时控制**",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch29-002",
+      "chapterId": "stage9_robotics",
+      "chapterNo": 29,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材用一组关键词概括了 `CAN` 相对其他接口的特点。下列哪一项是素材对 `CAN` 的描述？",
+      "options": [
+        {
+          "key": "A",
+          "text": "差分信号，抗干扰强，多主模式"
+        },
+        {
+          "key": "B",
+          "text": "全双工，异步，2 线（TX/RX）"
+        },
+        {
+          "key": "C",
+          "text": "半双工，同步，2 线（SCL/SDA）"
+        },
+        {
+          "key": "D",
+          "text": "全双工，同步，4 线（SCK/MOSI/MISO/CS）"
+        }
+      ],
+      "answer": "A",
+      "explanation": "素材\"通信接口\"对比表对 CAN 的概括就是\"差分信号，抗干扰强，多主模式\"，典型应用是汽车电子（如 ECU 间通信）。B、C、D 分别是同一张表中 UART、I2C、SPI 的描述，是最常见的张冠李戴：UART 是异步点对点 2 线，I2C 才是半双工同步 2 线（SCL/SDA），SPI 是全双工同步 4 线（SCK/MOSI/MISO/CS）。在多电机、多关节的机器人平台上，\"差分 + 多主\"这两个特征决定了 CAN 能把驱动器与控制板挂在同一条总线上而无需中心主机轮询。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#2. **通信接口**",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch29-003",
+      "chapterId": "stage9_robotics",
+      "chapterNo": 29,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材\"工业总线\"给出：CAN 总线\"传输速率：500kbps~1Mbps，抗干扰强\"，应用于汽车电子与工业自动化；Modbus 是\"主从协议，支持RS-232/RS-485\"，广泛用于工业设备通信。现有两个场景——（甲）一条总线上各节点地位对等、任一节点都可主动发起通信，环境干扰强且要求 500kbps 以上；（乙）一台主站轮询若干从站，链路走 RS-485。二者应分别选用？",
+      "options": [
+        {
+          "key": "A",
+          "text": "甲用 `CAN`，乙用 `Modbus`"
+        },
+        {
+          "key": "B",
+          "text": "甲用 `Modbus`，乙用 `CAN`"
+        },
+        {
+          "key": "C",
+          "text": "甲用 `LoRa`，乙用 `CAN`"
+        },
+        {
+          "key": "D",
+          "text": "甲用 `NB-IoT`，乙用 `Modbus`"
+        }
+      ],
+      "answer": "A",
+      "explanation": "甲的三个条件（对等多主、强干扰、500kbps 以上）逐条命中素材对 CAN 的描述：差分信号带来的抗干扰能力、多主模式，以及 500kbps~1Mbps 的速率区间。乙的\"主站轮询从站\"正是素材所说的 Modbus\"主从协议\"，RS-485 也在其支持的物理层之列。B 把两者对调，等于给对等多主场景套上主从协议，节点无法主动上报；C 的 LoRa 是扩频无线技术，素材把它归在\"中长距离通信\"（5~15km、低功耗），既不是有线设备总线，速率也不满足 500kbps 以上的要求；D 的 NB-IoT 是蜂窝广域低功耗技术（素材举例为智能抄表、井盖监测），面向广域覆盖而非机器人/设备级总线。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#3. **工业总线**",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch29-004",
+      "chapterId": "stage9_robotics",
+      "chapterNo": 29,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材在 CAN 部分说明其\"位时序配置\"由四个时间段组成，并给出\"波特率500kbps，系统时钟42MHz\"的示例。这四个段分别是？",
+      "options": [
+        {
+          "key": "A",
+          "text": "同步段（`SYNC_SEG`）、传播时间段（`PROP_SEG`）、相位缓冲段1（`PHASE_SEG1`）、相位缓冲段2（`PHASE_SEG2`）"
+        },
+        {
+          "key": "B",
+          "text": "起始位、数据位、校验位、停止位"
+        },
+        {
+          "key": "C",
+          "text": "仲裁段、控制段、数据段、CRC 段"
+        },
+        {
+          "key": "D",
+          "text": "主站段、从站段、请求段、应答段"
+        }
+      ],
+      "answer": "A",
+      "explanation": "素材对 CAN 位时序的表述就是这四段：`SYNC_SEG`、`PROP_SEG`、`PHASE_SEG1`、`PHASE_SEG2`，并配套给出 500kbps、系统时钟 42MHz 的配置示例。B 是异步串口（UART）数据帧的组成——素材在 06-NetworkIot 的\"工作原理\"里列的是空闲状态、起始位、数据位、校验位、停止位，与 CAN 的位时序不是一回事；C 把 CAN 报文帧的字段结构（仲裁、控制、数据、CRC）当成了位时序的时间段，前者描述\"一帧报文怎么排\"，后者描述\"一个位怎么采样\"；D 是凭空构造的名称，CAN 采用多主模式，不存在\"主站段/从站段\"的划分。位时序配错会直接导致采样点偏移、总线错误帧增多，是机器人多轴总线调试的高频问题。",
+      "sourceRef": "03-驱动开发与外设编程/README.md#📌 CAN（控制器局域网）",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch29-005",
+      "chapterId": "stage9_robotics",
+      "chapterNo": 29,
+      "type": "code",
+      "difficulty": "advanced",
+      "question": "素材的 PWM 调试示例给出：`Prescaler = 72 - 1`（72MHz ÷ 72 = 1MHz）、`Period = 1000 - 1`（1MHz ÷ 1000 = 1kHz）、`Pulse = 500`（占空比 50%），并说明\"使用示波器测量：频率应为 1kHz，高电平时间 500μs（占空比 50%）\"。请实现由定时器寄存器值反算 PWM 实际波形的函数：\n\n- 计数时钟：`counter_clk = timer_clk_hz ÷ (psc + 1)`（整数除法）；\n- PWM 频率：`freq_hz = counter_clk ÷ (arr + 1)`（整数除法）；\n- 占空比（千分比，500 表示 50%）：`duty_permille = ccr × 1000 ÷ (arr + 1)`（整数除法，向下取整）；\n- 高电平时间（微秒）：`high_us = ccr × 1000000 ÷ counter_clk`（整数除法，向下取整）；\n- 入参非法时返回 `-1`：`out` 为 `NULL`、`timer_clk_hz == 0`、分频后 `counter_clk == 0`、或 `ccr > arr + 1`（PWM1 模式下 `ccr` 的合法上限是 `arr + 1`，即 100% 占空比）；\n- 正常返回 `0`，三个结果写入 `*out`。",
+      "language": "c",
+      "starterCode": "typedef struct {\n    unsigned int freq_hz;        /* 实际 PWM 频率（Hz） */\n    unsigned int duty_permille;  /* 实际占空比，千分比（500 = 50%） */\n    unsigned int high_us;        /* 高电平时间（微秒） */\n} PwmProfile;\n\n/*\n * 由定时器寄存器值反算 PWM 实际波形。\n * timer_clk_hz    : 定时器输入时钟（Hz）\n * psc / arr / ccr : 预分频、自动重装、比较寄存器的原值\n * out             : 结果输出\n * 返回 0 成功，-1 入参非法。\n */\nint pwm_profile(unsigned int timer_clk_hz, unsigned int psc, unsigned int arr,\n                unsigned int ccr, PwmProfile *out)\n{\n    /* TODO: 先算计数时钟与一个周期的计数次数，再做校验，最后填 out */\n    return 0;\n}",
+      "expectedOutput": "由 `psc`/`arr`/`ccr` 反算出计数时钟、PWM 频率、占空比千分比与高电平微秒数；素材示例（72MHz、psc=71、arr=999、ccr=500）应得到 1000Hz、500、500μs；`out` 为空、时钟为 0、分频后计数时钟为 0、`ccr > arr + 1` 时返回 -1。",
+      "testCases": [
+        {
+          "input": "timer_clk_hz = 72000000, psc = 71, arr = 999, ccr = 500",
+          "expectedOutput": "返回 0，freq_hz = 1000，duty_permille = 500，high_us = 500（与素材示波器测量结论一致）"
+        },
+        {
+          "input": "timer_clk_hz = 72000000, psc = 71, arr = 999, ccr = 0",
+          "expectedOutput": "返回 0，freq_hz = 1000，duty_permille = 0，high_us = 0（占空比 0%，边界）"
+        },
+        {
+          "input": "timer_clk_hz = 72000000, psc = 71, arr = 999, ccr = 1000",
+          "expectedOutput": "返回 0，freq_hz = 1000，duty_permille = 1000，high_us = 1000（占空比 100%，ccr = arr + 1 的上边界）"
+        },
+        {
+          "input": "timer_clk_hz = 42000000, psc = 41, arr = 999, ccr = 250",
+          "expectedOutput": "返回 0，freq_hz = 1000，duty_permille = 250，high_us = 250（换一组时钟与比较值，结果仍应正确）"
+        },
+        {
+          "input": "timer_clk_hz = 72000000, psc = 71, arr = 999, ccr = 1001",
+          "expectedOutput": "返回 -1（ccr 超过 arr + 1，寄存器值非法）"
+        }
+      ],
+      "solutionCode": "#include <stddef.h>\ntypedef struct {\n    unsigned int freq_hz;\n    unsigned int duty_permille;\n    unsigned int high_us;\n} PwmProfile;\n\nint pwm_profile(unsigned int timer_clk_hz, unsigned int psc, unsigned int arr,\n                unsigned int ccr, PwmProfile *out)\n{\n    if (out == NULL || timer_clk_hz == 0u) {\n        return -1;\n    }\n\n    /* psc + 1 用 64 位提升，避免 psc 取到边界值时 32 位回绕 */\n    unsigned long long counter_clk =\n        (unsigned long long)timer_clk_hz / ((unsigned long long)psc + 1ULL);\n    if (counter_clk == 0ULL) {\n        return -1;              /* 分频后计数时钟为 0，参数无意义 */\n    }\n\n    unsigned long long period = (unsigned long long)arr + 1ULL;  /* 一个周期的计数次数 */\n    if ((unsigned long long)ccr > period) {\n        return -1;              /* PWM1 模式下 ccr 合法范围是 0 ~ arr + 1 */\n    }\n\n    out->freq_hz = (unsigned int)(counter_clk / period);\n    out->duty_permille = (unsigned int)((unsigned long long)ccr * 1000ULL / period);\n    out->high_us = (unsigned int)((unsigned long long)ccr * 1000000ULL / counter_clk);\n    return 0;\n}",
+      "hints": [
+        "先把两条基本关系写对：计数时钟 = `timer_clk_hz / (psc + 1)`，一个 PWM 周期的计数次数 = `arr + 1`；素材示例就是 72MHz ÷ 72 = 1MHz、1MHz ÷ 1000 = 1kHz。",
+        "三个输出都用整数除法：频率 = 计数时钟 / 周期，占空比千分比 = `ccr × 1000 / 周期`，高电平微秒 = `ccr × 1000000 / 计数时钟`。",
+        "先校验再计算：`out` 为空、`timer_clk_hz == 0`、分频后计数时钟为 0、`ccr > arr + 1` 都要返回 -1；`ccr × 1000000` 会超出 32 位，乘法前提升到 64 位。"
+      ],
+      "explanation": "本题把素材\"示波器调试 PWM 波形\"的示例反过来做成计算题：素材给出 Prescaler = 72-1 → 1MHz、Period = 1000-1 → 1kHz、Pulse = 500 → 50%，以及\"频率应为 1kHz，高电平时间 500μs\"的测量结论；把这条链路写成通用函数后，72MHz / psc=71 / arr=999 / ccr=500 必须精确复现 1000Hz、500‰、500μs。三个易错点：（1）寄存器值到实际分频/计数的 +1 关系——写成 `timer_clk_hz / psc` 会得到 1014Hz 之类的错值，这是 PWM 计算最经典的 off-by-one；（2）`ccr × 1000000` 在 16 位 CCR 下已逼近 2^32，必须用 64 位中间量，否则高电平时间会算出垃圾值；（3）合法区间是 `ccr ≤ arr + 1`（等于 `arr + 1` 恰好是 100% 占空比），把 100% 判成非法会误伤边界，真正的越界是 `ccr > arr + 1`。对机器人应用而言，这类换算直接决定电机调速的占空比分辨率与舵机（素材：需 50Hz PWM）的脉宽精度：同样的 `ccr` 在不同 `arr` 下代表的占空比完全不同。",
+      "sourceRef": "README.md#调试 PWM 信号示例",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    }
+  ]
+}

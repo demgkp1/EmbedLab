@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "1.0.0",
+  "chapterId": "stage3_timer_pwm",
+  "chapterNo": 9,
+  "chapterTitle": "9. 定时器与 PWM",
+  "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+  "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn",
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "extractedAt": "2026-09-13",
+  "exercises": [
+    {
+      "id": "ex-ch09-001",
+      "chapterId": "stage3_timer_pwm",
+      "chapterNo": 9,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材指出 PWM（脉冲宽度调制）\"通过占空比控制输出电压平均值，用于电机调速、LED 调光\"，频率范围为\"几 Hz~MHz\"。在 PWM 频率保持不变的前提下，把占空比从 50% 提高到 80%，负载得到的平均电压会如何变化？",
+      "options": [
+        { "key": "A", "text": "升高——占空比是高电平时间与周期之比，占比变大后平均值更接近高电平" },
+        { "key": "B", "text": "降低——占空比越大，一个周期内的高电平时间越短" },
+        { "key": "C", "text": "不变——平均电压只取决于 PWM 的频率，与占空比无关" },
+        { "key": "D", "text": "无法判断方向，必须先知道高电平的具体电压值" }
+      ],
+      "answer": "A",
+      "explanation": "素材把 PWM 的作用机制写得很直接：\"通过占空比控制输出电压平均值\"。占空比是高电平时间占整个周期的比例，比例从 50% 升到 80%，高电平占比变大，平均值自然更接近高电平，所以 A 正确。B 把占空比的定义记反了——占空比越大，高电平时间越长；C 把频率与占空比的作用混为一谈，频率决定的是开关周期（波形疏密），平均电压的高低由占空比决定；D 混淆了\"判断变化方向\"和\"计算具体数值\"——方向随占空比单调变化，只有算出具体电压值时才需要知道高电平幅度。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#4. 定时控制",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch09-002",
+      "chapterId": "stage3_timer_pwm",
+      "chapterNo": 9,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材在讲 PWM 时给出：\"频率范围：几 Hz~MHz（如舵机控制需 50Hz PWM）\"。50Hz 的 PWM 对应的周期约为多少？",
+      "options": [
+        { "key": "A", "text": "约 20ms" },
+        { "key": "B", "text": "50ms" },
+        { "key": "C", "text": "2ms" },
+        { "key": "D", "text": "约 500μs" }
+      ],
+      "answer": "A",
+      "explanation": "周期与频率互为倒数：T = 1 / f = 1/50 s = 0.02 s = 20ms，即素材所说的舵机控制所用的 50Hz PWM 每 20ms 一个周期。B 直接把频率数值当成了毫秒数，是把\"50Hz\"读成\"50ms\"的典型错误（若真是 50ms，频率只有 20Hz）；C 是按 500Hz 反推的结果（1/500 s = 2ms）；D 是按 2kHz 反推的结果（1/2000 s = 0.5ms）——注意素材的调试示例里 1kHz、50% 占空比时的高电平时间恰好是 500μs，那是\"1kHz 周期 1ms 的一半\"，与 50Hz 的周期不是一回事。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#4. 定时控制",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch09-003",
+      "chapterId": "stage3_timer_pwm",
+      "chapterNo": 9,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材的\"调试 PWM 信号示例\"用 TIM3 输出 1kHz、占空比 50% 的 PWM：`htim3.Init.Prescaler = 72 - 1;`（注释：72MHz / 72 = 1MHz）、`htim3.Init.Period = 1000 - 1;`（注释：1MHz / 1000 = 1kHz）、`sConfigOC.Pulse = 500;`（注释：占空比 50%）。若系统时钟仍为 72MHz、仍要输出 1kHz，但把 `Period` 改为 `2000 - 1`，`Prescaler` 应设为多少？",
+      "options": [
+        { "key": "A", "text": "36 - 1（72MHz / 36 = 2MHz，2MHz / 2000 = 1kHz）" },
+        { "key": "B", "text": "仍为 72 - 1（1MHz / 2000 = 1kHz 不受周期影响）" },
+        { "key": "C", "text": "144 - 1（72MHz / 144 = 0.5MHz，0.5MHz / 2000 = 1kHz）" },
+        { "key": "D", "text": "2000 - 1（让预分频值与周期值保持一致）" }
+      ],
+      "answer": "A",
+      "explanation": "把素材两条注释串起来就是频率公式：PWM 频率 = 系统时钟 / ((Prescaler + 1) × (Period + 1))。现在 Period + 1 由 1000 变成 2000（翻倍），要维持 1kHz，分频比就必须减半，即 Prescaler + 1 = 36。B 忘了两条注释是相乘关系：72MHz/72 = 1MHz 后除以 2000 只剩 500Hz，频率减半；C 把分频比取了双倍，0.5MHz / 2000 = 250Hz，频率只有目标的四分之一；D 把周期值直接当分频值用，实际频率远低于 1kHz，而且它误以为\"预分频值要与周期值一致\"，素材的示例里两者本来就不相等。",
+      "sourceRef": "README.md#调试 PWM 信号示例",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch09-004",
+      "chapterId": "stage3_timer_pwm",
+      "chapterNo": 9,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材的时间管理部分给出：`vTaskDelay(pdMS_TO_TICKS(100));`（注释：相对延时，从调用开始计算）与 `vTaskDelayUntil(&xLastWakeTime, xFrequency);`（注释：绝对延时，固定周期执行）；软件定时器用 `xTimerCreate` 创建（素材示例参数依次为名称、`pdMS_TO_TICKS(1000)` 周期、`pdTRUE`、定时器 ID `(void *)0`、回调函数 `vTimerCallback`），再 `xTimerStart(xTimer, 0)` 启动。下列判断哪项正确？",
+      "options": [
+        { "key": "A", "text": "`vTaskDelay` 从调用时刻起算延时，循环里用它会让周期随任务自身执行时间漂移；要求固定周期的任务应使用 `vTaskDelayUntil`" },
+        { "key": "B", "text": "`vTaskDelay` 是绝对延时、`vTaskDelayUntil` 是相对延时，两者的注释恰好写反了" },
+        { "key": "C", "text": "`xTimerCreate` 的第 3 个参数 `pdTRUE` 表示单次触发，定时周期由第 2 个参数决定" },
+        { "key": "D", "text": "软件定时器创建后会自动开始计时，不需要再调用启动函数" }
+      ],
+      "answer": "A",
+      "explanation": "素材对两者的注释就是判据：`vTaskDelay` 是\"相对延时（从调用开始计算）\"，任务自身执行耗时会让\"执行 + 延时\"的总周期变长；`vTaskDelayUntil` 是\"绝对延时（固定周期执行）\"，以固定节拍唤醒，适合周期性采样、控制这类任务。B 把两条注释对调了。C 记错了参数含义：素材示例中 `pdTRUE` 的注释是\"周期模式\"，它决定单次还是周期触发，第 2 个参数只给出时间长度。D 与示例流程不符——素材先 `xTimerCreate` 创建，再显式调用 `xTimerStart(xTimer, 0)` 启动。",
+      "sourceRef": "04-实时操作系统/README.md#任务延时实现",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch09-005",
+      "chapterId": "stage3_timer_pwm",
+      "chapterNo": 9,
+      "type": "code",
+      "difficulty": "advanced",
+      "question": "素材的调试示例用 `Prescaler`、`Period` 把 TIM3 的计数节拍定为 1MHz、PWM 周期定为 1000 个计数，并用 `Pulse = 500` 得到占空比 50%；另一处素材又指出\"舵机控制需 50Hz PWM\"（周期 20ms）。请实现**占空比换算**函数，把百分比换算成应写入比较寄存器（素材中的 `Pulse`）的计数值：\n\n- 输入 `period_ticks` 表示一个 PWM 周期的计数个数（等于素材的 `Period + 1`，示例中为 1000），`percent` 为占空比百分比（0~100）；\n- 输出 `*pulse = round(period_ticks × percent / 100)`，四舍五入到整数；\n- 成功返回 `0`；\n- 入参非法时返回 `-1` 且**不修改** `*pulse`：`pulse` 为 `NULL`、`period_ticks == 0`、或 `percent > 100`。",
+      "language": "c",
+      "starterCode": "#include <stdint.h>\n#include <stddef.h>\n\n/*\n * 把占空比百分比换算为比较寄存器的计数值：*pulse = round(period_ticks * percent / 100)。\n * period_ticks：一个 PWM 周期的计数个数（素材示例中为 1000，即 Period + 1）。\n * percent：占空比百分比，取值 0~100。\n * 成功返回 0；入参非法（pulse 为 NULL / period_ticks 为 0 / percent > 100）返回 -1，且不修改 *pulse。\n */\nint pwm_pulse_from_percent(uint32_t period_ticks, unsigned int percent, uint32_t *pulse)\n{\n    /* TODO: 用足够宽的整数做乘法，四舍五入后写回 *pulse */\n    return -1;\n}",
+      "expectedOutput": "返回 0 时 *pulse 等于 period_ticks × percent / 100 的四舍五入结果：1000 计数、50% 得 500（与素材示例一致），100% 得 period_ticks，0% 得 0；任何非法入参返回 -1 且不修改 *pulse。",
+      "testCases": [
+        { "input": "period_ticks = 1000, percent = 50", "expectedOutput": "*pulse = 500，返回 0（与素材 `Pulse = 500` 的 50% 占空比一致）" },
+        { "input": "period_ticks = 999, percent = 50", "expectedOutput": "*pulse = 500，返回 0（499.5 四舍五入）" },
+        { "input": "period_ticks = 1000, percent = 0；另一组 percent = 100", "expectedOutput": "前者 *pulse = 0，后者 *pulse = 1000，均返回 0" },
+        { "input": "period_ticks = 20000（1MHz 计数下 50Hz 的周期计数）, percent = 8", "expectedOutput": "*pulse = 1600，返回 0" },
+        { "input": "percent = 101；另一组 period_ticks = 0；第三组 pulse = NULL", "expectedOutput": "三种情况都返回 -1，*pulse 保持原值不被修改" }
+      ],
+      "solutionCode": "#include <stdint.h>\n#include <stddef.h>\n\nint pwm_pulse_from_percent(uint32_t period_ticks, unsigned int percent, uint32_t *pulse)\n{\n    uint64_t scaled;\n\n    if (pulse == NULL || period_ticks == 0u || percent > 100u) {\n        return -1;\n    }\n\n    /* 先扩宽到 64 位再乘，避免 period_ticks 较大时 32 位乘法溢出 */\n    scaled = (uint64_t)period_ticks * (uint64_t)percent;\n\n    /* 加半个除数实现四舍五入 */\n    *pulse = (uint32_t)((scaled + 50u) / 100u);\n    return 0;\n}",
+      "hints": [
+        "先把百分比换算成计数：`period_ticks * percent / 100`；为避免 32 位乘法溢出，相乘前先转成 64 位（`uint64_t`）。",
+        "四舍五入可以在除法前加上半个除数：`(scaled + 50) / 100`，这样 999 × 50% = 499.5 会得到 500 而不是截断成 499。",
+        "边界都要覆盖：`percent` 只允许 0~100，`period_ticks` 不能为 0，`pulse` 不能是空指针；非法时直接返回 -1，不要先写 `*pulse`。"
+      ],
+      "explanation": "本题把素材里\"`Pulse = 500` 对应占空比 50%\"这一组具体数值抽象成通用换算，考察定时器 PWM 编程中最容易出偏差的两个细节。其一是把\"周期计数\"与\"比较计数\"对齐：素材用 `Prescaler` 与 `Period` 定出周期节拍，`Pulse`（比较值）决定高电平持续多少个计数，二者之比才是占空比；如果误把 `Period`（`ARR`，比真实周期少 1）当成 `period_ticks` 传入，100% 时就会比整周期差一个计数，输出永远差一点点。其二是数值健壮性：`percent` 超过 100 若不拦住，比较值会大于周期计数，输出被钉死在常高电平，表现为\"调不动\"；`period_ticks` 较大时 32 位乘法还会溢出，先转 64 位再乘即可避免；直接截断的整数除法会让 50% 这类常见值系统性偏小，用加半个除数的方式四舍五入更符合直觉。素材也提示要用示波器核对波形频率与占空比，这类换算错误正是要在示波器上确认的对象。",
+      "sourceRef": "README.md#调试 PWM 信号示例",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    }
+  ]
+}

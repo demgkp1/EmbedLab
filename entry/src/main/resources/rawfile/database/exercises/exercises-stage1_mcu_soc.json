@@ -101,7 +101,7 @@
         { "input": "list = {{A,-1,512,64}}, n = 1, min_mhz = 72, min_flash_kb = 512, min_sram_kb = 64", "expectedOutput": "返回 -1（存在负值字段，数据无效）" },
         { "input": "list = NULL, n = 0, min_mhz = 72, min_flash_kb = 512, min_sram_kb = 64", "expectedOutput": "返回 -1" }
       ],
-      "solutionCode": "#include <stdint.h>\n\ntypedef struct {\n    const char *name;\n    int mhz;\n    int flash_kb;\n    int sram_kb;\n} McuSpec;\n\nint find_first_match(const McuSpec *list, int n,\n                     int min_mhz, int min_flash_kb, int min_sram_kb)\n{\n    if (list == NULL || n <= 0) {\n        return -1;\n    }\n\n    for (int i = 0; i < n; i++) {\n        const McuSpec *s = &list[i];\n\n        if (s->mhz < 0 || s->flash_kb < 0 || s->sram_kb < 0) {\n            continue;\n        }\n        if (s->mhz >= min_mhz && s->flash_kb >= min_flash_kb && s->sram_kb >= min_sram_kb) {\n            return i;\n        }\n    }\n    return -1;\n}",
+      "solutionCode": "#include <stddef.h>\n#include <stdint.h>\n\ntypedef struct {\n    const char *name;\n    int mhz;\n    int flash_kb;\n    int sram_kb;\n} McuSpec;\n\nint find_first_match(const McuSpec *list, int n,\n                     int min_mhz, int min_flash_kb, int min_sram_kb)\n{\n    if (list == NULL || n <= 0) {\n        return -1;\n    }\n\n    for (int i = 0; i < n; i++) {\n        const McuSpec *s = &list[i];\n\n        if (s->mhz < 0 || s->flash_kb < 0 || s->sram_kb < 0) {\n            continue;\n        }\n        if (s->mhz >= min_mhz && s->flash_kb >= min_flash_kb && s->sram_kb >= min_sram_kb) {\n            return i;\n        }\n    }\n    return -1;\n}",
       "hints": [
         "用 `continue` 跳过含负值字段（无效）的型号，再统一做三项下限比较。",
         "三项条件是\"与\"关系，任一不满足就继续下一个型号。",

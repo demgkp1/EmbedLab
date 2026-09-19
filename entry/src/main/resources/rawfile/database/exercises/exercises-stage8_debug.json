@@ -1,0 +1,180 @@
+{
+  "schemaVersion": "1.0.0",
+  "chapterId": "stage8_debug",
+  "chapterNo": 24,
+  "chapterTitle": "24. 调试方法",
+  "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+  "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn",
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "extractedAt": "2026-09-13",
+  "exercises": [
+    {
+      "id": "ex-ch24-001",
+      "chapterId": "stage8_debug",
+      "chapterNo": 24,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材的 JTAG / SWD 接口对比表分别给出两者的引脚数、速度与级联能力。下列关于 JTAG 与 SWD 的描述，哪一项与素材一致？",
+      "options": [
+        {
+          "key": "A",
+          "text": "JTAG 使用 5 线（TMS、TCK、TDI、TDO、TRST）并支持多设备级联；SWD 使用 2 线（SWDIO、SWCLK）且不支持级联"
+        },
+        {
+          "key": "B",
+          "text": "JTAG 使用 2 线且不支持级联；SWD 使用 5 线并可通过 TAP 控制器级联多设备"
+        },
+        {
+          "key": "C",
+          "text": "两者都只使用 2 线，区别仅在于 JTAG 速度更快（可达 50MHz 以上）"
+        },
+        {
+          "key": "D",
+          "text": "JTAG 使用 5 线但不支持级联；SWD 使用 2 线并支持多设备级联"
+        }
+      ],
+      "answer": "A",
+      "explanation": "素材对比表中 JTAG 为 5 线（TMS、TCK、TDI、TDO、TRST），占用资源高（需多个 GPIO），通过 TAP 控制器支持多设备级联，速度属中低速（典型 1-10MHz）；SWD 是 ARM Cortex 系列的简化调试协议，只用 SWDIO 与 SWCLK 两根线、占用 2 个 GPIO，速度可达 50MHz 以上，但素材明确写出它“不支持级联”。B 把两者的引脚数与级联能力整体对调；C 既说错引脚数，又把“高速（可达 50MHz 以上）”错记到 JTAG 头上；D 保留了正确的引脚数却把级联能力对调——级联能力属于 JTAG，SWD 并不具备。",
+      "sourceRef": "07-Debug_Optimization/README.md#🔹 JTAG / SWD 接口",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch24-002",
+      "chapterId": "stage8_debug",
+      "chapterNo": 24,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材的“调试工具”小节给出两条命令：`arm-none-eabi-objdump -d main.elf` 与 `arm-none-eabi-size main.elf`。下列关于这两条命令作用的描述，哪一项正确？",
+      "options": [
+        {
+          "key": "A",
+          "text": "`objdump -d` 用于显示各段大小，`size` 用于生成反汇编代码"
+        },
+        {
+          "key": "B",
+          "text": "两条命令都必须先通过 ST-Link 连接目标板才能执行"
+        },
+        {
+          "key": "C",
+          "text": "`objdump -d` 生成反汇编代码；`size` 显示各段大小，输出中的 `dec` / `hex` 是 `text`、`data`、`bss` 三者之和的十进制与十六进制表示"
+        },
+        {
+          "key": "D",
+          "text": "`size` 输出中的 `dec` / `hex` 两列分别表示 Flash 与 RAM 的剩余容量"
+        }
+      ],
+      "answer": "C",
+      "explanation": "素材把两者明确分成两种用途：`arm-none-eabi-objdump -d main.elf` 是“反汇编工具”（生成反汇编代码），`arm-none-eabi-size main.elf` 是“查看内存分布”（显示各段大小），并给出 `text 1234 / data 56 / bss 789 / dec 2079 / hex 81F` 的输出示例——1234+56+789 正好等于 2079（即 0x81F），可见 `dec`/`hex` 只是这三列之和的两种进制写法。A 把两个工具的用途对调；B 误解了工作对象，两条命令都只读取本地 ELF 文件，不需要连接目标板；D 把“总和”当成了“剩余容量”，与示例数据 2079 = 1234+56+789 对不上。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#2. 调试工具",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch24-003",
+      "chapterId": "stage8_debug",
+      "chapterNo": 24,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材的 GDB + OpenOCD 调试流程依次为：①`openocd -f interface/stlink.cfg -f target/stm32f4x.cfg`；②`arm-none-eabi-gdb path/to/firmware.elf`；③`target remote :3333`（默认端口 3333）；④`load`；⑤`monitor reset halt`；⑥`break main`。下列对流程的理解，哪一项正确？",
+      "options": [
+        {
+          "key": "A",
+          "text": "应先执行 `load` 把程序下载到 Flash，再启动 OpenOCD，最后用 `target remote` 连接"
+        },
+        {
+          "key": "B",
+          "text": "先启动 OpenOCD 建立与硬件的连接，再由 GDB 通过默认端口 3333 连接，然后 `load` 下载程序、`monitor reset halt` 复位并暂停 CPU，最后设置断点"
+        },
+        {
+          "key": "C",
+          "text": "`target remote :3333` 是让 OpenOCD 去连接 GDB 的指令，必须在 GDB 启动之前执行"
+        },
+        {
+          "key": "D",
+          "text": "`monitor reset halt` 只是复位 CPU 并让它继续运行，不用于暂停"
+        }
+      ],
+      "answer": "B",
+      "explanation": "素材的注释写得很清楚：第 1 步启动 OpenOCD 是“连接 ST-Link 与目标 MCU”，第 3 步 `target remote :3333` 是“连接到 OpenOCD 服务器”且标注“默认端口 3333”，第 4 步 `load` 才是“下载程序到 Flash”，第 5 步 `monitor reset halt` 是“复位并暂停 CPU”，第 6 步起才设置断点并配合 `continue`/`next`/`step` 控制执行。A 把顺序颠倒了：GDB 的 `target remote` 需要一个已经在运行的 OpenOCD 服务器，先 `load` 既没有连接对象，也谈不上下载；C 把方向说反，`target remote` 是在 GDB 里输入的命令，且必须在 OpenOCD 启动之后执行；D 与素材注释“复位并暂停CPU”直接矛盾，`halt` 是暂停而非继续运行。",
+      "sourceRef": "07-Debug_Optimization/README.md#🔹 GDB + OpenOCD 调试",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch24-004",
+      "chapterId": "stage8_debug",
+      "chapterNo": 24,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材的“示波器关键参数”给出两条选取规则：带宽至少为信号最高频率的 3-5 倍、采样率至少为信号最高频率的 10 倍。素材同时给出调试 PWM 的示例：配置 TIM3 输出 1kHz PWM，用示波器测量频率应为 1kHz、高电平时间 500μs。若要观测一路 1MHz 的 PWM 信号，按上述规则，示波器带宽与采样率的最低要求是？",
+      "options": [
+        {
+          "key": "A",
+          "text": "带宽至少 1MHz、采样率至少 1MSa/s（按信号频率的 1 倍选取）"
+        },
+        {
+          "key": "B",
+          "text": "带宽至少 3MHz、采样率至少 5MSa/s（两条规则都按 3-5 倍套用）"
+        },
+        {
+          "key": "C",
+          "text": "带宽至少 10MHz、采样率至少 100MSa/s（两条规则都按 10 倍套用）"
+        },
+        {
+          "key": "D",
+          "text": "带宽至少 5MHz、采样率至少 10MSa/s（带宽按 3-5 倍取上限 5 倍、采样率按 10 倍）"
+        }
+      ],
+      "answer": "D",
+      "explanation": "素材的两条规则各自独立：带宽“至少为信号最高频率的 3-5 倍”，并举例“测量 1MHz PWM 需 5MHz 带宽”；采样率“至少为信号最高频率的 10 倍”，举例“1MHz 信号需 10MSa/s 采样率”。因此 1MHz 信号对应带宽 ≥5MHz、采样率 ≥10MSa/s。A 完全没有放大，示波器会被测出严重衰减的波形、也抓不住细节；B 把采样率规则也当成 3-5 倍，采样点不足会丢失边沿信息；C 把带宽规则误当成 10 倍，指标要求被放大了一个数量级，属于不必要的选型成本。",
+      "sourceRef": "07-Debug_Optimization/README.md#🔹 逻辑分析仪 / 示波器",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch24-005",
+      "chapterId": "stage8_debug",
+      "chapterNo": 24,
+      "type": "code",
+      "difficulty": "advanced",
+      "question": "素材在“FreeRTOS Trace 与分析工具”中指出：跟踪数据用**环形缓冲区**存储，以“避免内存溢出”，并给出 `TRACE_BUFFER_SIZE 1024`（事件数）的配置示例。请实现这个定长事件缓冲区的写入函数：\n\n- 容量由宏 `TRACE_BUF_CAP` 固定（示例取 1024），任何情况下都**不得越界访问** `events[]`；\n- 未写满时把新事件追加到末尾，返回 `0`；\n- 已写满时**覆盖最旧的事件**（读指针前移一格），返回 `1`，便于上层统计覆盖（丢帧）次数；\n- `tb` 为 `NULL` 时返回 `-1`，不做任何写入。",
+      "language": "c",
+      "starterCode": "#include <stdint.h>\n\n#define TRACE_BUF_CAP 1024u\n\n/* 环形事件缓冲区：head 指向最旧事件，count 为当前事件数（0 ~ TRACE_BUF_CAP） */\ntypedef struct {\n    uint32_t events[TRACE_BUF_CAP];\n    uint32_t head;\n    uint32_t count;\n} TraceBuffer;\n\n/*\n * 写入一个跟踪事件。\n * 返回 0：正常追加；返回 1：缓冲区已满、覆盖了最旧事件；返回 -1：tb 为 NULL。\n */\nint trace_record(TraceBuffer *tb, uint32_t event)\n{\n    /* TODO: 在此实现 */\n    return 0;\n}",
+      "expectedOutput": "容量固定为 `TRACE_BUF_CAP`：未满时追加并返回 0（`count` 递增）；写满后每次写入覆盖最旧事件并返回 1（`count` 保持等于容量、`head` 前移）；`tb == NULL` 返回 -1。任何情况下 `events[]` 的下标都必须落在 `0 ~ TRACE_BUF_CAP-1` 内。",
+      "testCases": [
+        {
+          "input": "tb 为 NULL",
+          "expectedOutput": "返回 -1（不做任何写入）"
+        },
+        {
+          "input": "tb 全零，调用 trace_record(tb, 100)",
+          "expectedOutput": "返回 0；tb->count == 1，tb->events[0] == 100，tb->head == 0"
+        },
+        {
+          "input": "依次写入事件 1..1024（共 TRACE_BUF_CAP 次）",
+          "expectedOutput": "每次返回 0；结束后 count == 1024、head == 0、events[1023] == 1024，尚未发生覆盖"
+        },
+        {
+          "input": "在已写满的 tb 上再写入事件 1025",
+          "expectedOutput": "返回 1；count 仍为 1024、head == 1，events[0] 被改写为 1025（最旧的事件 1 被覆盖）"
+        },
+        {
+          "input": "继续在满缓冲区上写入事件 1026",
+          "expectedOutput": "返回 1；head == 2，events[1] == 1026（覆盖顺序始终是最旧优先）"
+        }
+      ],
+      "solutionCode": "#include <stddef.h>\n#include <stdint.h>\n\n#define TRACE_BUF_CAP 1024u\n\ntypedef struct {\n    uint32_t events[TRACE_BUF_CAP];\n    uint32_t head;\n    uint32_t count;\n} TraceBuffer;\n\nint trace_record(TraceBuffer *tb, uint32_t event)\n{\n    if (tb == NULL) {\n        return -1;\n    }\n\n    if (tb->count < TRACE_BUF_CAP) {\n        /* 尾部下标 = head + count，对容量取模保证不越界 */\n        tb->events[(tb->head + tb->count) % TRACE_BUF_CAP] = event;\n        tb->count++;\n        return 0;\n    }\n\n    /* 已写满：覆盖最旧事件（head 所在位置），并让 head 前移一格 */\n    tb->events[tb->head] = event;\n    tb->head = (tb->head + 1u) % TRACE_BUF_CAP;\n    return 1;\n}",
+      "hints": [
+        "把“环形”拆成两个量：`head` 指向最旧事件、`count` 表示当前条数，写入位置就是 `(head + count) % TRACE_BUF_CAP`。",
+        "是否写满只需判断 `count < TRACE_BUF_CAP`：两个分支分别返回 0 与 1，靠返回值区分“追加”与“覆盖”。",
+        "先判 `tb == NULL` 再解引用；下标一律经过取模，缓冲区里就不会出现越界写入。"
+      ],
+      "explanation": "跟踪缓冲区的两条硬约束是“容量固定”与“不能溢出内存”，所以不能动态扩容——写满之后只能覆盖最旧事件，这正是追踪场景的常见取舍：永远保留最近 `TRACE_BUF_CAP` 条事件（素材示例配置为 1024 个事件）。实现要点是用 `head + count` 取模得到尾指针，而不必额外维护 `tail` 变量：两个量在覆盖时天然保持一致。常见错误有三类：忘记取模导致下标越界写坏内存；写满分支里仍然执行 `count++`，使 `count` 超过容量，后续读取会读到未初始化数据；以及把两种情况的返回值合并，上层就无法统计覆盖（丢帧）次数，丧失了判断“缓冲区是否偏小”的依据。",
+      "sourceRef": "07-Debug_Optimization/README.md#🔹 FreeRTOS Trace 与分析工具",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    }
+  ]
+}

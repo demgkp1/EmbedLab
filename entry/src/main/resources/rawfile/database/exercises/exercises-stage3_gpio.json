@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "1.0.0",
+  "chapterId": "stage3_gpio",
+  "chapterNo": 7,
+  "chapterTitle": "7. GPIO",
+  "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+  "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn",
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "extractedAt": "2026-09-13",
+  "exercises": [
+    {
+      "id": "ex-ch07-001",
+      "chapterId": "stage3_gpio",
+      "chapterNo": 7,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材把 GPIO 输入模式列为\"浮空输入、上拉输入、下拉输入、模拟输入\"，并说明 GPIO\"可配置上拉/下拉电阻\"、\"支持中断触发（如外部按键按下时唤醒 MCU）\"。某按键一端接 GPIO 引脚、另一端接 GND：松开时引脚悬空，按下时被拉到低电平。为了让松开状态下电平确定，该引脚应配置为哪种输入模式？",
+      "options": [
+        { "key": "A", "text": "上拉输入——内部上拉把悬空引脚拉到高电平，按下时被 GND 拉低，两种状态都有确定电平" },
+        { "key": "B", "text": "下拉输入——内部下拉把悬空引脚拉低，与按下时的低电平叠加，抗干扰更好" },
+        { "key": "C", "text": "浮空输入——不加上下拉可以省电，悬空时电平会自动稳定在高电平" },
+        { "key": "D", "text": "模拟输入——模拟输入对电平变化最灵敏，最适合检测按键" }
+      ],
+      "answer": "A",
+      "explanation": "素材把上拉/下拉列为 GPIO 可配置的电阻资源，用途就是给悬空引脚一个确定的默认电平。本题按键另一端接 GND，松开即悬空，只有内部上拉能把默认电平定在高电平，按下时被 GND 拉低，从而形成\"松开高、按下低\"两种可区分的状态。B 的下拉使松开与按下都是低电平，两种状态无法区分（下拉适用于按键另一端接 VCC 的接法）；C 的浮空输入在引脚悬空时电平不确定，正是本题要避免的情况；D 的模拟输入用于 ADC 采样模拟量，不用于读取数字电平，而且素材把它单列为一种输入模式，与数字读取是两回事。",
+      "sourceRef": "03-驱动开发与外设编程/README.md#📌 GPIO（通用输入输出）",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch07-002",
+      "chapterId": "stage3_gpio",
+      "chapterNo": 7,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材的\"地址映射与寄存器偏移\"给出：GPIOA 位于 AHB1 总线，基地址 `0x40020000`；`GPIOA_MODER`（模式寄存器）偏移 `0x00`，`GPIOA_ODR`（输出数据寄存器）偏移 `0x14`，访问方式为\"基地址 + 偏移量\"。按此规则，`GPIOA_ODR` 对应的地址是？",
+      "options": [
+        { "key": "A", "text": "0x40020014" },
+        { "key": "B", "text": "0x40020000" },
+        { "key": "C", "text": "0x40020140" },
+        { "key": "D", "text": "0x00020014" }
+      ],
+      "answer": "A",
+      "explanation": "素材的规则是地址 = 外设基地址 + 寄存器偏移量，所以 `GPIOA_ODR` = `0x40020000` + `0x14` = `0x40020014`。B 是 GPIOA 的基地址本身，偏移 `0x00` 对应的是 `GPIOA_MODER`；C 把偏移 `0x14` 当十进制做了错位（`0x140`），是十六进制与十进制混算的典型错误；D 丢掉了外设基地址的高位前缀，只剩 `0x00020014`，根本不在该外设的地址区间内。这类\"基地址 + 偏移\"的换算，是素材强调\"通过基地址+偏移量访问\"的直接应用。",
+      "sourceRef": "03-驱动开发与外设编程/README.md#📌 地址映射与寄存器偏移",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch07-003",
+      "chapterId": "stage3_gpio",
+      "chapterNo": 7,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材用 `GPIOA_MODER = (GPIOA_MODER & ~(0xF << 10)) | (0x5 << 10);` 同时把 PA5、PA6 配置为输出（`MODER[13:12]=01`、`MODER[11:10]=01`）。关于其中 `& ~(0xF << 10)` 这一步的作用，下列理解哪项正确？",
+      "options": [
+        { "key": "A", "text": "先把 `MODER[13:10]` 这 4 位清零，避免旧值参与后面的或运算导致模式写错" },
+        { "key": "B", "text": "把 `MODER[13:10]` 这 4 位直接置成 `0xF`，作为写入前的准备" },
+        { "key": "C", "text": "保留 `MODER[13:10]` 这 4 位，把寄存器其余位全部清零" },
+        { "key": "D", "text": "读取 `MODER[13:10]` 的当前值，供后面判断该位段是否需要修改" }
+      ],
+      "answer": "A",
+      "explanation": "`0xF << 10` 是只覆盖 PA5/PA6 两个引脚模式位的掩码，取反后再与寄存器相与，效果是\"这 4 位清零、其他位原样保留\"；随后的 `| (0x5 << 10)` 才把新模式写进去。B 描述的是 `| (0xF << 10)`（置位而不是清零）；C 把对象弄反了——保留的是其余位，清零的是目标位段；D 描述的是读取动作，对应素材位操作宏里的 `READ_BIT(REG, BIT)`。素材之所以把清零和置位写在同一行，是因为只做 `|=` 时原来为 1 的位永远写不成 0，模式就会配错。",
+      "sourceRef": "03-驱动开发与外设编程/README.md#📌 位操作技巧",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch07-004",
+      "chapterId": "stage3_gpio",
+      "chapterNo": 7,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材把 GPIO 输出模式分为\"推挽输出、开漏输出（需外部上拉）\"，并单独列出\"复用模式：用于 SPI、I2C 等外设功能\"。下列判断哪项正确？",
+      "options": [
+        { "key": "A", "text": "需要外部上拉电阻的是开漏输出；引脚要交给 SPI/I2C 等外设使用时，应配置为复用模式" },
+        { "key": "B", "text": "需要外部上拉电阻的是推挽输出；复用模式用于普通 GPIO 的读写" },
+        { "key": "C", "text": "开漏输出不需要外部上拉，它自己就能输出高电平" },
+        { "key": "D", "text": "模拟输入也是输出模式的一种，用于驱动模拟负载" }
+      ],
+      "answer": "A",
+      "explanation": "素材在两种输出模式里只给开漏输出加了\"需外部上拉\"的标注，并把复用模式的用途写明为\"用于 SPI、I2C 等外设功能\"，所以 A 是原文的直接对应。B 把标注挪给了推挽输出，还把复用模式说成用于普通 GPIO 读写——复用恰恰意味着引脚不再由普通 GPIO 数据寄存器直接控制，而是交给片上外设；C 与标注冲突：开漏结构不能主动输出高电平，没有外部上拉就得不到确定的高电平；D 把分类搞混了，\"模拟输入\"列在输入模式中，服务于 ADC 一类的模拟通道，不是输出模式。",
+      "sourceRef": "03-驱动开发与外设编程/README.md#📌 GPIO（通用输入输出）",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch07-005",
+      "chapterId": "stage3_gpio",
+      "chapterNo": 7,
+      "type": "code",
+      "difficulty": "advanced",
+      "question": "素材说明 GPIO 的模式寄存器（`GPIOA_MODER`，偏移 `0x00`）用\"基地址 + 偏移量\"访问，并给出同时把 PA5、PA6 配成输出的写法 `GPIOA_MODER = (GPIOA_MODER & ~(0xF << 10)) | (0x5 << 10);`——即 `MODER[13:12]=01`、`MODER[11:10]=01`，说明每个引脚在 MODER 中占 2 位。请实现按引脚号写入模式位段的函数：\n\n- 把 `*moder` 中 `pin` 号对应的 2 位模式位段写为 `mode`（取值 0~3，素材示例中 1 表示输出模式），其他引脚的模式保持不变；\n- 成功返回 `0`；\n- 入参非法时返回 `-1` 且**不修改** `*moder`：`moder` 为 `NULL`、`pin > 15`、或 `mode > 3`。",
+      "language": "c",
+      "starterCode": "#include <stdint.h>\n#include <stddef.h>\n\n/*\n * 把 *moder 中 pin 号对应的 2 位模式位段写为 mode（0~3），其他位保持不变。\n * 成功返回 0；入参非法（moder 为 NULL / pin > 15 / mode > 3）返回 -1，且不修改 *moder。\n * 提示：引脚 n 对应的位段是 MODER[2n+1 : 2n]。\n */\nint gpio_set_mode(uint32_t *moder, unsigned int pin, unsigned int mode)\n{\n    /* TODO: 由 pin 算出移位量，构造 2 位掩码，先清零再写入 mode */\n    return -1;\n}",
+      "expectedOutput": "合法入参下返回 0，且 *moder 中该引脚的 2 位等于 mode、其余引脚配置不变；pin 或 mode 越界、指针为空时返回 -1 且不修改 *moder。",
+      "testCases": [
+        { "input": "moder 指向 0x00000000，pin = 5, mode = 1", "expectedOutput": "*moder = 0x00000400，返回 0（即素材的 `MODER[11:10]=01`）" },
+        { "input": "moder 指向 0x00000400（上一步结果），pin = 6, mode = 1", "expectedOutput": "*moder = 0x00001400，返回 0（等价于素材的 `0x5 << 10`）" },
+        { "input": "moder 指向 0xFFFFFFFF，pin = 5, mode = 0", "expectedOutput": "*moder = 0xFFFFF3FF，返回 0（只清掉该引脚的 2 位）" },
+        { "input": "moder 指向 0x00000000，pin = 15, mode = 3", "expectedOutput": "*moder = 0xC0000000，返回 0（最高引脚、最大模式值）" },
+        { "input": "moder 指向 0x00000000，pin = 16, mode = 1；另一组 pin = 5, mode = 4", "expectedOutput": "两种情况都返回 -1，*moder 仍为 0x00000000" }
+      ],
+      "solutionCode": "#include <stdint.h>\n#include <stddef.h>\n\nint gpio_set_mode(uint32_t *moder, unsigned int pin, unsigned int mode)\n{\n    unsigned int shift;\n    uint32_t mask;\n\n    if (moder == NULL || pin > 15u || mode > 3u) {\n        return -1;\n    }\n\n    shift = pin * 2u;          /* 每个引脚占 2 位 */\n    mask = 0x3u << shift;\n\n    *moder = (*moder & ~mask) | ((uint32_t)mode << shift);\n    return 0;\n}",
+      "hints": [
+        "引脚 n 的位段是 `MODER[2n+1 : 2n]`，所以移位量是 `pin * 2`，掩码是 `0x3u << shift`。",
+        "套用素材\"先清零再写入\"的两步式：`*moder = (*moder & ~(0x3u << shift)) | ((uint32_t)mode << shift);`。",
+        "不要照抄素材里写死的 `0xF << 10`：引脚号是入参，掩码必须由 `pin` 算出来；同时把 `pin <= 15`、`mode <= 3` 的校验放在写寄存器之前。"
+      ],
+      "explanation": "本题把素材中\"同时配置 PA5、PA6\"的具体写法抽象成通用函数，考察寄存器位段编程的三个关键点：一是定位——每个引脚在 MODER 中占 2 位，引脚 n 对应 `[2n+1 : 2n]`，写死常量无法复用；二是读—改—写——必须先清掉目标位段再写入，否则旧模式会与新值按位或在一起，出现\"配了输出却仍是复用\"这类隐蔽故障；三是边界——`pin > 15` 会越出 32 位寄存器，`mode > 3` 装不进 2 位字段，两者都要在访问寄存器之前拦掉，且非法时不应留下半改写的寄存器状态。素材的调试技巧正是通过打印 `GPIOA_MODER` 的值来核对这类配置是否写对。",
+      "sourceRef": "03-驱动开发与外设编程/README.md#📌 位操作技巧",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    }
+  ]
+}

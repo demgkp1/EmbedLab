@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "1.0.0",
+  "chapterId": "stage9_project",
+  "chapterNo": 31,
+  "chapterTitle": "31. 项目开发方法",
+  "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+  "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn",
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "extractedAt": "2026-09-13",
+  "exercises": [
+    {
+      "id": "ex-ch31-001",
+      "chapterId": "stage9_project",
+      "chapterNo": 31,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材的 Git 分支策略规定：主干分支（`main`/`master`）永远代表可发布的稳定版本，开发分支（`develop`）集成所有新功能的开发。按此策略，用于**紧急修复生产环境问题**的分支，应从哪里创建、修复后合并回哪些分支？",
+      "options": [
+        { "key": "A", "text": "从 `main` 创建 `hotfix/*`，修复后合并回 `main` 和 `develop`" },
+        { "key": "B", "text": "从 `develop` 创建 `hotfix/*`，修复后只合并回 `develop`" },
+        { "key": "C", "text": "从 `develop` 创建 `feature/*`，修复后只合并回 `main`" },
+        { "key": "D", "text": "从 `main` 创建 `release/*`，修复后合并回 `develop`" }
+      ],
+      "answer": "A",
+      "explanation": "素材把 `hotfix/*` 定义为\"从 main 分支创建，用于紧急修复生产环境问题，修复后合并回 main 和 develop\"。B 把创建点与合并目标都错放在 `develop`：`develop` 是日常功能集成分支，紧急修复必须基于已经发布的稳定代码。C 混淆了 `feature/*` 与 `hotfix/*`——特性分支从 `develop` 创建、完成后合并回 `develop`，面向新功能而不是生产故障。D 混淆了 `release/*`：发布分支从 `develop` 创建，用于准备发布版本、做最后的测试和 Bug 修复，并不是处理线上紧急故障的通道。",
+      "sourceRef": "08-项目实战与工具链/README.md#1. **Git 分支策略**",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch31-002",
+      "chapterId": "stage9_project",
+      "chapterNo": 31,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材的\"标签管理\"给出三条命令：`git tag v1.0.0`（创建标签）、`git push origin v1.0.0`（推送标签到远程）、`git tag -l`（查看所有标签），并说明使用语义化版本（SemVer）打标签。下列理解哪项正确？",
+      "options": [
+        { "key": "A", "text": "`git tag` 创建的标签默认只存在于本地仓库，需要 `git push origin v1.0.0` 才能同步到远程" },
+        { "key": "B", "text": "`git tag` 会自动把标签推送到远程，第二条命令只是校验标签是否创建成功" },
+        { "key": "C", "text": "标签必须先于代码提交（commit）创建，否则推送标签一定会失败" },
+        { "key": "D", "text": "`git tag -l` 用于列出远程仓库中已有的全部标签，本地标签不会显示" }
+      ],
+      "answer": "A",
+      "explanation": "素材把\"创建标签\"与\"推送标签到远程\"列为两条彼此独立的命令，说明标签默认只在本地生成，必须显式推送远程才能被协作者看到；第三条 `git tag -l` 是\"查看所有标签\"，作用于当前仓库。B 把本地操作误解为自动同步，素材特意单列 `git push origin v1.0.0`，正说明不推送就不会同步。C 给标签凭空加了\"先于提交\"的限制：素材的流程是先有可发布版本、再以 `v1.0.0` 这样的语义化版本号打标签并推送，并没有这个先后要求。D 既弄错了作用范围也弄错了用途：`git tag -l` 列出的是本仓库已有的标签，用于查看与核对，而不是浏览远程标签。",
+      "sourceRef": "08-项目实战与工具链/README.md#3. **标签管理**",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch31-003",
+      "chapterId": "stage9_project",
+      "chapterNo": 31,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材的 Makefile 示例含有 `CC = arm-none-eabi-gcc`、`CFLAGS = -Wall -O2 -mcpu=cortex-m4 -mthumb`、`LDFLAGS = -Tstm32f4.ld`、`SRCS = $(wildcard *.c)`、`OBJS = $(SRCS:.c=.o)`、`TARGET = firmware.elf`，以及 `all: $(TARGET)`、`%.o: %.c`、`clean:` 三条规则。下列理解哪项正确？",
+      "options": [
+        { "key": "A", "text": "`-Tstm32f4.ld` 把链接脚本交给链接器；`%.o: %.c` 是模式规则，把每个 `.c` 编译成同名 `.o`" },
+        { "key": "B", "text": "`$(SRCS:.c=.o)` 表示把 `SRCS` 中已经生成的 `.o` 文件全部删除" },
+        { "key": "C", "text": "`all: $(TARGET)` 里的 `all` 就是最终固件的文件名" },
+        { "key": "D", "text": "`clean` 规则会在每次构建前自动执行，用于先清理旧的 `.o` 文件" }
+      ],
+      "answer": "A",
+      "explanation": "素材示例把 `-Tstm32f4.ld` 放在链接命令 `$(CC) $(LDFLAGS) $(OBJS) -o $@` 中，正是把链接脚本交给链接器；`%.o: %.c` 配合 `$<`、`$@` 是模式规则，用于把任意 `.c` 编译为同名 `.o`。B 混淆了\"替换引用\"与删除：`$(SRCS:.c=.o)` 是把源文件列表的 `.c` 后缀替换为 `.o` 后得到的目标文件列表。C 把默认目标名当成了文件名：固件名由 `TARGET = firmware.elf` 决定，`all` 只是默认构建目标。D 弄错了构建顺序：`clean` 需要显式执行 `make clean`，默认构建不会先清理——素材把 `clean` 与 `all` 并列为两个独立目标，正说明二者互不触发。",
+      "sourceRef": "08-项目实战与工具链/README.md#1. **Makefile 基础**",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch31-004",
+      "chapterId": "stage9_project",
+      "chapterNo": 31,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材的嵌入式应用框架分为四层：应用层（业务逻辑、算法）、服务层（任务管理、事件）、驱动层（硬件抽象、BSP）、硬件层（MCU、外设）；紧接着的\"组件化设计\"又列出四个核心组件：任务管理器、事件系统、配置管理、日志系统。按这套分层，这四个核心组件应归属哪一层？",
+      "options": [
+        { "key": "A", "text": "服务层" },
+        { "key": "B", "text": "应用层" },
+        { "key": "C", "text": "驱动层" },
+        { "key": "D", "text": "硬件层" }
+      ],
+      "answer": "A",
+      "explanation": "素材在\"分层架构\"中把\"任务管理、事件\"明确标在服务层，而\"组件化设计\"列出的任务管理器、事件系统、配置管理、日志系统正是这些服务能力的落地实现，因此归属服务层。B 应用层承载业务逻辑与算法（如传感器数据处理、控制逻辑），属于产品功能而非框架级公共服务。C 驱动层的职责是硬件抽象与 BSP，对上提供统一接口，不负责任务调度、配置持久化与日志分级。D 硬件层是 MCU 与外设本身，是被驱动对象，不可能承载软件组件。",
+      "sourceRef": "08-项目实战与工具链/README.md#2. **组件化设计**",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch31-005",
+      "chapterId": "stage9_project",
+      "chapterNo": 31,
+      "type": "code",
+      "difficulty": "advanced",
+      "question": "素材的\"提交规范\"要求采用 Conventional Commits，格式为 `<类型>[可选范围]: <描述>`，类型白名单是 `feat`、`fix`、`docs`、`style`、`refactor`、`test`、`chore`。请实现提交信息校验函数，把这条文档约定变成可自动执行的 CI 门禁：\n\n- 提交信息须形如 `类型: 描述` 或 `类型(范围): 描述`；\n- `类型` 必须命中白名单（`featx`、`feature`、`update` 都算非法）；\n- 冒号后必须紧跟一个空格，且`描述`不能为空；\n- 若出现圆括号，`范围`不能为空。\n\n返回状态码：`0` 合法；`-1` 入参非法（`NULL` 或空串）；`-2` 缺少 `\": \"` 分隔符；`-3` 类型不在白名单；`-4` 描述为空；`-5` 范围为空。",
+      "language": "c",
+      "starterCode": "#include <stddef.h>\n#include <string.h>\n\n/*\n * 校验 Conventional Commits 提交信息。\n * 类型白名单：feat / fix / docs / style / refactor / test / chore\n * 格式：<类型>: <描述>   或   <类型>(<范围>): <描述>\n *\n * 返回： 0 合法\n *       -1 入参非法（msg 为 NULL 或空串）\n *       -2 缺少 \": \" 分隔符\n *       -3 类型不在白名单\n *       -4 描述为空\n *       -5 范围为空\n */\nint check_commit_message(const char *msg)\n{\n    /* TODO: 在此实现 */\n    return 0;\n}",
+      "expectedOutput": "对给定提交信息返回状态码：合法返回 0；`NULL`/空串返回 -1；缺少 `\": \"` 分隔符返回 -2；类型不在 `feat`/`fix`/`docs`/`style`/`refactor`/`test`/`chore` 白名单返回 -3；描述为空返回 -4；范围为空返回 -5。",
+      "testCases": [
+        { "input": "check_commit_message(\"feat: 新增 OTA 双分区升级\")", "expectedOutput": "返回 0（类型合法，分隔符与描述均合规）" },
+        { "input": "check_commit_message(\"fix(uart): 修复波特率计算错误\")", "expectedOutput": "返回 0（带可选范围的写法同样合法）" },
+        { "input": "check_commit_message(\"update: 调整目录结构\")", "expectedOutput": "返回 -3（`update` 不在类型白名单内）" },
+        { "input": "check_commit_message(\"fix 修复串口丢包\")", "expectedOutput": "返回 -2（缺少 `\": \"` 分隔符）" },
+        { "input": "check_commit_message(NULL)", "expectedOutput": "返回 -1（入参非法）" }
+      ],
+      "solutionCode": "#include <stddef.h>\n#include <string.h>\n\nstatic int is_known_type(const char *type, size_t len)\n{\n    static const char *const types[] = {\n        \"feat\", \"fix\", \"docs\", \"style\", \"refactor\", \"test\", \"chore\"\n    };\n    size_t i;\n\n    for (i = 0; i < sizeof(types) / sizeof(types[0]); ++i) {\n        if (strlen(types[i]) == len && strncmp(types[i], type, len) == 0) {\n            return 1;\n        }\n    }\n    return 0;\n}\n\nint check_commit_message(const char *msg)\n{\n    const char *p;\n    const char *type;\n    const char *scope;\n    const char *close;\n    size_t type_len;\n\n    if (msg == NULL || msg[0] == '\\0') {\n        return -1;\n    }\n\n    /* 类型字段：从首字符开始，直到 '(' 或 ':' 为止 */\n    type = msg;\n    p = msg;\n    while (*p != '\\0' && *p != '(' && *p != ':') {\n        ++p;\n    }\n    type_len = (size_t)(p - type);\n\n    /* 可选范围：类型后紧跟的一对圆括号 */\n    if (*p == '(') {\n        scope = p + 1;\n        close = strchr(scope, ')');\n\n        if (close == NULL) {\n            return -2;              /* 括号未闭合，视为缺少 \": \" 分隔符 */\n        }\n        if (close == scope) {\n            return -5;              /* 范围为空 */\n        }\n        p = close + 1;\n    }\n\n    /* 分隔符必须是 \": \"（冒号后紧跟一个空格） */\n    if (p[0] != ':' || p[1] != ' ') {\n        return -2;\n    }\n\n    if (!is_known_type(type, type_len)) {\n        return -3;\n    }\n\n    p += 2;\n    if (*p == '\\0') {\n        return -4;                  /* 描述为空 */\n    }\n\n    return 0;\n}",
+      "hints": [
+        "先按 `(` 与 `:` 两个终止符切出\"类型\"字段，再用\"长度 + `strncmp`\"与白名单逐项比对——注意 `featx`、`feature` 这类前缀相近的串必须判为未知类型。",
+        "分隔符校验要严格到空格：不仅要看冒号，还要看冒号后是否紧跟一个空格，`fix 修复串口丢包` 这种缺冒号的输入应直接返回 -2。",
+        "边界优先级：`NULL`/空串先返回 -1；`feat(): x`（空范围）返回 -5；`docs: `（描述为空）返回 -4。"
+      ],
+      "explanation": "本题把\"提交规范\"从文档约定变成可执行的 CI 门禁，考察三点。第一是**类型白名单校验必须按完整字段比对**：`featx`、`feature`、`update` 这些看似相近的串都要判为非法（-3），因此不能只做前缀匹配。第二是**分隔符必须是 `\": \"`**：只检查冒号存在会把 `fix:修复` 这类漏过，而 `fix 修复串口丢包` 这种缺少冒号的输入应直接返回 -2；带范围的形式要先跳过 `(范围)` 再校验分隔符。第三是**边界与非法入参**：`NULL`/空串返回 -1，`feat(): x` 的空范围返回 -5，`docs: ` 的空描述返回 -4。常见错误是先用 `strstr` 找冒号、再拿整个前缀字符串去比对白名单，结果把 `feat(ui): x` 这种合法写法误判为非法类型。",
+      "sourceRef": "08-项目实战与工具链/README.md#2. **提交规范**",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    }
+  ]
+}

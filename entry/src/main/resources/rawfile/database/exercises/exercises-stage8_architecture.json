@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "1.0.0",
+  "chapterId": "stage8_architecture",
+  "chapterNo": 27,
+  "chapterTitle": "27. 嵌入式软件架构",
+  "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+  "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn",
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "extractedAt": "2026-09-13",
+  "exercises": [
+    {
+      "id": "ex-ch27-001",
+      "chapterId": "stage8_architecture",
+      "chapterNo": 27,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材的“扩展架构”用三段式框图描述典型嵌入式软件结构。按该框图，“传感器驱动、通信协议栈、外设控制”属于哪一层？",
+      "options": [
+        { "key": "A", "text": "应用层（用户逻辑：如温湿度采集、数据处理）" },
+        { "key": "B", "text": "硬件层（MCU ── 存储器 ── 外设 ── 传感器 ── 通信）" },
+        { "key": "C", "text": "驱动层（传感器驱动、通信协议栈、外设控制）" },
+        { "key": "D", "text": "服务层（任务管理与事件系统）" }
+      ],
+      "answer": "C",
+      "explanation": "素材的三段式框图自下而上为：硬件层（MCU、存储器、外设、传感器、通信）／驱动层（传感器驱动、通信协议栈、外设控制）／应用层（用户逻辑，如温湿度采集、数据处理），题干中的三项正是驱动层的原文定位。A 的应用层负责业务逻辑，它调用驱动而不直接操作外设；B 的硬件层指物理器件本身，是驱动层操作的对象；D 的服务层（任务管理器、事件系统）出现在 08 的“嵌入式应用框架设计”四层划分中，02 的三段式扩展架构里并没有这一层，属于跨文件的层级混用。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#2. 扩展架构",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch27-002",
+      "chapterId": "stage8_architecture",
+      "chapterNo": 27,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材的“通用 BSP 构建”给出三条设计原则。其中“通过配置文件而非修改代码适配不同硬件”对应的是哪一条？",
+      "options": [
+        { "key": "A", "text": "硬件无关性——上层代码不直接访问硬件寄存器" },
+        { "key": "B", "text": "配置化——通过配置文件而非修改代码适配不同硬件" },
+        { "key": "C", "text": "可移植性——相同功能代码可在不同硬件平台复用" },
+        { "key": "D", "text": "组件化——把任务管理器、事件系统、日志系统拆成独立组件" }
+      ],
+      "answer": "B",
+      "explanation": "素材列出的三条 BSP 设计原则是：硬件无关性（上层代码不直接访问硬件寄存器）、可移植性（相同功能代码可在不同硬件平台复用）、配置化（通过配置文件而非修改代码适配不同硬件），题干正是第三条的表述。A 讲的是“上层不碰寄存器”这条约束；C 讲的是代码跨平台复用这一结果；D 的“组件化设计”在素材中属于嵌入式应用框架设计部分（核心组件含任务管理器、事件系统、配置管理、日志系统），并不是 BSP 的三条原则之一。",
+      "sourceRef": "08-项目实战与工具链/README.md#🔹 通用 BSP 构建",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch27-003",
+      "chapterId": "stage8_architecture",
+      "chapterNo": 27,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材在两处给出不同的分层划分：`02/README` 的扩展架构是“应用层／驱动层／硬件层”，`08/README` 的“嵌入式应用框架设计”则比它多出一层。这一层是什么，职责是什么？",
+      "options": [
+        { "key": "A", "text": "服务层，位于应用层与驱动层之间，负责任务管理与事件处理" },
+        { "key": "B", "text": "抽象层，位于驱动层内部，负责提供统一接口的高级驱动" },
+        { "key": "C", "text": "适配层，负责连接抽象层和硬件层" },
+        { "key": "D", "text": "中间件层，负责文件系统与网络协议栈的一体化配置" }
+      ],
+      "answer": "A",
+      "explanation": "08 的分层架构自上而下是：应用层（业务逻辑、算法）／服务层（任务管理、事件）／驱动层（硬件抽象、BSP）／硬件层（MCU、外设），相比 02 的三段式正好多出“服务层”，其职责在组件化设计中进一步展开为任务管理器、事件系统、配置管理、日志系统等核心组件。B、C 提到的抽象层与适配层确实存在，但它们属于 08“模块化驱动结构”里驱动内部的三层划分（硬件层／抽象层／适配层），不是整体架构中多出来的那一层；D 的“中间件层”不是素材的架构命名——素材只在 STM32CubeMX 一节提到可一键配置 FreeRTOS、LWIP、USB、File System 等中间件，并未把它画成一层架构。",
+      "sourceRef": "08-项目实战与工具链/README.md#🔹 嵌入式应用框架设计",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch27-004",
+      "chapterId": "stage8_architecture",
+      "chapterNo": 27,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材的“模块化驱动结构”把驱动分为硬件层（直接操作寄存器的低级驱动）、抽象层（提供统一接口的高级驱动）、适配层（连接抽象层和硬件层）。若更换 MCU 平台而要求上层调用接口保持不变，改动应主要集中在？",
+      "options": [
+        { "key": "A", "text": "应用层：业务逻辑与算法需要按新 MCU 重写" },
+        { "key": "B", "text": "服务层：任务管理与事件系统必须整体替换" },
+        { "key": "C", "text": "抽象层：对外提供的统一接口需要重新定义" },
+        { "key": "D", "text": "硬件层：直接操作寄存器的低级驱动按新 MCU 改写，抽象层与应用层的调用接口保持不变" }
+      ],
+      "answer": "D",
+      "explanation": "把驱动分成三层的目的就是隔离变化：硬件层“直接操作寄存器”，与具体 MCU 的寄存器定义绑定最紧，换平台必然要改；抽象层“提供统一接口”，存在的意义就是让上层不随硬件变化，它的接口（以及适配层的对接方式）应保持稳定；应用层与服务层属于业务逻辑与任务调度，不应感知寄存器差异——这与 BSP 原则中的“硬件无关性：上层代码不直接访问硬件寄存器”“可移植性：相同功能代码可在不同硬件平台复用”一致。A、B 把改动扩散到业务与调度层，等于放弃了分层的价值；C 让抽象接口随平台变化，上层代码仍要跟着改，抽象层就形同虚设。",
+      "sourceRef": "08-项目实战与工具链/README.md#🔹 模块化驱动结构",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch27-005",
+      "chapterId": "stage8_architecture",
+      "chapterNo": 27,
+      "type": "code",
+      "difficulty": "advanced",
+      "question": "素材的“模块化驱动结构”要求驱动分层、抽象层“提供统一接口”，BSP 原则要求上层不直接访问硬件寄存器；“组件化设计”则把任务管理器、事件系统、配置管理、日志系统拆成可独立装配的组件。请实现一个最小的**驱动注册表**，让上层按名字获取已注册的驱动接口：\n\n- `driver_register()`：把一项驱动接口追加到表中。`table`、`count`、`entry`、`entry->name`、`entry->init` 任一为 `NULL`，或 `cap <= 0`，或 `*count < 0`，返回 `-1`；表已满（`*count >= cap`）返回 `-2`；名字重复返回 `-3`；成功返回 `0`。\n- `driver_find()`：按名字查找并返回指向表项的指针；未找到，或参数非法（`table == NULL`、`name == NULL`、`count <= 0`）返回 `NULL`。",
+      "language": "c",
+      "starterCode": "#include <stddef.h>\n#include <string.h>\n\n/* 一项驱动接口：名字 + 初始化函数（抽象层对外提供的统一入口） */\ntypedef struct {\n    const char *name;\n    int (*init)(void);\n} DriverEntry;\n\n/*\n * 注册一项驱动接口。\n * 返回 0：成功；-1：参数非法；-2：表已满；-3：名字重复。\n */\nint driver_register(DriverEntry *table, int cap, int *count, const DriverEntry *entry)\n{\n    /* TODO: 在此实现 */\n    return -1;\n}\n\n/*\n * 按名字查找驱动接口；未找到或参数非法返回 NULL。\n */\nconst DriverEntry *driver_find(const DriverEntry *table, int count, const char *name)\n{\n    /* TODO: 在此实现 */\n    return NULL;\n}",
+      "expectedOutput": "在 cap ≥ 1 的空表上注册 {name \"spi1\", init 非空} 返回 0，`*count` 递增为 1，且 `driver_find(table, *count, \"spi1\")` 能返回该表项；重复注册同名驱动返回 -3 且 `*count` 不变；表满（`*count == cap`）返回 -2；`entry->init == NULL` 等非法参数返回 -1；查找未注册的名字返回 NULL。",
+      "testCases": [
+        { "input": "cap = 4、*count = 0，注册 {name \"spi1\", init 非空}", "expectedOutput": "返回 0；*count == 1；driver_find(table, 1, \"spi1\") 返回该表项（其 name 与 \"spi1\" 相等）" },
+        { "input": "在已含 \"spi1\" 的表上再次注册同名项", "expectedOutput": "返回 -3（名字重复），*count 保持不变，表中已有表项不被覆盖" },
+        { "input": "cap = 2、*count = 2 时再注册 {name \"i2c1\", init 非空}", "expectedOutput": "返回 -2（表已满），表中已有的两项不被修改" },
+        { "input": "注册 {name \"uart1\", init == NULL}", "expectedOutput": "返回 -1（初始化函数指针为空，属于非法入参）" },
+        { "input": "driver_find(table, 1, \"i2c1\") 与 driver_find(NULL, 0, \"spi1\")", "expectedOutput": "均返回 NULL（前者名字未注册，后者入参非法）" }
+      ],
+      "solutionCode": "#include <stddef.h>\n#include <string.h>\n\ntypedef struct {\n    const char *name;\n    int (*init)(void);\n} DriverEntry;\n\nint driver_register(DriverEntry *table, int cap, int *count, const DriverEntry *entry)\n{\n    if (table == NULL || count == NULL || entry == NULL ||\n        entry->name == NULL || entry->init == NULL) {\n        return -1;\n    }\n    if (cap <= 0 || *count < 0) {\n        return -1;\n    }\n    if (*count >= cap) {\n        return -2;  /* 表已满 */\n    }\n\n    for (int i = 0; i < *count; i++) {\n        if (table[i].name != NULL && strcmp(table[i].name, entry->name) == 0) {\n            return -3;  /* 名字重复 */\n        }\n    }\n\n    table[*count].name = entry->name;\n    table[*count].init = entry->init;\n    (*count)++;\n    return 0;\n}\n\nconst DriverEntry *driver_find(const DriverEntry *table, int count, const char *name)\n{\n    if (table == NULL || name == NULL || count <= 0) {\n        return NULL;\n    }\n\n    for (int i = 0; i < count; i++) {\n        if (table[i].name != NULL && strcmp(table[i].name, name) == 0) {\n            return &table[i];\n        }\n    }\n    return NULL;\n}",
+      "hints": [
+        "校验顺序决定返回哪个错误码：先判非法参数（空指针、`cap <= 0`、`*count < 0`），再判表满（`*count >= cap`），最后判重名。",
+        "判重名与查找都用 `strcmp()`，遍历范围是 `[0, *count)`；追加只需把 `entry` 的 `name` 与 `init` 写入 `table[*count]` 再 `(*count)++`。",
+        "`driver_find()` 返回指向表内元素的指针而不是副本，因此返回值加 `const`；遍历时防御 `table[i].name == NULL` 的空槽。"
+      ],
+      "explanation": "注册表是“抽象层提供统一接口”的最小可运行形态：上层只依赖名字与函数指针，完全不接触寄存器，换平台时替换硬件层实现即可——这正对应素材的硬件无关性、可移植性与可插拔的组件化设计。错误码刻意分成三种：`-1` 参数非法、`-2` 表已满、`-3` 名字重复，调用方据此判断该“改代码”还是“扩容量”；素材的驱动分层也是靠清晰接口把变化挡在硬件层内部。常见错误有：先判满再判非法，导致参数错误被误报成“表已满”；发现重名后仍把表项写进表里，破坏注册表的唯一性；以及 `driver_find()` 返回局部变量（栈上临时结构体）的地址，造成悬空指针——正确做法是返回表内元素的地址。",
+      "sourceRef": "08-项目实战与工具链/README.md#🔹 模块化驱动结构",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    }
+  ]
+}

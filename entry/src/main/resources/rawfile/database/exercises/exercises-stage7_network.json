@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "1.0.0",
+  "chapterId": "stage7_network",
+  "chapterNo": 19,
+  "chapterTitle": "19. 网络通信",
+  "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+  "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn",
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "extractedAt": "2026-09-13",
+  "exercises": [
+    {
+      "id": "ex-ch19-001",
+      "chapterId": "stage7_network",
+      "chapterNo": 19,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材用对比表区分串口通信与 Socket 通信。依据该表，下列哪项描述正确？",
+      "options": [
+        { "key": "A", "text": "串口通信是物理层/数据链路层的点对点连接，Socket 通信建立在 TCP/IP 协议栈之上，通过 IP 地址和端口号识别网络进程" },
+        { "key": "B", "text": "串口通信通过 IP 地址和端口号识别对端设备，Socket 通信则直接操作硬件寄存器" },
+        { "key": "C", "text": "两者都依赖完整的 TCP/IP 协议栈，区别只是传输速率的快慢" },
+        { "key": "D", "text": "Socket 通信只能用于同一台主机内部的进程之间，串口才是跨网络通信的手段" }
+      ],
+      "answer": "A",
+      "explanation": "素材对比表逐项给出：串口通信的通信范围是“局域性（通常是设备内部或短距离有线连接）”，传输方式为“物理层/数据链路层（硬件直接控制）”，协议栈“通常无复杂协议栈，仅定义物理电平和数据帧格式”，连接对象是“物理设备（点对点）”，抽象程度“低（直接操作硬件寄存器或库）”；Socket 通信则基于 TCP/IP 协议栈，通过“IP 地址确定目标主机、端口号确定目标主机上的具体应用程序进程”，抽象程度高、以文件描述符和系统调用操作。B 把两者的寻址方式与抽象层次整体对调；C 忽略了串口“通常无复杂协议栈”这一前提，把两者的差异简化成速率；D 说反了适用范围——Socket 的优点是“跨网络通信能力强”，可在不同设备、服务器之间通信，而串口才是局域、短距离的点对点连接。",
+      "sourceRef": "06-NetworkIot/README.md#串口通信 vs Socket 通信：对比总结",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch19-002",
+      "chapterId": "stage7_network",
+      "chapterNo": 19,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材的“TCP 与 UDP 区别”表从是否连接、是否可靠、适用场景、开销四个维度做了比较。下列哪项与该表一致？",
+      "options": [
+        { "key": "A", "text": "TCP 面向连接、有重传与确认，开销较大；UDP 无连接、可能丢包、开销较小，常用于视频流、语音与广播" },
+        { "key": "B", "text": "TCP 无连接但可靠，UDP 面向连接但可能丢包" },
+        { "key": "C", "text": "UDP 依靠重传与确认保证可靠传输，因此开销比 TCP 更大" },
+        { "key": "D", "text": "两者都面向连接，区别只在于 TCP 支持广播而 UDP 不支持" }
+      ],
+      "answer": "A",
+      "explanation": "素材表格写明：TCP“是（面向连接）”“是（有重传、确认）”，适用于 Web、文件传输、SSH，开销“较大（握手、窗口等）”；UDP“否（无连接）”“否（可能丢包）”，适用于“视频流、语音、广播”，开销“较小（直接发送）”。B 把连接性与可靠性两项全部说反；C 把重传确认机制安到 UDP 上，且开销关系颠倒——UDP 正是因为省去握手与窗口维护才开销更小；D 凭空引入“TCP 支持广播”这一错误前提，实际上一对多的广播/组播正是 UDP 的典型场景，面向连接的 TCP 无法支持。",
+      "sourceRef": "06-NetworkIot/README.md#TCP 与 UDP 区别",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch19-003",
+      "chapterId": "stage7_network",
+      "chapterNo": 19,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材描述 TCP 三次握手时写道：客户端收到 SYN 消息时生成随机值 X；服务器回复 SYN-ACK，其“确认号设置为比接收到的序列号多一个，即 X + 1”，并为自己的数据包选择另一个随机数 Y；最后客户端把 ACK 发给服务器。该 ACK 的序列号应设置为？",
+      "options": [
+        { "key": "A", "text": "Y + 1" },
+        { "key": "B", "text": "X + 1" },
+        { "key": "C", "text": "X" },
+        { "key": "D", "text": "Y" }
+      ],
+      "answer": "A",
+      "explanation": "素材对最后一步的原文是“客户端将 ACK 发送给服务器。序列号被设置为所接收的确认值即 Y + 1”。三次握手中双方各自维护自己的序列号：X 是客户端 SYN 的序列号（干扰项 C），X + 1 是服务器在 SYN-ACK 里用来确认“已收到客户端 SYN”的确认号（干扰项 B），Y 是服务器 SYN-ACK 自己的序列号（干扰项 D），而客户端这次 ACK 要确认的是服务器的 Y，所以序列号填 Y + 1。把确认号与序列号混用是这一考点最常见的错误。",
+      "sourceRef": "面试题与面经/计算机网络原理面试题.md#19.TCP 三次握手和四次挥手",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch19-004",
+      "chapterId": "stage7_network",
+      "chapterNo": 19,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材分别解释了 TCP 的流量控制与拥塞控制。下列哪项描述正确？",
+      "options": [
+        { "key": "A", "text": "流量控制是端到端（点对点）的通信量控制，靠滑动窗口抑制发送速率以免接收方来不及接收；拥塞控制是全局性过程，关注网络是否过载" },
+        { "key": "B", "text": "流量控制是全局性过程，涉及所有主机与路由器；拥塞控制只针对单个接收方的缓冲区" },
+        { "key": "C", "text": "两者都由接收方在确认报文中给出的窗口字段唯一决定，与网络拥塞程度无关" },
+        { "key": "D", "text": "把接收方的窗口字段设置为 0，可以让发送方加速发送以探测可用带宽" }
+      ],
+      "answer": "A",
+      "explanation": "素材在拥塞控制一节中对比得很明确：“流量控制往往是点对点通信量的控制，是个端到端的问题”，目的是抑制发送端速率、使接收端来得及接收；而“拥塞控制是一个全局性的过程，涉及到所有的主机，所有的路由器”，目的是防止过多数据注入网络导致路由器或链路过载。第 25 问补充了流量控制的实现方式：TCP 用可变大小的滑动窗口，接收方在确认报文的窗口字段中控制发送方窗口大小。B 把两者的范围完全对调；C 把拥塞控制也归给接收方窗口字段——素材指出发送方还要维护拥塞窗口 cwnd，发送窗口取 cwnd 与接收窗口中的较小者，并采用慢开始、拥塞避免、快重传、快恢复四种算法，显然不由接收方单独决定；D 与素材“将窗口字段设置为 0，则发送方不能发送数据”直接矛盾，窗口为 0 是让发送方暂停，不是加速。",
+      "sourceRef": "面试题与面经/计算机网络原理面试题.md#26.什么是拥塞控制",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch19-005",
+      "chapterId": "stage7_network",
+      "chapterNo": 19,
+      "type": "code",
+      "difficulty": "advanced",
+      "question": "素材描述 TCP 客户端在连接建立与释放过程中的状态变化：发送 SYN 后等待服务器的 SYN-ACK，收到后客户端再发 ACK；关闭时客户端发送 FIN 并进入 FIN_WAIT_1 等待对方的 ACK，收到 ACK 后进入 FIN_WAIT_2 等待对方的 FIN，收到 FIN 后进入 TIME_WAIT，再等待一段时间连接才真正关闭、端口与缓冲区等资源被释放。请把这一过程实现为**客户端视角的状态机**：按事件返回下一个状态，事件在当前状态下不合法时返回 -1。\n\n- 状态：`TCP_CLOSED`(0)、`TCP_SYN_SENT`(1)、`TCP_ESTABLISHED`(2)、`TCP_FIN_WAIT_1`(3)、`TCP_FIN_WAIT_2`(4)、`TCP_TIME_WAIT`(5)\n- 事件：`EV_CONNECT`(0)、`EV_RECV_SYN_ACK`(1)、`EV_CLOSE`(2)、`EV_RECV_ACK`(3)、`EV_RECV_FIN`(4)、`EV_TIMEOUT`(5)",
+      "language": "c",
+      "starterCode": "/* 客户端 TCP 状态 */\ntypedef enum {\n    TCP_CLOSED = 0,   /* 未连接 */\n    TCP_SYN_SENT,     /* 已发送 SYN，等待服务器 SYN-ACK */\n    TCP_ESTABLISHED,  /* 三次握手完成，可收发数据 */\n    TCP_FIN_WAIT_1,   /* 已发送 FIN，等待对方 ACK */\n    TCP_FIN_WAIT_2,   /* 已收到 ACK，等待对方 FIN */\n    TCP_TIME_WAIT     /* 已收到 FIN，等待超时后关闭 */\n} TcpState;\n\n/* 驱动状态机的事件 */\ntypedef enum {\n    EV_CONNECT = 0,   /* 应用请求建立连接（发送 SYN） */\n    EV_RECV_SYN_ACK,  /* 收到服务器 SYN-ACK（客户端回 ACK） */\n    EV_CLOSE,         /* 应用请求关闭（发送 FIN） */\n    EV_RECV_ACK,      /* 收到服务器 ACK */\n    EV_RECV_FIN,      /* 收到服务器 FIN */\n    EV_TIMEOUT        /* TIME_WAIT 超时 */\n} TcpEvent;\n\n/* 返回下一个状态（TcpState 的取值）；事件在该状态下不合法时返回 -1 */\nint tcp_client_step(int state, int event)\n{\n    /* TODO: 实现状态迁移表 */\n    return -1;\n}",
+      "expectedOutput": "按客户端视角迁移：CLOSED --EV_CONNECT--> SYN_SENT --EV_RECV_SYN_ACK--> ESTABLISHED --EV_CLOSE--> FIN_WAIT_1 --EV_RECV_ACK--> FIN_WAIT_2 --EV_RECV_FIN--> TIME_WAIT --EV_TIMEOUT--> CLOSED；其余任何状态与事件的组合（含越界的 state/event 取值）一律返回 -1。",
+      "testCases": [
+        { "input": "tcp_client_step(TCP_CLOSED, EV_CONNECT)", "expectedOutput": "返回 TCP_SYN_SENT(1)" },
+        { "input": "tcp_client_step(TCP_SYN_SENT, EV_RECV_SYN_ACK)", "expectedOutput": "返回 TCP_ESTABLISHED(2)" },
+        { "input": "tcp_client_step(TCP_FIN_WAIT_1, EV_RECV_ACK)", "expectedOutput": "返回 TCP_FIN_WAIT_2(4)" },
+        { "input": "tcp_client_step(TCP_TIME_WAIT, EV_TIMEOUT)", "expectedOutput": "返回 TCP_CLOSED(0)" },
+        { "input": "tcp_client_step(TCP_CLOSED, EV_RECV_FIN)、tcp_client_step(TCP_ESTABLISHED, EV_RECV_ACK)、tcp_client_step(99, EV_CONNECT)", "expectedOutput": "均返回 -1（事件与当前状态不匹配、状态取值越界）" }
+      ],
+      "solutionCode": "/* 客户端 TCP 状态 */\ntypedef enum {\n    TCP_CLOSED = 0,\n    TCP_SYN_SENT,\n    TCP_ESTABLISHED,\n    TCP_FIN_WAIT_1,\n    TCP_FIN_WAIT_2,\n    TCP_TIME_WAIT\n} TcpState;\n\n/* 驱动状态机的事件 */\ntypedef enum {\n    EV_CONNECT = 0,\n    EV_RECV_SYN_ACK,\n    EV_CLOSE,\n    EV_RECV_ACK,\n    EV_RECV_FIN,\n    EV_TIMEOUT\n} TcpEvent;\n\nint tcp_client_step(int state, int event)\n{\n    if (state < TCP_CLOSED || state > TCP_TIME_WAIT) {\n        return -1;\n    }\n    if (event < EV_CONNECT || event > EV_TIMEOUT) {\n        return -1;\n    }\n\n    switch (state) {\n    case TCP_CLOSED:\n        if (event == EV_CONNECT) {\n            return TCP_SYN_SENT;\n        }\n        break;\n    case TCP_SYN_SENT:\n        if (event == EV_RECV_SYN_ACK) {\n            return TCP_ESTABLISHED;   /* 客户端回 ACK 后连接建立 */\n        }\n        break;\n    case TCP_ESTABLISHED:\n        if (event == EV_CLOSE) {\n            return TCP_FIN_WAIT_1;    /* 发送 FIN，等待对方 ACK */\n        }\n        break;\n    case TCP_FIN_WAIT_1:\n        if (event == EV_RECV_ACK) {\n            return TCP_FIN_WAIT_2;    /* 收到 ACK，等待对方 FIN */\n        }\n        break;\n    case TCP_FIN_WAIT_2:\n        if (event == EV_RECV_FIN) {\n            return TCP_TIME_WAIT;     /* 收到 FIN，进入 TIME_WAIT */\n        }\n        break;\n    case TCP_TIME_WAIT:\n        if (event == EV_TIMEOUT) {\n            return TCP_CLOSED;        /* 等待超时后资源才被释放 */\n        }\n        break;\n    default:\n        break;\n    }\n\n    return -1;   /* 其余组合均为非法迁移 */\n}",
+      "hints": [
+        "先把 6 条合法迁移列全：CLOSED→SYN_SENT、SYN_SENT→ESTABLISHED、ESTABLISHED→FIN_WAIT_1、FIN_WAIT_1→FIN_WAIT_2、FIN_WAIT_2→TIME_WAIT、TIME_WAIT→CLOSED，其余组合返回 -1。",
+        "入参先做范围校验：state 必须落在 TCP_CLOSED ~ TCP_TIME_WAIT，event 必须落在 EV_CONNECT ~ EV_TIMEOUT。",
+        "用 switch (state) 分状态判断事件，循环外统一 return -1，避免遗漏某个非法组合。"
+      ],
+      "explanation": "本题把 TCP 客户端的状态迁移写成可测试的判定逻辑，覆盖三次握手与四次挥手在客户端侧的关键状态。三个要点：一是区分 FIN_WAIT_1 与 FIN_WAIT_2——前者是发出 FIN 后等对方的 ACK，后者是收到 ACK 后等对方的 FIN，把两者混为一谈就会在“半关闭”阶段误判连接已释放（对端仍可能继续发数据）；二是 TIME_WAIT 必须由超时事件驱动才回到 CLOSED，素材特别说明处在 TIME_WAIT 状态的客户端“允许重新发送 ACK 到服务器为了防止信息丢失”，若收到 FIN 就立即关闭，一旦最后的 ACK 丢失，服务器会一直重传 FIN，这也是嵌入式设备频繁短连接时最容易踩的坑——以为 close() 之后端口立刻可复用，结果本地端口被 TIME_WAIT 占满；三是所有未定义的组合（如 CLOSED 收到 FIN、ESTABLISHED 收到 ACK）都返回 -1，让上层能发现事件源或协议栈异常，而不是静默迁移到错误状态。素材还提到服务器收到 FIN 后先回 ACK、之后才发自己的 FIN，这正是挥手需要四次而不是三次的原因。",
+      "sourceRef": "面试题与面经/计算机网络原理面试题.md#19.TCP 三次握手和四次挥手",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    }
+  ]
+}

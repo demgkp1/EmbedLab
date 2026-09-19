@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "1.0.0",
+  "chapterId": "stage5_adc_sensor",
+  "chapterNo": 13,
+  "chapterTitle": "13. ADC、DAC 与传感器",
+  "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+  "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn",
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "extractedAt": "2026-09-13",
+  "exercises": [
+    {
+      "id": "ex-ch13-001",
+      "chapterId": "stage5_adc_sensor",
+      "chapterNo": 13,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材在模拟接口部分写道：ADC\"将模拟信号（如电压、电流）转换为数字值\"，\"精度通常为 10~16 位（如 STM32 的 12 位 ADC，分辨率 4096 级）\"。关于\"12 位 ADC / 4096 级\"，下列理解正确的是？",
+      "options": [
+        { "key": "A", "text": "12 位表示转换结果有 2^12 = 4096 个编码，编码越多则相邻编码对应的电压差越小、分辨率越高" },
+        { "key": "B", "text": "12 位表示该 ADC 最多只能测量 12 种不同的电压" },
+        { "key": "C", "text": "12 位决定的是量程上限，位数越高可以输入的电压越高" },
+        { "key": "D", "text": "4096 级表示采样率最高为 4096 次/秒" }
+      ],
+      "answer": "A",
+      "explanation": "转换结果用二进制编码表示，12 位对应 2^12 = 4096 个编码（0~4095），把整个参考量程切成 4096 份，相邻编码之间的电压差就是量化步长，因此位数越多步长越小、分辨率越高——这也解释了素材\"精度通常为 10~16 位\"的区间含义。B 把\"编码数\"误当成\"可测电压个数\"，实际可分辨的电压档位远多于 12；C 把分辨率与量程混淆，量程由参考电压决定、与位数无关；D 把编码数与采样率混为一谈，采样率取决于采样时间与转换时钟配置，与位数没有换算关系。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#3. 模拟接口",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch13-002",
+      "chapterId": "stage5_adc_sensor",
+      "chapterNo": 13,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "接着上题：某 12 位 ADC 的参考量程为 3.3V，共 4096 个编码。它能把两路输入区分开的最小电压差最接近下列哪个值？",
+      "options": [
+        { "key": "A", "text": "约 0.8mV（3.3V ÷ 4096）" },
+        { "key": "B", "text": "约 12V（3.3V × 12 ÷ 3.3 之类的位数放大）" },
+        { "key": "C", "text": "约 3.3V，即与量程相同" },
+        { "key": "D", "text": "约 0.8V（3.3V ÷ 4，因为 12 位每 3 位进一位）" }
+      ],
+      "answer": "A",
+      "explanation": "分辨率即量化步长，等于参考量程除以编码总数：3.3V ÷ 4096 ≈ 0.806mV，这就是理论上能分辨的最小电压差。B 把位数当成了放大倍数，位数只决定编码数量、不会放大电压；C 把步长与整量程混为一谈，能分辨 3.3V 的差别相当于完全没有分辨能力；D 用\"每 3 位进一位\"这种想当然的换算得到 0.8V，恰好差了三个数量级，正确算法只有一种——量程除以 2 的位数次方。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#3. 模拟接口",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch13-003",
+      "chapterId": "stage5_adc_sensor",
+      "chapterNo": 13,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材把 ADC 描述为\"将模拟信号（如电压、电流）转换为数字值\"，把 DAC 描述为\"将数字值转换为模拟电压输出（如音频信号生成）\"。某节点既要采集电位器的电压，又要驱动一路模拟音频输出，下列判断正确的是？",
+      "options": [
+        { "key": "A", "text": "采集电位器需要 ADC：把连续变化的电压量化为数字值供 CPU 处理；音频输出需要 DAC：把数字音频样本还原成连续变化的模拟电压" },
+        { "key": "B", "text": "采集电位器需要 DAC，音频输出需要 ADC，两者方向相反" },
+        { "key": "C", "text": "两者用同一类器件即可，因为 ADC 与 DAC 都是模拟接口、方向可以自动切换" },
+        { "key": "D", "text": "采集电位器既不需要 ADC 也不需要 DAC，直接读 GPIO 的数字电平即可获得电压值" }
+      ],
+      "answer": "A",
+      "explanation": "按素材的定义，转换方向是区分二者的唯一标准：模拟→数字是 ADC，用于把电位器这类连续电压变成可计算的数字量；数字→模拟是 DAC，用于把音频样本还原成模拟波形。B 恰好把两个方向对调，是初学阶段最常见的混淆；C 抹掉了方向性——转换方向由器件结构决定，不能靠软件自动切换；D 混淆了 GPIO 与模拟接口：GPIO 只能读到高/低两个数字状态，得不到连续的电压数值，这也正是素材把 ADC 单列为\"模拟接口\"的原因。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#3. 模拟接口",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch13-004",
+      "chapterId": "stage5_adc_sensor",
+      "chapterNo": 13,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材的 ADC 采样时间配置写道：\"采样时间越长，转换结果越精确，但转换速度越慢\"，示例给出 STM32F4 可配置为 3、15、28、56、84、112、144、480 周期；面试高频问题进一步解释\"采样时间越长，对信号的积分效果越好，抗干扰能力越强，精度越高\"。某设计逐通道扫描电位器（信号变化缓慢）与高频振动信号，下列策略最合理的是？",
+      "options": [
+        { "key": "A", "text": "慢速的电位器通道用较长的采样时间以换取精度与抗干扰，高频振动通道用较短的采样时间以保证采样率，并按扫描速率核对总转换时间" },
+        { "key": "B", "text": "所有通道一律取最长采样时间（480 周期），既最精确又不影响任何指标" },
+        { "key": "C", "text": "所有通道一律取最短采样时间（3 周期），速度最快且不影响精度" },
+        { "key": "D", "text": "采样时间只影响功耗，不影响精度与速度，可以随便配置" }
+      ],
+      "answer": "A",
+      "explanation": "素材明确给出采样时间与\"精度/抗干扰\"和\"速度\"之间的权衡，因此合理做法是按信号特征分配：缓慢变化的电位器可以承受长采样时间，用它换取更高精度与更强抗干扰；高频振动信号必须保住采样率，只能压缩采样时间。B 忽略了下半句\"转换速度越慢\"——多通道扫描时单通道时间被拉长会直接限制整轮扫描速率，对高频信号就是欠采样；C 只取速度而放弃了长采样时间带来的精度与抗干扰收益；D 与素材给出的两条表述都冲突，采样时间的主要作用不是功耗。",
+      "sourceRef": "03-驱动开发与外设编程/README.md#六、面试高频问题",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch13-005",
+      "chapterId": "stage5_adc_sensor",
+      "chapterNo": 13,
+      "type": "code",
+      "difficulty": "advanced",
+      "question": "素材把传感器的接口方式分为两类：\"数字接口：I2C（如 SHT30）、SPI（如 ADXL345）\"与\"模拟接口：输出电压值，需通过 MCU 的 ADC 转换（如模拟光照传感器）\"；并给出\"12 位 ADC，分辨率 4096 级\"。请为模拟接口传感器实现**滑窗均值 + 电压换算**函数：\n\n1. 对最近 `window` 个采样值做**算术平均**（整数除法，向下取整）；\n2. 把平均值换算为微伏：`平均值 × (参考电压微伏 / 4096)`；\n3. 参考电压可选 `VREF_3300MV` / `VREF_5000MV` / `VREF_2500MV`；\n4. 返回码：`0` 成功；`-1` 入参非法（空指针、`window <= 0`、`window > count`）；`-2` 参与平均的采样值超出 12 位量程（大于 4095）；`-3` 参考电压取值未知。\n\n失败时同样要把 `*out_uv` 置为 `0`。",
+      "language": "c",
+      "starterCode": "#include <stdint.h>\n#include <stddef.h>\n\n#define VREF_3300MV 0\n#define VREF_5000MV 1\n#define VREF_2500MV 2\n\n/*\n * 对模拟传感器采样序列做滑窗均值并换算为微伏。\n * samples  : 原始采样值序列，来自 12 位 ADC，合法范围 0~4095\n * count    : 序列长度\n * window   : 参与平均的采样点个数\n * vref     : 参考电压选择（VREF_3300MV / VREF_5000MV / VREF_2500MV）\n * out_uv   : 出参，换算得到的微伏值\n * 返回     : 0 成功；-1 入参非法；-2 采样值超出 12 位量程；-3 参考电压未知\n */\nint adc_window_to_uv(const uint16_t *samples, int count, int window,\n                     int vref, uint32_t *out_uv)\n{\n    /* TODO: 先清出参并校验入参，再累加求均值，最后做量程换算 */\n    return -1;\n}",
+      "expectedOutput": "对最近 `window` 个采样值求整数平均后换算为微伏写入 `*out_uv` 并返回 0；入参非法返回 -1、采样值越界返回 -2、参考电压未知返回 -3，三种失败情形下 `*out_uv` 均为 0。",
+      "testCases": [
+        { "input": "samples = {1000, 2000, 3000, 2184}, count = 4, window = 4, vref = VREF_3300MV", "expectedOutput": "返回 0，*out_uv = 1648828（均值 2046，2046 × 3300000 ÷ 4096 = 1648828.125 向下取整）" },
+        { "input": "samples = {0, 4095}, count = 2, window = 2, vref = VREF_5000MV", "expectedOutput": "返回 0，*out_uv = 2498779（均值 2047，2047 × 5000000 ÷ 4096 = 2498779.29 向下取整）" },
+        { "input": "samples = {100, 200, 300}, count = 3, window = 5, vref = VREF_3300MV", "expectedOutput": "返回 -1，*out_uv = 0（window 大于实际采样点数）" },
+        { "input": "samples = {100, 4096}, count = 2, window = 2, vref = VREF_3300MV", "expectedOutput": "返回 -2，*out_uv = 0（4096 超出 12 位量程）" },
+        { "input": "samples = {1000, 1000}, count = 2, window = 2, vref = 7", "expectedOutput": "返回 -3，*out_uv = 0（参考电压取值未知）" }
+      ],
+      "solutionCode": "#include <stdint.h>\n#include <stddef.h>\n\n#define VREF_3300MV 0\n#define VREF_5000MV 1\n#define VREF_2500MV 2\n\n#define ADC_12BIT_LEVELS 4096u\n\nstatic int vref_to_uv(int vref, uint32_t *uv)\n{\n    switch (vref) {\n    case VREF_3300MV: *uv = 3300000u; return 0;\n    case VREF_5000MV: *uv = 5000000u; return 0;\n    case VREF_2500MV: *uv = 2500000u; return 0;\n    default: return -1;\n    }\n}\n\nint adc_window_to_uv(const uint16_t *samples, int count, int window,\n                     int vref, uint32_t *out_uv)\n{\n    if (out_uv != NULL) {\n        *out_uv = 0;\n    }\n    if (samples == NULL || out_uv == NULL || count <= 0 || window <= 0 || window > count) {\n        return -1;\n    }\n\n    for (int i = 0; i < window; i++) {\n        if ((int)samples[i] < 0 || (int)samples[i] > 4095) {\n            return -2;\n        }\n    }\n\n    uint32_t vref_uv = 0;\n    if (vref_to_uv(vref, &vref_uv) != 0) {\n        return -3;\n    }\n\n    uint32_t sum = 0;\n    for (int i = 0; i < window; i++) {\n        sum += (uint32_t)samples[i];\n    }\n    uint32_t avg = sum / (uint32_t)window;\n\n    *out_uv = (uint32_t)(((uint64_t)avg * (uint64_t)vref_uv) / ADC_12BIT_LEVELS);\n    return 0;\n}",
+      "hints": [
+        "先用一个 `switch` 把参考电压换成微伏常量（3300000 / 5000000 / 2500000），避免在计算公式里塞魔法数字。",
+        "采样值越界要在进入计算之前就拦掉：12 位 ADC 的合法编码是 0~4095，超过 4095 的读数（例如接线错误读到量程外的码值）必须先判为错误，否则会算出虚高的电压。",
+        "换算时先转成 64 位再乘：`avg` 最大 4095、参考电压最大 5000000，直接相乘会溢出 32 位；三类失败要给出不同返回码（入参 / 采样值越界 / 参考电压未知），并在入口就把 `*out_uv` 清零。"
+      ],
+      "explanation": "本题把\"模拟接口传感器需要经 ADC 转换\"落地为数字接口之外最常见的一段信号处理：滑窗均值抑制随机噪声，再按\"量程 ÷ 2^位数\"把编码还原成电压。实现要点：① 12 位 ADC 的编码空间是 4096，换算分母固定为 4096 而不是 4095，与素材\"分辨率 4096 级\"的表述一致；② 参考电压用查表换算成微伏，避免浮点，也便于在无 FPU 的 MCU 上运行；③ 乘法必须提升到 64 位，`avg × 5000000` 在 32 位下会溢出；④ 采样值越界要显式拦截：`samples` 是 `uint16_t`，看似不可能为负，但把 4096 及以上（例如接线错误读到满量程外的码值）当正常值参与平均会得到虚高的电压读数；⑤ 三类失败用不同返回码，便于现场判断是配置错、硬件接线错还是参数写错。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#2. 接口方式",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    }
+  ]
+}

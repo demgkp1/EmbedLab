@@ -1,0 +1,180 @@
+{
+  "schemaVersion": "1.0.0",
+  "chapterId": "stage7_bootloader",
+  "chapterNo": 22,
+  "chapterTitle": "22. Bootloader",
+  "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+  "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn",
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "extractedAt": "2026-09-13",
+  "exercises": [
+    {
+      "id": "ex-ch22-001",
+      "chapterId": "stage7_bootloader",
+      "chapterNo": 22,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材给出向量表的定义：`const ISR_Handler vector_table[] __attribute__((section(\".isr_vector\"))) = { (ISR_Handler)&_estack, Reset_Handler, NMI_Handler, HardFault_Handler, ... };`，并说明向量表是「处理器在启动时用来获取异常/中断服务函数入口地址的数组」。关于这张表，下列哪项描述正确？",
+      "options": [
+        {
+          "key": "A",
+          "text": "表中每一项都是一个函数指针；第一项存放初始栈顶指针 `_estack`，第二项才是复位处理函数 `Reset_Handler`"
+        },
+        {
+          "key": "B",
+          "text": "第一项是 `Reset_Handler`，第二项是初始栈顶指针 `_estack`"
+        },
+        {
+          "key": "C",
+          "text": "表中存放的是各中断服务函数自身的机器码，而不是它们的入口地址"
+        },
+        {
+          "key": "D",
+          "text": "向量表只能位于 RAM，因为异常发生时要就地修改表项"
+        }
+      ],
+      "answer": "A",
+      "explanation": "素材明确「每个项为一个函数指针」，并在数组初始化中依次给出 `(ISR_Handler)&_estack`（初始栈顶指针）、`Reset_Handler`（复位）、`NMI_Handler`、`HardFault_Handler` 等。B 把前两项对调，这是最常见的记忆错误——复位时处理器先从表首取出初始栈顶装入 SP，再取第二项作为复位入口。C 混淆了入口地址与指令本身：表里只放地址，机器码在别处的代码段。D 与素材不符，向量表「通常放在 Flash 起始地址（如 `0x0800 0000`）或 RAM 中」，运行时修改只是可选的用法之一，并非只能在 RAM。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#向量表的定义与重定向",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch22-002",
+      "chapterId": "stage7_bootloader",
+      "chapterNo": 22,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材把 U-Boot 描述为「二阶段：SPL（初始化内存）+ U-Boot 本体」，给出的通用启动流程是 `Power On → BootROM → Bootloader (SPL/U-Boot) → Load & Decompress Kernel → ...`。据此，SPL 的定位是？",
+      "options": [
+        {
+          "key": "A",
+          "text": "位于 BootROM 之后、U-Boot 本体之前，先建立内存等最小运行环境，为加载完整的 U-Boot 做准备"
+        },
+        {
+          "key": "B",
+          "text": "位于 U-Boot 本体之后，负责挂载根文件系统并启动 init"
+        },
+        {
+          "key": "C",
+          "text": "是内核的一部分，负责解压 `zImage` 并把控制权交给设备树"
+        },
+        {
+          "key": "D",
+          "text": "是 BootROM 的别名，二者只是不同厂商的叫法"
+        }
+      ],
+      "answer": "A",
+      "explanation": "素材把 U-Boot 拆成两个阶段：SPL「初始化内存」，之后才是功能完整的 U-Boot 本体（提供串口输出、TFTP 下载、引导内核、环境变量配置等），启动流程中 Bootloader 也标注为 `(SPL/U-Boot)`，因此 SPL 位于 BootROM 之后、本体之前。B 把 SPL 排到本体之后，还让它承担内核启动完成后的挂载 RootFS 与启动 init，超出了 Bootloader 的职责。C 把 SPL 与内核混为一谈：解压内核属于「Load & Decompress Kernel」这一步，由 U-Boot 本体（如 `bootz`）引导。D 忽略了两者来源不同——BootROM 是芯片固化的引导代码，SPL 属于可烧写的 Bootloader 的一部分。",
+      "sourceRef": "05-EmbeddedLinux/README.md#📌 U-Boot（主流 Bootloader）",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch22-003",
+      "chapterId": "stage7_bootloader",
+      "chapterNo": 22,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材给出的向量表重定向方法之二是通过 `SCB->VTOR = (uint32_t)my_vector_table;` 更改向量表地址，并提示「新表地址必须对齐 0x100（最低 8 位为 0）」。下列哪个地址可以直接写入 `SCB->VTOR`？",
+      "options": [
+        {
+          "key": "A",
+          "text": "`0x08010200`"
+        },
+        {
+          "key": "B",
+          "text": "`0x08010240`"
+        },
+        {
+          "key": "C",
+          "text": "`0x08010280`"
+        },
+        {
+          "key": "D",
+          "text": "`0x08010210`"
+        }
+      ],
+      "answer": "A",
+      "explanation": "对齐 `0x100` 意味着地址的最低 8 位必须全为 0，也就是末两位十六进制数字为 `00`。四个选项中只有 `0x08010200` 的末字节是 `0x00`。`0x08010240`（末字节 `0x40`）、`0x08010280`（`0x80`）、`0x08010210`（`0x10`）虽然都是 16 的整数倍，看上去「对齐了」，但低 8 位不为 0：若以此作为向量表基址，处理器取第 n 个向量时算出的地址会落到表的中间甚至表外。这类重定向的典型场景正是素材列出的「Bootloader 跳转到 App 时的向量表切换」以及启动阶段把向量表从 Flash 重定向到 RAM。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#向量表的定义与重定向",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch22-004",
+      "chapterId": "stage7_bootloader",
+      "chapterNo": 22,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材用表格对比 ROM 启动与 RAM 启动：程序位置分别为「编译链接到 Flash 区域」与「编译链接到 RAM 区域」，向量表位置分别为「默认在 Flash」与「需手动配置向量表并设置 `SCB->VTOR`」，应用场景分别为「量产版本、正常运行」与「Bootloader、自举加载、调试」。下列哪项与素材一致？",
+      "options": [
+        {
+          "key": "A",
+          "text": "RAM 启动时程序被链接到 RAM 区域，向量表需手动配置并用 `SCB->VTOR` 指定，常见于 Bootloader、自举加载与调试"
+        },
+        {
+          "key": "B",
+          "text": "ROM 启动时向量表默认在 RAM 中，因此必须额外设置 `SCB->VTOR` 才能启动"
+        },
+        {
+          "key": "C",
+          "text": "RAM 启动不需要向量表，因为放在 RAM 中的代码不必响应中断"
+        },
+        {
+          "key": "D",
+          "text": "两种启动方式的链接脚本完全一致，区别只在于用 ST-Link 还是 J-Link 烧录"
+        }
+      ],
+      "answer": "A",
+      "explanation": "素材的对比表把 ROM 启动描述为「程序位置：编译链接到 Flash 区域 / 向量表位置：默认在 Flash / 应用场景：量产版本、正常运行」，RAM 启动则是「编译链接到 RAM 区域 / 需手动配置向量表并设置 `SCB->VTOR` / Bootloader、自举加载、调试」，A 与之一致。B 把两种方式的向量表行为对调了：ROM 启动因向量表本来就在 Flash 起始处而不需要重定向。C 误解了 RAM 启动——中断照样会发生，正因为向量表不在默认位置才必须用 `SCB->VTOR` 指过去；素材也说明 RAM 启动前通常要把一段程序拷贝到 RAM（由 Boot ROM、调试器或引导代码完成）。D 忽略了链接脚本必须改：素材给出的示例就是 ROM 启动用 `FLASH (rx) : ORIGIN = 0x08000000`，RAM 启动改用 `RAM (rwx) : ORIGIN = 0x20000000`。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#ROM 启动 vs RAM 启动的差异",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch22-005",
+      "chapterId": "stage7_bootloader",
+      "chapterNo": 22,
+      "type": "code",
+      "difficulty": "advanced",
+      "question": "素材指出向量表「每个项为一个函数指针」，第一项是初始栈顶指针、第二项是 `Reset_Handler`；Bootloader 跳转到 App 时用 `SCB->VTOR` 切换向量表，且「新表地址必须对齐 0x100（最低 8 位为 0）」；ROM 启动时向量表默认在 Flash，RAM 启动时需另行配置。请实现跳转前的**向量表校验**函数：\n\n- `table_addr` 必须 0x100 对齐（最低 8 位全为 0），否则返回 `1`；\n- 表首项 `table[0]`（初始栈顶指针）必须非 0 且落在闭区间 `[ram_start, ram_end]`，否则返回 `2`；\n- 第二项 `table[1]`（Reset 入口）必须非 0 且落在闭区间 `[code_start, code_end]`，否则返回 `3`；\n- 全部通过返回 `0`；`table` 或 `layout` 为 `NULL` 返回 `-1`。\n\n（代码区在 ROM 启动时是 Flash、在 RAM 启动时是 SRAM，由调用方通过 `layout` 给出，函数不写死地址。）",
+      "language": "c",
+      "starterCode": "#define VTOR_ALIGNMENT 0x100u   /* 素材：新表地址必须对齐 0x100 */\n\ntypedef struct {\n    unsigned int ram_start;   /* RAM 区间起始（含） */\n    unsigned int ram_end;     /* RAM 区间结束（含） */\n    unsigned int code_start;  /* 代码区间起始（含） */\n    unsigned int code_end;    /* 代码区间结束（含） */\n} MemLayout;\n\n/*\n * 校验向量表（table[0] = 初始栈顶指针，table[1] = Reset 入口）。\n * 返回 0 通过 / 1 表地址未对齐 / 2 栈顶指针非法 / 3 Reset 入口非法 / -1 入参为 NULL。\n */\nint check_vector_table(const unsigned int *table, unsigned int table_addr,\n                       const MemLayout *layout)\n{\n    /* TODO: 在此实现 */\n    return 0;\n}",
+      "expectedOutput": "先判 NULL，再依次校验 0x100 对齐、栈顶指针落在 RAM 区间、Reset 入口落在代码区间，分别返回 0 / 1 / 2 / 3；`table` 或 `layout` 为 NULL 返回 -1。",
+      "testCases": [
+        {
+          "input": "table = {0x20010000, 0x08000101}, table_addr = 0x08010000, layout = {RAM 0x20000000~0x2001FFFF, code 0x08000000~0x080FFFFF}",
+          "expectedOutput": "返回 0（地址 0x100 对齐，栈顶在 RAM 内、Reset 入口在代码区内）"
+        },
+        {
+          "input": "同上的表与 layout，但 table_addr = 0x08010040",
+          "expectedOutput": "返回 1（低 8 位为 0x40，未满足 0x100 对齐）"
+        },
+        {
+          "input": "table = {0x00000000, 0x08000101}（栈顶为 0）或 table = {0x20020000, 0x08000101}（刚好越过 RAM 末尾），table_addr = 0x08010000",
+          "expectedOutput": "两种情况均返回 2"
+        },
+        {
+          "input": "table = {0x20010000, 0x20000000}（Reset 入口落在 RAM 而不是代码区），table_addr = 0x08010000",
+          "expectedOutput": "返回 3"
+        },
+        {
+          "input": "table = NULL 或 layout = NULL",
+          "expectedOutput": "返回 -1"
+        }
+      ],
+      "solutionCode": "#include <stddef.h>\n#define VTOR_ALIGNMENT 0x100u\n\ntypedef struct {\n    unsigned int ram_start;\n    unsigned int ram_end;\n    unsigned int code_start;\n    unsigned int code_end;\n} MemLayout;\n\nstatic int in_range(unsigned int value, unsigned int start, unsigned int end)\n{\n    return (value >= start) && (value <= end);\n}\n\nint check_vector_table(const unsigned int *table, unsigned int table_addr,\n                       const MemLayout *layout)\n{\n    if (table == NULL || layout == NULL) {\n        return -1;\n    }\n\n    if ((table_addr & (VTOR_ALIGNMENT - 1u)) != 0u) {\n        return 1;\n    }\n\n    if (table[0] == 0u || !in_range(table[0], layout->ram_start, layout->ram_end)) {\n        return 2;\n    }\n\n    if (table[1] == 0u || !in_range(table[1], layout->code_start, layout->code_end)) {\n        return 3;\n    }\n\n    return 0;\n}",
+      "hints": [
+        "0x100 对齐等价于 `(addr & 0xFF) == 0`；写成 `VTOR_ALIGNMENT - 1` 做掩码更通用。",
+        "三项检查有先后顺序，返回值分别对应 1 / 2 / 3，不要把结果压缩成一个布尔值。",
+        "区间是闭区间，用 `>= start && <= end`；`table[0]` 与 `table[1]` 都要先判非 0 再判范围。"
+      ],
+      "explanation": "素材把两件事串在一起：向量表前两项固定是初始栈顶指针与 `Reset_Handler`；`SCB->VTOR` 重定向要求「新表地址必须对齐 0x100（最低 8 位为 0）」。Bootloader 跳转到 App 前做这些校验，可以避免 App 未烧写、被擦除或链接到了错误区域时跳进非法地址——素材在 Bootloader 开发建议里也强调要「防止电量中断、写失败后的砖机风险」。实现要点有三：错误码按检查项区分（1/2/3），便于定位是地址对齐问题还是表内容问题；先判 NULL 再解引用；栈顶与 Reset 入口都要排除 0（表项未初始化、Flash 未烧写时可能读到 0）。常见错误是用「4 字节对齐」代替 0x100 对齐，或只检查表地址而完全忽略表内容，结果跳转后取到无效的 SP 与复位入口。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#向量表的定义与重定向",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    }
+  ]
+}

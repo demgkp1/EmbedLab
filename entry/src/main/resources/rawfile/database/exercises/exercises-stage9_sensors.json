@@ -1,0 +1,180 @@
+{
+  "schemaVersion": "1.0.0",
+  "chapterId": "stage9_sensors",
+  "chapterNo": 28,
+  "chapterTitle": "28. 常见传感器",
+  "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+  "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn",
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "extractedAt": "2026-09-13",
+  "exercises": [
+    {
+      "id": "ex-ch28-001",
+      "chapterId": "stage9_sensors",
+      "chapterNo": 28,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材把传感器的接口方式分为\"数字接口\"与\"模拟接口\"两类。下列哪一项与素材给出的对应关系完全一致？",
+      "options": [
+        {
+          "key": "A",
+          "text": "数字接口：`I2C`（如 SHT30）、`SPI`（如 ADXL345）；模拟接口：传感器输出电压值，需经 MCU 的 `ADC` 转换"
+        },
+        {
+          "key": "B",
+          "text": "数字接口：`ADC`、`DAC`；模拟接口：`I2C`、`SPI`"
+        },
+        {
+          "key": "C",
+          "text": "数字接口只有 `I2C`；`SPI` 仅用于存储器，不用于传感器"
+        },
+        {
+          "key": "D",
+          "text": "模拟接口的传感器可直接输出数字量，无需 `ADC` 参与"
+        }
+      ],
+      "answer": "A",
+      "explanation": "素材\"接口方式\"一节的表述是：数字接口为 I2C（如 SHT30）、SPI（如 ADXL345）；模拟接口则\"输出电压值，需通过 MCU 的 ADC 转换\"。B 把 ADC/DAC 当成了数字接口——素材把它们放在\"模拟接口\"标题下（ADC 把模拟量转成数字值，DAC 反向），它们是信号转换环节而非数字总线；C 与素材给出的 ADXL345（走 SPI）直接冲突，SPI 是传感器的常见数字接口之一；D 把因果说反，模拟传感器输出的是连续电压，必须经 ADC 采样量化后才能被 MCU 以数字量读取。选型时的正确顺序是：先确定感知量，再确认传感器给出的是数字总线还是模拟电压。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#2. **接口方式**",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch28-002",
+      "chapterId": "stage9_sensors",
+      "chapterNo": 28,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材\"常见类型\"列出了若干传感器及各自的感知对象。下列对应关系哪一项与素材一致？",
+      "options": [
+        {
+          "key": "A",
+          "text": "`SHT30`—温湿度；`BH1750`—光照；`BMP280`—气压"
+        },
+        {
+          "key": "B",
+          "text": "`BH1750`—气压；`BMP280`—光照；`SHT30`—加速度"
+        },
+        {
+          "key": "C",
+          "text": "`MPU6050`—气压；`ADXL345`—光照；`MQ-2`—温湿度"
+        },
+        {
+          "key": "D",
+          "text": "`HC-SR501`—温湿度；`DHT22`—人体感应；`ADXL345`—气体"
+        }
+      ],
+      "answer": "A",
+      "explanation": "素材\"常见类型\"把环境传感器分为温湿度（DHT22、SHT30）、光照（BH1750）、气压（BMP280），把运动传感器分为加速度计（ADXL345，检测倾斜、振动）与陀螺仪（MPU6050，测量角速度、用于姿态解算），另外还列出气体传感器（MQ-2，检测烟雾、液化气）与红外传感器（HC-SR501，人体感应）。B 在温湿度、光照、气压三者之间整体错位；C 把运动传感器与气压、光照混搭，等于同时否定了\"气压用 BMP280\"和\"光照用 BH1750\"；D 把红外人体感应与温湿度、气体对调。做题与选型都应先锁定\"感知量\"再核对型号，避免凭型号字母联想。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#1. **常见类型**",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch28-003",
+      "chapterId": "stage9_sensors",
+      "chapterNo": 28,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材指出加速度计 `ADXL345` 用于\"检测倾斜、振动\"，陀螺仪 `MPU6050` 用于\"测量角速度，用于姿态解算\"。据此，若系统需要持续获得载体的角速度信息，应优先选用的器件及理由是？",
+      "options": [
+        {
+          "key": "A",
+          "text": "`MPU6050`：素材明确它测量角速度，正是姿态解算所需的角速度来源"
+        },
+        {
+          "key": "B",
+          "text": "`ADXL345`：它与 `MPU6050` 完全等价，两者可以互相替代"
+        },
+        {
+          "key": "C",
+          "text": "`HC-SR501`：它属于运动传感器，可直接给出角速度"
+        },
+        {
+          "key": "D",
+          "text": "`BMP280`：气压的变化率就是角速度，无需额外的运动传感器"
+        }
+      ],
+      "answer": "A",
+      "explanation": "素材把两个器件的用途写得很清楚：ADXL345 是加速度计，面向\"倾斜、振动\"这类加速度/重力相关的量；MPU6050 是陀螺仪，面向\"角速度\"，并直接服务于姿态解算。B 混淆了两种不同的物理量——加速度计输出的是加速度（静止时可反映倾角），并不直接给出角速度，因此\"互相替代\"不成立；C 把红外人体感应器 HC-SR501 误当成角速度器件，它属于\"其他\"类别而非运动传感器；D 凭空把气压计 BMP280 的用途（气压/海拔）改写成角速度，素材从未如此表述。工程上确定器件类别的正确路径是：先由\"需要什么物理量\"定位传感器类别，再在该类别里挑型号。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#1. **常见类型**",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch28-004",
+      "chapterId": "stage9_sensors",
+      "chapterNo": 28,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "某采集节点要同时挂接 3 个低速传感器，希望共用 2 根信号线；另一路数据需送到几十米外的控制柜，现场电磁干扰较强，且要求总线上任一节点都能主动发起通信。按素材给出的选型口径，这两处应分别选择？",
+      "options": [
+        {
+          "key": "A",
+          "text": "前者 `I2C`，后者 `CAN`"
+        },
+        {
+          "key": "B",
+          "text": "前者 `SPI`，后者 `UART`"
+        },
+        {
+          "key": "C",
+          "text": "前者 `UART`，后者 `I2C`"
+        },
+        {
+          "key": "D",
+          "text": "前者 `SPI`，后者 `I2C`"
+        }
+      ],
+      "answer": "A",
+      "explanation": "素材\"面试高频问题\"给出的选型口径是：短距离高速用 SPI，多设备低速用 I2C，长距离抗干扰用 CAN，广域低功耗用 LoRa/NB-IoT。多设备、低速、2 线（SCL/SDA）正对应 I2C；几十米距离、强干扰、多主模式正对应 CAN（差分信号、抗干扰强）。B 中 SPI 是 4 线（SCK/MOSI/MISO/CS）点对点结构，UART 也是点对点异步接口——素材在 06-NetworkIot 中指出 RS-232 理论距离仅 15 米，不属于长距离抗干扰方案；C、D 把 I2C 放到长距离场景，而 I2C 是半双工、标准速率 100kbps 的板级总线，素材明确其定位是\"多设备通信（如连接多个传感器）\"。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#面试高频问题",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch28-005",
+      "chapterId": "stage9_sensors",
+      "chapterNo": 28,
+      "type": "code",
+      "difficulty": "advanced",
+      "question": "素材在\"模拟接口\"中指出 ADC 的\"精度通常为10~16位（如STM32的12位ADC，分辨率4096级）\"，并说明模拟接口的传感器\"输出电压值，需通过MCU的ADC转换\"。请实现把 ADC 原始读数换算为电压（毫伏）的函数：\n\n- 换算公式：`out_mv = raw × vref_mv ÷ 2^bits`（整数除法，向下取整）；12 位时即除以 4096，与素材\"分辨率4096级\"的口径一致；\n- 分辨率范围：`bits` 必须落在素材给出的 `[10, 16]` 之内；\n- 入参非法时返回 `-1`：`out_mv` 为 `NULL`、`vref_mv == 0`、`bits` 越界、或 `raw` 超出该分辨率的满量程（`raw >= 2^bits`）；\n- 正常换算返回 `0`，结果写入 `*out_mv`。",
+      "language": "c",
+      "starterCode": "/*\n * 将 ADC 原始读数换算为毫伏。\n * raw     : ADC 原始读数\n * bits    : ADC 分辨率位数（素材：通常 10~16 位）\n * vref_mv : 参考电压（毫伏）\n * out_mv  : 换算结果输出\n * 返回 0 成功，-1 入参非法。\n */\nint adc_raw_to_millivolts(unsigned int raw, int bits, unsigned int vref_mv, unsigned int *out_mv)\n{\n    /* TODO: 先做合法性校验，再按 raw * vref_mv / 2^bits 换算 */\n    return 0;\n}",
+      "expectedOutput": "按 `out_mv = raw × vref_mv ÷ 2^bits`（向下取整）换算为毫伏；`bits` 不在 10~16、`raw` 超出满量程、`vref_mv` 为 0 或 `out_mv` 为空时返回 -1，正常返回 0。",
+      "testCases": [
+        {
+          "input": "raw = 0, bits = 12, vref_mv = 3300",
+          "expectedOutput": "返回 0，*out_mv = 0"
+        },
+        {
+          "input": "raw = 2048, bits = 12, vref_mv = 3300",
+          "expectedOutput": "返回 0，*out_mv = 1650（2048 × 3300 ÷ 4096）"
+        },
+        {
+          "input": "raw = 4095, bits = 12, vref_mv = 3300",
+          "expectedOutput": "返回 0，*out_mv = 3299（向下取整，满量程略低于参考电压）"
+        },
+        {
+          "input": "raw = 4096, bits = 12, vref_mv = 3300",
+          "expectedOutput": "返回 -1（raw 达到 4096，超出 12 位 ADC 的满量程级数）"
+        },
+        {
+          "input": "raw = 512, bits = 8, vref_mv = 3300",
+          "expectedOutput": "返回 -1（bits = 8 不在素材给出的 10~16 位范围内）"
+        }
+      ],
+      "solutionCode": "#include <stddef.h>\nint adc_raw_to_millivolts(unsigned int raw, int bits, unsigned int vref_mv, unsigned int *out_mv)\n{\n    if (out_mv == NULL) {\n        return -1;\n    }\n    if (vref_mv == 0u) {\n        return -1;\n    }\n    if (bits < 10 || bits > 16) {\n        return -1;                      /* 素材：ADC 精度通常为 10~16 位 */\n    }\n\n    unsigned int full_scale = 1u << bits;   /* 12 位 -> 4096 级 */\n    if (raw >= full_scale) {\n        return -1;                      /* 超出该分辨率的满量程读数 */\n    }\n\n    /* 用 64 位中间量，避免 raw * vref_mv 在高分辨率/高参考电压下溢出 32 位 */\n    unsigned long long mv =\n        (unsigned long long)raw * (unsigned long long)vref_mv;\n    *out_mv = (unsigned int)(mv / (unsigned long long)full_scale);\n    return 0;\n}",
+      "hints": [
+        "先把四类校验写完：`out_mv` 非空、`vref_mv` 非 0、`bits` 在 10~16、`raw < 2^bits`（12 位即 4096）。",
+        "满量程级数就是 `1u << bits`；素材用\"12 位 ADC，分辨率 4096 级\"给出了除以 4096 而不是 4095 的口径。",
+        "乘法先提升到 `unsigned long long` 再相除，否则 16 位分辨率配较高的参考电压时中间结果会溢出。"
+      ],
+      "explanation": "本题把素材的\"模拟传感器 → ADC 转换\"链路落成一个可测试的换算函数，考察三件事。（1）满量程级数的口径：素材写明\"STM32 的 12 位 ADC，分辨率 4096 级\"，因此除数是 2^bits = 4096，而不是 4095；用 4095 作除数会让所有结果整体偏大，并在满量程处得到恰好等于参考电压的读数。（2）边界防御：`raw == 4096` 已经不是 12 位 ADC 能产出的读数，必须判为非法——这正是驱动层拦截\"传感器/外设返回越界值\"的典型防御点。（3）分辨率范围校验：素材限定 ADC 精度通常为 10~16 位，越界说明调用方传错了参数，应当在换算前就拒绝。另有两个常见错误：把 `raw / full_scale * vref_mv` 写成先除后乘（整数除法会把大部分读数算成 0），以及忘记把 `raw * vref_mv` 提升到 64 位。",
+      "sourceRef": "02-嵌入式系统基础知识/README.md#3. **模拟接口**",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    }
+  ]
+}

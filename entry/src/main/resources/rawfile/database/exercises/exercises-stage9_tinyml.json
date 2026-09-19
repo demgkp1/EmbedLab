@@ -1,0 +1,180 @@
+{
+  "schemaVersion": "1.0.0",
+  "chapterId": "stage9_tinyml",
+  "chapterNo": 30,
+  "chapterTitle": "30. AI + 嵌入式 / TinyML",
+  "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+  "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn",
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "extractedAt": "2026-09-13",
+  "exercises": [
+    {
+      "id": "ex-ch30-001",
+      "chapterId": "stage9_tinyml",
+      "chapterNo": 30,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材对 `TinyML` 的定义与优势作了说明。下列哪一项与素材一致？",
+      "options": [
+        {
+          "key": "A",
+          "text": "把机器学习模型部署到资源受限的 MCU 上实现边缘智能，优势包括低延迟、低功耗、隐私保护、离线运行"
+        },
+        {
+          "key": "B",
+          "text": "把云端大模型通过高速网络下发给 MCU，优势是算力不受限"
+        },
+        {
+          "key": "C",
+          "text": "设备必须始终联网，否则模型无法完成推理"
+        },
+        {
+          "key": "D",
+          "text": "模型只能用浮点运算，因此必须配备 FPU 才能运行"
+        }
+      ],
+      "answer": "A",
+      "explanation": "素材的定义是\"将机器学习模型部署到资源受限的微控制器（MCU）上，实现边缘智能\"，并列出四项优势：低延迟（本地处理数据，无需云端交互）、低功耗（适合电池供电的物联网设备）、隐私保护（敏感数据无需上传）、离线运行（网络中断时仍能工作）。B 把\"边缘\"又推回云端，与\"无需云端交互\"直接冲突；C 与\"离线运行\"矛盾——素材特意把断网可用列为优势之一；D 与素材\"模型量化：将浮点模型转换为整数模型，减少内存占用和计算量\"矛盾，量化后以整数运算为主，这也正是模型能塞进小 MCU 的前提。",
+      "sourceRef": "09-2025_AI_on_MCU/README.md#1. **概念与优势**",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch30-002",
+      "chapterId": "stage9_tinyml",
+      "chapterNo": 30,
+      "type": "choice",
+      "difficulty": "basic",
+      "question": "素材把 TinyML 的开发流程分为四步（模型训练、模型量化、模型部署、MCU 推理）。下列顺序与素材一致的是？",
+      "options": [
+        {
+          "key": "A",
+          "text": "模型训练 → 模型量化 → 模型部署（转为 C 数组）→ MCU 推理"
+        },
+        {
+          "key": "B",
+          "text": "模型量化 → 模型训练 → MCU 推理 → 模型部署"
+        },
+        {
+          "key": "C",
+          "text": "模型部署 → 模型训练 → 模型量化 → MCU 推理"
+        },
+        {
+          "key": "D",
+          "text": "MCU 推理 → 模型量化 → 模型部署 → 模型训练"
+        }
+      ],
+      "answer": "A",
+      "explanation": "素材的四步流程为：① 在 PC 上用 TensorFlow/Keras 训练模型（示例是 MNIST 的 `Sequential` 模型）；② 用 `converter.optimizations = [tf.lite.Optimize.DEFAULT]` 做量化，把浮点模型转成整数模型；③ 用 `xxd -i model.tflite > model_data.cc` 把量化模型转成 C 数组集成进工程；④ 在 MCU 上用 TensorFlow Lite Micro 建解释器并调用 `interpreter.Invoke()` 推理。B、C、D 都把顺序打乱：量化必然发生在训练之后（没有浮点模型就无从量化），部署也必然在推理之前（模型数据要先转成 C 数组、链接进固件）。记忆锚点是\"先在 PC 上训好 → 压小 → 塞进固件 → 在 MCU 上跑\"。",
+      "sourceRef": "09-2025_AI_on_MCU/README.md#2. **开发流程**",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch30-003",
+      "chapterId": "stage9_tinyml",
+      "chapterNo": 30,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材在\"量化技术\"中区分了权重量化、激活量化与混合精度，并指出量化的目的是让浮点模型转为整数模型以\"减少内存占用和计算量\"。下列理解哪一项正确？",
+      "options": [
+        {
+          "key": "A",
+          "text": "权重量化把浮点权重转成整数（通常 8 位或更少）以降低内存占用与计算量；混合精度对关键层保留更高精度，用来平衡准确率与性能"
+        },
+        {
+          "key": "B",
+          "text": "量化把浮点权重的精度提升到更高位宽，用精度换体积"
+        },
+        {
+          "key": "C",
+          "text": "量化只影响模型文件大小，运行时仍全部按浮点算子执行"
+        },
+        {
+          "key": "D",
+          "text": "量化后的模型必须回传云端推理，MCU 只负责采集数据"
+        }
+      ],
+      "answer": "A",
+      "explanation": "素材把量化定义为\"将浮点模型转换为整数模型，减少内存占用和计算量\"，并列出三条技术：权重量化（浮点权重 → 整数，通常 8 位或更少）、激活量化（运行时把输入/输出数据转为整数）、混合精度（对关键层使用更高精度，用于\"平衡准确率和性能\"）。B 方向说反了——量化是降低位宽而非提升；C 只看到了存储收益，忽略了权重与激活都变成整数后算子也随之采用整数实现，这才是计算量下降的来源；D 与素材第 4 步\"MCU 推理\"（在 TFLite Micro 上 `interpreter.Invoke()`）直接矛盾。素材的\"部署挑战\"表还给出了配套手段：内存受限可用内存映射技术、模型分段加载；算力有限可优化算子实现、利用硬件加速指令；模型更新可设计 OTA 机制。",
+      "sourceRef": "09-2025_AI_on_MCU/README.md#1. **量化技术**",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch30-004",
+      "chapterId": "stage9_tinyml",
+      "chapterNo": 30,
+      "type": "choice",
+      "difficulty": "intermediate",
+      "question": "素材\"性能指标\"表给出三个模型在 STM32H7 上的数据：`MobileNetV1`（4.2M 参数 / 16MB 激活内存 / 70.6% / 800ms）、`TinyMLNet`（0.02M / 0.2MB / 68.2% / 5ms）、`EfficientNet-Lite0`（4M / 12MB / 75.0% / 600ms）。若目标 MCU 的可用 RAM 只有几百 KB，下列判断哪一项正确？",
+      "options": [
+        {
+          "key": "A",
+          "text": "只有 `TinyMLNet` 的激活内存在几百 KB 量级（0.2MB），代价是它的准确率 68.2% 为三者最低"
+        },
+        {
+          "key": "B",
+          "text": "`MobileNetV1` 的激活内存 16MB 是三者中最小的，最省 RAM"
+        },
+        {
+          "key": "C",
+          "text": "`EfficientNet-Lite0` 准确率最高（75.0%），应优先选它，激活内存不构成约束"
+        },
+        {
+          "key": "D",
+          "text": "三个模型的推理时间都在 10ms 以内，可以任意选择"
+        }
+      ],
+      "answer": "A",
+      "explanation": "表里的激活内存分别是 16MB、0.2MB、12MB，只有 TinyMLNet 的 0.2MB 落在\"几百 KB\"这个量级，同时它的推理时间 5ms 也是三者中最快的；但它 68.2% 的准确率低于 MobileNetV1 的 70.6% 和 EfficientNet-Lite0 的 75.0%——这就是典型的\"内存/延迟换准确率\"权衡，TinyML 选型的本质是在资源预算内找到可接受的准确率。B 把 16MB（三者中最大）说成了最小；C 忽略了 12MB 激活内存远超可用 RAM，模型根本跑不起来，准确率再高也无法兑现；D 误读了推理时间列，800ms 与 600ms 都远大于 10ms。",
+      "sourceRef": "09-2025_AI_on_MCU/README.md#3. **性能指标**",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    },
+    {
+      "id": "ex-ch30-005",
+      "chapterId": "stage9_tinyml",
+      "chapterNo": 30,
+      "type": "code",
+      "difficulty": "advanced",
+      "question": "素材的\"智能传感器处理\"案例给出两段关键代码：读取加速度计原始数据后按 `data[i] = (float)raw_data[i] / 32768.0f;` 归一化，再用 `argmax(output->data.f, output->dims->data[0])` 取得活动类别。请实现这两个函数：\n\n- `normalize_accel`：把 `short` 原始读数按素材的系数 `32768.0f` 归一化后写入 `out`，成功返回 `0`；\n- `argmax_f32`：返回数组中最大值的下标，成功时返回下标（`0` 是合法下标），并列时返回**最小下标**；\n- 两个函数在入参非法时（任一指针为 `NULL` 或 `n <= 0`）均返回 `-1`。",
+      "language": "c",
+      "starterCode": "/*\n * 把加速度计原始读数归一化到 [-1.0, 1.0)。\n * raw : 原始读数数组（长度 n）\n * n   : 元素个数\n * out : 输出数组（容量 >= n）\n * 返回 0 成功，-1 入参非法。\n */\nint normalize_accel(const short *raw, int n, float *out)\n{\n    /* TODO: 参考素材的归一化系数完成换算 */\n    return -1;\n}\n\n/*\n * 返回 values 中最大值的下标（并列时取最小下标）。\n * 返回 -1 表示入参非法。\n */\nint argmax_f32(const float *values, int n)\n{\n    /* TODO: 单趟扫描求最大值的下标 */\n    return -1;\n}",
+      "expectedOutput": "`normalize_accel` 按素材系数 `32768.0f` 做浮点归一化（`-32768` → `-1.0`，`16384` → `0.5`），成功返回 0、非法返回 -1；`argmax_f32` 返回最大值下标（并列取最小下标），非法返回 -1。",
+      "testCases": [
+        {
+          "input": "raw = {16384, 0, -32768}, n = 3",
+          "expectedOutput": "normalize_accel 返回 0，out = {0.5, 0.0, -1.0}"
+        },
+        {
+          "input": "raw = NULL, n = 3（或 n = 0）",
+          "expectedOutput": "normalize_accel 返回 -1（指针为空或长度非法）"
+        },
+        {
+          "input": "values = {0.1, 0.9, 0.3}, n = 3",
+          "expectedOutput": "argmax_f32 返回 1（0.9 最大，位于下标 1）"
+        },
+        {
+          "input": "values = {0.5, 0.5, 0.1}, n = 3",
+          "expectedOutput": "argmax_f32 返回 0（并列最大值取最小下标）"
+        },
+        {
+          "input": "values = NULL, n = 3（或 n = 0）",
+          "expectedOutput": "argmax_f32 返回 -1（指针为空或长度非法）"
+        }
+      ],
+      "solutionCode": "#include <stddef.h>\n#define ACCEL_NORM_SCALE 32768.0f\n\nint normalize_accel(const short *raw, int n, float *out)\n{\n    if (raw == NULL || out == NULL || n <= 0) {\n        return -1;\n    }\n\n    for (int i = 0; i < n; i++) {\n        /* 素材的归一化方式：先转 float 再除以 32768.0f，范围 [-1.0, 1.0) */\n        out[i] = (float)raw[i] / ACCEL_NORM_SCALE;\n    }\n    return 0;\n}\n\nint argmax_f32(const float *values, int n)\n{\n    if (values == NULL || n <= 0) {\n        return -1;\n    }\n\n    int best = 0;\n    for (int i = 1; i < n; i++) {\n        if (values[i] > values[best]) {   /* 严格大于 => 并列时保留最小下标 */\n            best = i;\n        }\n    }\n    return best;\n}",
+      "hints": [
+        "归一化系数就用素材写死的 `32768.0f`（int16 的满量程）；注意先转 `float` 再除，否则整数除法会把绝大多数读数算成 0。",
+        "`argmax` 单趟扫描即可：用严格大于比较 `values[i] > values[best]`，并列时自然保留最先出现的下标。",
+        "两个函数都要先挡非法入参（指针为空或 `n <= 0` 返回 -1）；`argmax` 的合法返回值包含 0，所以错误码只能用 -1 这种不可能的下标。"
+      ],
+      "explanation": "本题取自素材\"AI + 外设驱动融合案例\"中活动识别的两段核心代码：先把加速度计 `int16_t` 原始读数归一化（`(float)raw_data[i] / 32768.0f`），再对模型输出张量做 `argmax` 得到活动类别下标。四个要点：（1）归一化必须在浮点域完成——`raw[i] / 32768` 若按整数运算，±32767 全部被截断为 0，模型输入恒为零向量，这是定点/浮点混用最经典的坑；（2）除数是 32768 而不是 32767，使 `-32768` 恰好映射到 `-1.0`、正满量程略小于 `1.0`，取值范围落在 `[-1, 1)`，与素材给出的系数一致；（3）`argmax` 用严格大于比较，保证并列时返回最小下标，使同一输入永远得到同一类别，避免端侧推理结果在相邻类别间抖动；（4）边界防御——空指针与 `n <= 0` 一律返回 -1，而 `argmax` 的合法结果包含 0，因此错误码只能取不可能出现的下标值。素材的\"预测性维护\"案例（振动数据做 FFT 后用模型识别故障）同样以这两步作为输入预处理与输出解码的基础。",
+      "sourceRef": "09-2025_AI_on_MCU/README.md#1. **智能传感器处理**",
+      "source": "0voice/EmbeddedSoftwareLearn (CC BY-NC-SA 4.0)",
+      "sourceUrl": "https://github.com/0voice/EmbeddedSoftwareLearn"
+    }
+  ]
+}

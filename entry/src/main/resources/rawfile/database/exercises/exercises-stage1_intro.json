@@ -101,7 +101,7 @@
         { "input": "samples = {30, 30}, n = 2, threshold = 30", "expectedOutput": "返回 0，*first_index = -1（等于阈值不算超阈值）" },
         { "input": "samples = NULL, n = 0, threshold = 30", "expectedOutput": "返回 0，*first_index = -1" }
       ],
-      "solutionCode": "int count_over_threshold(const int *samples, int n, int threshold, int *first_index)\n{\n    int count = 0;\n\n    if (first_index != NULL) {\n        *first_index = -1;\n    }\n    if (samples == NULL || n <= 0) {\n        return 0;\n    }\n\n    for (int i = 0; i < n; i++) {\n        if (samples[i] > threshold) {\n            if (count == 0 && first_index != NULL) {\n                *first_index = i;\n            }\n            count++;\n        }\n    }\n    return count;\n}",
+      "solutionCode": "#include <stddef.h>\nint count_over_threshold(const int *samples, int n, int threshold, int *first_index)\n{\n    int count = 0;\n\n    if (first_index != NULL) {\n        *first_index = -1;\n    }\n    if (samples == NULL || n <= 0) {\n        return 0;\n    }\n\n    for (int i = 0; i < n; i++) {\n        if (samples[i] > threshold) {\n            if (count == 0 && first_index != NULL) {\n                *first_index = i;\n            }\n            count++;\n        }\n    }\n    return count;\n}",
       "hints": [
         "先做入参防御：空指针与 n<=0 必须直接返回，避免解引用空指针。",
         "出参 first_index 要在一开始就写 -1，保证\"无超阈值\"时也有确定值。",
