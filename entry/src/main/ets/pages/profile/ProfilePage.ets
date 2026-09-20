@@ -41,10 +41,16 @@ const PROFILE_TAB_INDEX: number = 2;
  * 布局：标题与两项指标整体水平居中（承接 Profile-R1 方案 C），内边距 / 圆角 /
  *      配色与初版一致。
  *
- * ⚠️ 维护约束（踩坑登记，详见 BACKLOG「带参 @Builder 不跟随状态变化」条）：
- *      本组件内**严禁**用带参 @Builder（如 `overviewMetric(label, value, ...)`）
- *      渲染需要跟随状态变化的数值 —— 实测其**参数虽已更新，builder 体不会以
- *      新参数重新执行**，界面将停留在旧值。数值必须**内联直读 @Prop**。
+ * 实现说明（本组件现状，非工程级禁令）：
+ *      本组件**已弃用**带参 @Builder 渲染数值（原 `overviewMetric(label, value,
+ *      accent)` 已删除），改为**内联直读 @Prop**。这是本组件当前的实现选择，
+ *      不代表"带参 @Builder 一律不可用"。
+ * 证据等级：本轮修复**同时移除两层**（带参 `overviewMetric` + 无参 `overviewCard`
+ *      的调用位置），**归因未隔离**。
+ * 已知边界例：`FavoritesPage.ets:133` / `HistoryPage.ets:133` 的
+ *      `itemRow(item)` 为带参 @Builder 且渲染动态数据、工作正常。
+ *      （其调用点在 `ForEach` 内为**推断**，未做对照实验。）
+ * 结论仅为"当前最合理解释"，适用边界见 `docs/BACKLOG.md` P1 第 1 条。
  */
 @Component
 struct ProfileOverviewCard {

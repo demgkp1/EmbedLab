@@ -37,25 +37,40 @@ Last Update: 2026-09-17
 
 ## P1（阻塞后续开发）
 
-- [ ] **【踩坑登记】带参 @Builder 的参数更新不驱动其 builder 体重执行** ⚠️ 高价值
+- [ ] **【踩坑登记】@Builder 产出节点在特定调用点下可能不随状态重建（归因未隔离）** ⚠️ 证据等级：单一现象 + 未隔离归因
       现象（已由模拟机读数实证）：以
             `@Builder overviewMetric(label: string, value: string, accent: string)`
-            渲染随状态变化的数值时，**参数值已更新、调用点也已重执行，
-            但 builder 体不会以新参数重新渲染** —— 界面停留在旧值。
+            渲染随状态变化的数值时，参数值已更新、调用点也已重执行，
+            但该 builder 产出的数字停留在首次渲染值。
       实证链（Profile-Overview 系列第 4 轮，四层读数同时上屏）：
             父页 `store` / `viewModel` / `@State` / 子组件 `@Prop` **四层数值
-            全部正确更新**（6/13 → 7/14），唯独该 @Builder 产出的数字不变；
+            全部正确更新**（6/13 → 7/14），唯独经该 @Builder 产出的卡片数字不变；
             而直接内联在 build() 中的诊断文本是会更新的。
-      正确做法：需要跟随状态变化的数值必须**内联直读**（`Text(\`${this.prop}\`)`），
-            **不得经带参 @Builder 中转**。
-      已修复点：`ProfilePage.ProfileOverviewCard`（原经 `overviewMetric` 中转，
-            已改为内联；组件文档注释已加维护约束）。
-      ⚠️ 待排查：工程内仍有其它带参 `@Builder`，若其用于渲染状态数值则有同样风险：
+      ⚠️ **结论措辞：当前最合理解释，非绝对定理。**
+            本次修复**同时移除两层**（带参 `overviewMetric` + 无参 `overviewCard`
+            的调用位置），**两层未做隔离实验** —— 故**不得**据此断言
+            "带参 @Builder 一律不可用"。
+      ⚠️ **已知边界例**：
+            · `FavoritesPage.ets:133` / `HistoryPage.ets:133` 的
+              `itemRow(item: KnowledgeMetadata)` —— 同为带参 @Builder 且在渲染
+              动态数据，**工作正常**（调用点在 `ForEach` 内为推断，未对照验证）。
+      适用边界（猜测，未做对照实验）：仅在「调用点位置固定、且产出依赖一个
+            只在参数中传递的值」的情形下被观察到；`ForEach` 内重建的场景
+            **未观察到**该现象。
+      本工程当前做法：需要跟随状态变化的数值**内联直读**（Text(`${this.prop}`)），
+            **不经 @Builder 中转** —— 这是已验证有效的**实现选择**，
+            不是工程级禁令。
+      已应用点：`ProfilePage.ProfileOverviewCard`（原经 `overviewMetric` 中转，
+            已改为内联；组件文档注释已同步标注证据等级）。
+      ⚠️ 待排查（建议独立卡，卡 C）：工程内其余带参 `@Builder` 需按
+            "其产出是否承载动态数值 + 调用点是否重建"逐一判断，而非按"是否带参"：
             · `ProfilePage.entryRow(glyph, label, routeName)` —— 参数为常量，**风险低**
+            · `KnowledgeDetailPage.blockXxx`（`:344/355/372/422/436`）—— 调用点在
+              `:267` 的 `ForEach` 内，渲染不可变内容资产，**风险低**
             · `LearnPage.stateHint(title, description)` / `errorState` —— 参数为文案常量
             · `HomePage.sectionEmptyHint(message)` —— 参数为文案常量
-            建议独立卡复核「带参 @Builder 是否承载动态数值」。
-      来源：Profile-Overview-Fix3 之后的自查插桩（模拟机截图四层读数）。
+      来源：Profile-Overview-Fix3 之后的自查插桩（模拟机截图四层读数）；
+            边界例于 v1.7.1-mvp 交接审计中补入。
 
 - [ ] **@Observed 无 @ObjectLink 配套（状态管理范式问题，非本次 bug 根因）**
       ⚠️ **本条于本轮据实修正**：原登记曾把它列为概览卡不刷新的根因，
@@ -175,6 +190,12 @@ Last Update: 2026-09-17
       建议：独立卡处理，需评估对现有 4 处 `@Watch` 消费者
             （ProfilePage / FavoritesPage / HistoryPage / HomePage）的影响面。
       来源：Profile-Overview-Fix-Explore 第一段证据 4 与根因候选 3。
+- [ ] **归档文件 DSH_Init_Handover.md 存在一条 [待核实] 答复错误**
+      该文档 §6.1 表格将 `RootTabContainer.tabBarBuilder` 标为 `[待核实]`；
+      继承核验时 DSH 曾答"风险低，可结案"，**该答复为误** —— 不应结案，
+      因该条从未被观测、且属循环论证（用"应用显然能用"反推结论）。
+      归档文件不改，纠正记录于此。
+      来源：Profile-Attribution-Correction 卡 A 二次修正。
 
 ---
 
