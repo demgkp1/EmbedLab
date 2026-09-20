@@ -37,7 +37,74 @@ Last Update: 2026-09-17
 
 ## P1（阻塞后续开发）
 
-当前无 P1 项。
+- [ ] **【踩坑登记】带参 @Builder 的参数更新不驱动其 builder 体重执行** ⚠️ 高价值
+      现象（已由模拟机读数实证）：以
+            `@Builder overviewMetric(label: string, value: string, accent: string)`
+            渲染随状态变化的数值时，**参数值已更新、调用点也已重执行，
+            但 builder 体不会以新参数重新渲染** —— 界面停留在旧值。
+      实证链（Profile-Overview 系列第 4 轮，四层读数同时上屏）：
+            父页 `store` / `viewModel` / `@State` / 子组件 `@Prop` **四层数值
+            全部正确更新**（6/13 → 7/14），唯独该 @Builder 产出的数字不变；
+            而直接内联在 build() 中的诊断文本是会更新的。
+      正确做法：需要跟随状态变化的数值必须**内联直读**（`Text(\`${this.prop}\`)`），
+            **不得经带参 @Builder 中转**。
+      已修复点：`ProfilePage.ProfileOverviewCard`（原经 `overviewMetric` 中转，
+            已改为内联；组件文档注释已加维护约束）。
+      ⚠️ 待排查：工程内仍有其它带参 `@Builder`，若其用于渲染状态数值则有同样风险：
+            · `ProfilePage.entryRow(glyph, label, routeName)` —— 参数为常量，**风险低**
+            · `LearnPage.stateHint(title, description)` / `errorState` —— 参数为文案常量
+            · `HomePage.sectionEmptyHint(message)` —— 参数为文案常量
+            建议独立卡复核「带参 @Builder 是否承载动态数值」。
+      来源：Profile-Overview-Fix3 之后的自查插桩（模拟机截图四层读数）。
+
+- [ ] **@Observed 无 @ObjectLink 配套（状态管理范式问题，非本次 bug 根因）**
+      ⚠️ **本条于本轮据实修正**：原登记曾把它列为概览卡不刷新的根因，
+            经四层读数插桩证实 **该判断有误**（四层数值均正确更新）。
+            本条作为**既有范式问题**保留，但降级为"待评估"。
+      现象：全工程 4 个 ViewModel 均标注 `@Observed`
+            （`ProfileViewModel` / `HomeViewModel` / `LearnViewModel` /
+            `KnowledgeDetailViewModel`），但**全工程 `@ObjectLink` 零使用**。
+            状态管理 V1 官方文档明确：`@Observed` 与 `@ObjectLink`
+            须配套使用，单独标注 `@Observed` 不产生深层观察能力。
+      影响：@State 持有的 ViewModel 实例，其内部字段的重新赋值理论上游离于
+            渲染依赖之外；本工程现以「页内 @State 基本类型快照」范式规避
+            （见 `ProfilePage.favCount` / `LearnPage.favoriteIds`），已验证有效。
+      建议：不作为紧急项；如需统一，用独立卡评估改写为 `@ObjectLink` + 子组件。
+      来源：Profile-Overview-Fix-Explore 证据 3/5/7 + 后续插桩修正。
+
+- [ ] **`refreshFlag` 哨兵为全工程死代码（6 处，可清理）**
+      现象：`refreshFlag` 在 **6 个页面**均为「只写不读」——
+            `HomePage`（写 5）/ `ProfilePage`（写 5，**本轮已删**）/
+            `LearnPage`（写 1）/ `FavoritesPage`（写 3）/ `HistoryPage`（写 3）/
+            `KnowledgeDetailPage`（写 1），**读取点全工程为 0**。
+            在 ArkUI 中，仅写入而从不被 build() 读取的状态变量不会成为渲染依赖，
+            故它从未真正驱动过任何重绘。
+      处置：`ProfilePage` 的已于本轮清除（连同 5 处赋值与字段声明）。
+            其余 5 个页面**未授权改动**，待独立卡清理。
+      风险：低（删除不影响行为，但需真机回归确认）。
+      来源：本轮冗余代码审计（`grep refreshFlag` 全工程扫描）。
+
+- [ ] **ProfileViewModel 存在 3 个孤儿方法 + 1 个孤儿字段（Profile-R 遗留）**
+      现象（全工程 + docs 扫描，**零外部调用点**）：
+            · `selectTab(tab)`（:97）—— 无调用方
+            · `visibleItems()`（:103）—— 仅被 `isEmpty()` 调用
+            · `isEmpty()`（:108）—— 无调用方
+            · `selectedTab`（:37）—— 仅被上述两者读取
+            · 连带 `TAB_FAVORITES` / `TAB_HISTORY` 两个模块级常量（:13 / :15）
+      成因：Profile-R 重构把「收藏 / 历史双 Tab + 页内列表」拆到
+            FavoritesPage / HistoryPage 二级页后，这组 Tab 选择逻辑失去消费者。
+      处置：**本卡未动** —— `ProfileViewModel.ets` 在冻结文件清单内且本轮未授权。
+            待授权后整体移除（含 2 个常量），属零风险纯删除。
+      来源：本轮冗余代码审计。
+
+- [ ] **HomePage 收藏概览的刷新表现待实测**
+      现象：`HomePage.ets:245` 直接读 `this.viewModel.favoriteCount`，
+            而 `HomeViewModel.ets:41` 的 `favoriteCount` 是普通字段。
+      ⚠️ **本条同样据实修正**：原判定为"与 ProfilePage 同根因"，
+            但真根因是带参 @Builder（见上），HomePage 未使用该写法，
+            故其实际行为**需重新实测**，不可沿用原推断。
+      建议：独立卡在真机上直接观察 HomePage「收藏概览」计数是否跟随。
+      来源：Profile-Overview-Fix-Explore 证据 9 + 本轮根因修正。
 
 ---
 
@@ -93,6 +160,21 @@ Last Update: 2026-09-17
   两张超宽图在手机竖屏上即使全屏预览也仅约 30~40vp 高。
   建议按语义拆成 2~4 张子图重渲（属 3.5-c）。
   触发条件：用户反馈"看不清"时立项。
+
+- [ ] **UserStore.broadcast 的毫秒级竞态**
+      现象：`UserStore.ets:109` 的版本号广播实现为
+            `AppStorage.setOrCreate<number>(key, Date.now())` ——
+            以**毫秒时间戳**作为版本号。
+      影响：同一毫秒内的两次状态变更会产生**相同**的版本号值；
+            而 `@Watch` 仅在**值发生变化**时触发 → 第二次变更**不会**
+            唤醒任何监听页面 → 依赖版本号刷新的 UI 漏刷。
+            典型触发场景：快速连续收藏 / 取消收藏、详情页连续切章记录足迹。
+      修复方式候选：
+            · 改用**自增计数器**替代 `Date.now()`（最直接，语义也更准确）；
+            · 或版本号 + 内容哈希组合（可额外区分"值变但内容未变"的无谓刷新）。
+      建议：独立卡处理，需评估对现有 4 处 `@Watch` 消费者
+            （ProfilePage / FavoritesPage / HistoryPage / HomePage）的影响面。
+      来源：Profile-Overview-Fix-Explore 第一段证据 4 与根因候选 3。
 
 ---
 

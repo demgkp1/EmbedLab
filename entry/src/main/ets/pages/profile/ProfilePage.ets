@@ -33,16 +33,93 @@ const PROFILE_TAB_INDEX: number = 2;
  *  - 从详情页返回本页时由 onPageShow 触发一次「仅重算、不重取」的刷新；
  *  - 切回本 Tab 时由 @Consume('rootTabIndex') + @Watch 触发同语义刷新。
  */
+/**
+ * 学习概览卡（ProfilePage 的独立子组件）。
+ *
+ * 职责：渲染「学习概览」标题与两项指标（收藏数 / 已读数）。
+ * 数据来源：父组件 ProfilePage 经 `@Prop` 单向传入 favCount / histCount。
+ * 布局：标题与两项指标整体水平居中（承接 Profile-R1 方案 C），内边距 / 圆角 /
+ *      配色与初版一致。
+ *
+ * ⚠️ 维护约束（踩坑登记，详见 BACKLOG「带参 @Builder 不跟随状态变化」条）：
+ *      本组件内**严禁**用带参 @Builder（如 `overviewMetric(label, value, ...)`）
+ *      渲染需要跟随状态变化的数值 —— 实测其**参数虽已更新，builder 体不会以
+ *      新参数重新执行**，界面将停留在旧值。数值必须**内联直读 @Prop**。
+ */
+@Component
+struct ProfileOverviewCard {
+  /** 收藏数（由 ProfilePage 的 @State favCount 单向同步） */
+  @Prop favCount: number = 0;
+  /** 已读数（由 ProfilePage 的 @State histCount 单向同步） */
+  @Prop histCount: number = 0;
+
+  build() {
+    Column({ space: AppDimens.SPACING_MD }) {
+      Text(AppStrings.PROFILE_OVERVIEW_TITLE)
+        .fontSize(AppDimens.FONT_SIZE_SUBTITLE)
+        .fontWeight(FontWeight.Bold)
+        .fontColor(AppColors.TEXT_PRIMARY)
+        .width('100%')
+        .textAlign(TextAlign.Center)
+
+      Row({ space: AppDimens.SPACING_XL }) {
+        // 收藏指标（内联：直接读 @Prop，不经 @Builder）
+        Column({ space: AppDimens.SPACING_XS }) {
+          Text(`${this.favCount}`)
+            .fontSize(AppDimens.FONT_SIZE_TITLE)
+            .fontWeight(FontWeight.Bold)
+            .fontColor(AppColors.FAVORITE_ACTIVE)
+          Text(AppStrings.PROFILE_OVERVIEW_FAVORITES)
+            .fontSize(AppDimens.FONT_SIZE_CAPTION)
+            .fontColor(AppColors.TEXT_SECONDARY)
+        }
+        .layoutWeight(1)
+        .alignItems(HorizontalAlign.Center)
+
+        // 已读指标（内联：直接读 @Prop，不经 @Builder）
+        Column({ space: AppDimens.SPACING_XS }) {
+          Text(`${this.histCount}`)
+            .fontSize(AppDimens.FONT_SIZE_TITLE)
+            .fontWeight(FontWeight.Bold)
+            .fontColor(AppColors.PRIMARY)
+          Text(AppStrings.PROFILE_OVERVIEW_HISTORY)
+            .fontSize(AppDimens.FONT_SIZE_CAPTION)
+            .fontColor(AppColors.TEXT_SECONDARY)
+        }
+        .layoutWeight(1)
+        .alignItems(HorizontalAlign.Center)
+      }
+      .width('100%')
+      .justifyContent(FlexAlign.Center)
+    }
+    .width('100%')
+    .alignItems(HorizontalAlign.Center)
+    .padding(AppDimens.SPACING_LG)
+    .margin({ left: AppDimens.SPACING_LG, right: AppDimens.SPACING_LG })
+    .backgroundColor(AppColors.SURFACE)
+    .borderRadius(AppDimens.RADIUS_MD)
+  }
+}
+
 @Component
 export struct ProfilePage {
   /** 页面级 ViewModel（保留：概览卡计数与数据装配均依赖它） */
   @State viewModel: ProfileViewModel = new ProfileViewModel();
 
   /**
-   * 重绘哨兵。
-   * 说明：@State 不深层监听类实例内部属性，异步装配完成后翻转本布尔值强制驱动 build()。
+   * 概览卡收藏数。
+   *
+   * 设计说明：计数以**页面自身的 @State 基本类型**持有，而非直接读
+   *      `viewModel.favoriteItems.length`。
+   *      原因：@State 不深层监听类实例的内部属性，读 ViewModel 字段无法保证
+   *      在装配完成后驱动重绘；而基本类型的赋值可被 @State 可靠观察到。
+   *      这是本工程已验证有效的范式（参见 LearnPage 的 favoriteIds 快照）。
+   * 约束：本字段是只读快照，**唯一写点是 syncCounts()**，严禁在 build() 内写入。
    */
-  @State refreshFlag: boolean = false;
+  @State favCount: number = 0;
+
+  /** 概览卡已读数（同 favCount 机理，见上）。 */
+  @State histCount: number = 0;
 
   /**
    * 根 Tabs 当前下标（由 RootTabContainer 经 @Provide('rootTabIndex') 广播）。
@@ -72,18 +149,32 @@ export struct ProfilePage {
     this.loadItems();
   }
 
+  /**
+   * 把 ViewModel 的最新计数同步为页面自身的 @State 快照。
+   *
+   * 约束：
+   *  - **唯一写点**：favCount / histCount 只在此处赋值，便于审计与排障；
+   *  - 必须在 `refreshFromStore()` **之后**调用，否则快照的是旧数组长度；
+   *  - 须由各刷新入口（2 个 @Watch + onRootTabChanged + onPageShow +
+   *    loadItems 完成回调）统一调用；严禁在 build() 内调用（红线：build() 内禁写状态）。
+   */
+  private syncCounts(): void {
+    this.favCount = this.viewModel.favoriteItems.length;
+    this.histCount = this.viewModel.historyItems.length;
+  }
+
   /** 收藏版本变化：依据 UserStore 最新状态重算概览计数并驱动重绘。 */
   onFavoritesChanged(): void {
     this.viewModel.refreshFromStore();
-    this.refreshFlag = !this.refreshFlag;
-    Logger.debug(MODULE_TAG, `favorites changed, count=${this.viewModel.favoriteItems.length}`);
+    this.syncCounts();
+    Logger.debug(MODULE_TAG, `favorites changed, count=${this.favCount}`);
   }
 
   /** 历史版本变化：依据 UserStore 最新状态重算概览计数并驱动重绘。 */
   onHistoryChanged(): void {
     this.viewModel.refreshFromStore();
-    this.refreshFlag = !this.refreshFlag;
-    Logger.debug(MODULE_TAG, `history changed, count=${this.viewModel.historyItems.length}`);
+    this.syncCounts();
+    Logger.debug(MODULE_TAG, `history changed, count=${this.histCount}`);
   }
 
   /**
@@ -93,24 +184,23 @@ export struct ProfilePage {
   onRootTabChanged(): void {
     if (this.rootTabIndex === PROFILE_TAB_INDEX) {
       this.viewModel.refreshFromStore();
-      this.refreshFlag = !this.refreshFlag;
+      this.syncCounts();
       Logger.debug(MODULE_TAG, 'refresh on tab activated');
     }
   }
 
   /**
-   * 从其他页面返回本页时触发：仅依据 UserStore 最新状态重算概览计数（不重复请求元数据），
-   * 随后翻转哨兵驱动重绘。这是跨页收藏联动的关键刷新点。
+   * 从其他页面返回本页时触发：仅依据 UserStore 最新状态重算概览计数（不重复请求元数据）。
    */
   onPageShow(): void {
     this.viewModel.refreshFromStore();
-    this.refreshFlag = !this.refreshFlag;
+    this.syncCounts();
   }
 
   /** 首次加载：一次性批量取元数据并装配。 */
   private loadItems(): void {
     this.viewModel.loadDisplayItems().then(() => {
-      this.refreshFlag = !this.refreshFlag;
+      this.syncCounts();
     });
   }
 
@@ -129,6 +219,10 @@ export struct ProfilePage {
   }
 
   build() {
+    // 【ArkTS 结构约束备忘】
+    //  1. build() 的**第一条语句必须且只能是容器组件** —— 任何前置语句
+    //     （含 Logger 调用）都会触发 ArkTS 10905210 并中断构建。
+    //  2. @Builder 是 UI DSL，内**禁止任何非 UI 语句**（ArkTS 10905204）。
     Column() {
       // 顶部标题区
       Row() {
@@ -145,66 +239,26 @@ export struct ProfilePage {
         bottom: AppDimens.SPACING_SM
       })
 
+      // 概览卡：常驻节点树（非条件渲染），由 visibility 控制显隐 ——
+      // 使 @Prop 的更新不受 if/else 分支缓存影响。
+      // 显隐语义：uiStatus === SUCCESS 时可见；LOADING / ERROR 时隐藏。
+      //   ProfileViewModel 的 uiStatus 仅有 LOADING / SUCCESS / ERROR 三种赋值
+      //   （永不进入 EMPTY），故本条件与「非 LOADING 且非 ERROR」等价。
+      ProfileOverviewCard({ favCount: this.favCount, histCount: this.histCount })
+        .visibility(this.viewModel.uiStatus === UIStatus.SUCCESS
+          ? Visibility.Visible : Visibility.None)
+
       if (this.viewModel.uiStatus === UIStatus.LOADING) {
         this.stateHint(AppStrings.PROFILE_LOADING, '')
       } else if (this.viewModel.uiStatus === UIStatus.ERROR) {
         this.errorState()
       } else {
-        this.overviewCard()
         this.entryList()
       }
     }
     .width('100%')
     .height('100%')
     .backgroundColor(AppColors.BACKGROUND)
-  }
-
-  /**
-   * 学习概览卡：收藏数 / 已读数（数据来自 ProfileViewModel，不直连 UserStore）。
-   * 布局（Profile-R1 方案 C）：标题与两项指标整体水平居中，视觉更接近仪表盘。
-   * 说明：仅调整对齐方式（枚举值），卡片内边距与圆角维持不变；数据来源与调用点未动。
-   */
-  @Builder
-  overviewCard() {
-    Column({ space: AppDimens.SPACING_MD }) {
-      Text(AppStrings.PROFILE_OVERVIEW_TITLE)
-        .fontSize(AppDimens.FONT_SIZE_SUBTITLE)
-        .fontWeight(FontWeight.Bold)
-        .fontColor(AppColors.TEXT_PRIMARY)
-        .width('100%')
-        .textAlign(TextAlign.Center)
-
-      Row({ space: AppDimens.SPACING_XL }) {
-        this.overviewMetric(AppStrings.PROFILE_OVERVIEW_FAVORITES,
-          `${this.viewModel.favoriteItems.length}`, AppColors.FAVORITE_ACTIVE)
-        this.overviewMetric(AppStrings.PROFILE_OVERVIEW_HISTORY,
-          `${this.viewModel.historyItems.length}`, AppColors.PRIMARY)
-      }
-      .width('100%')
-      .justifyContent(FlexAlign.Center)
-    }
-    .width('100%')
-    .alignItems(HorizontalAlign.Center)
-    .padding(AppDimens.SPACING_LG)
-    .margin({ left: AppDimens.SPACING_LG, right: AppDimens.SPACING_LG })
-    .backgroundColor(AppColors.SURFACE)
-    .borderRadius(AppDimens.RADIUS_MD)
-  }
-
-  /** 单个概览指标：数值 + 标签（方案 C：本指标块内部亦居中对齐）。 */
-  @Builder
-  overviewMetric(label: string, value: string, accent: string) {
-    Column({ space: AppDimens.SPACING_XS }) {
-      Text(value)
-        .fontSize(AppDimens.FONT_SIZE_TITLE)
-        .fontWeight(FontWeight.Bold)
-        .fontColor(accent)
-      Text(label)
-        .fontSize(AppDimens.FONT_SIZE_CAPTION)
-        .fontColor(AppColors.TEXT_SECONDARY)
-    }
-    .layoutWeight(1)
-    .alignItems(HorizontalAlign.Center)
   }
 
   /** 二级入口列表：4 行，统一经 entryRow 渲染。 */
