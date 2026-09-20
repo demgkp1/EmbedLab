@@ -43,9 +43,22 @@ export class AppStrings {
   static readonly PROFILE_TAB_FAVORITES: string = '我的收藏';
   static readonly PROFILE_TAB_HISTORY: string = '阅读历史';
   static readonly PROFILE_LOADING: string = '正在加载…';
-  static readonly PROFILE_EMPTY_FAVORITES_TITLE: string = '还没有收藏';
+  /**
+   * 空态共享文案（Cleanup-2 归口）。
+   *
+   * 存在原因：原 PROFILE_EMPTY_FAVORITES_TITLE / PROFILE_EMPTY_HISTORY_TITLE 与
+   *          HOME_EMPTY_FAVORITES / HOME_EMPTY_HISTORY 取值完全相同（两组同值键），
+   *          属重复定义，故合并为跨页共用的中性名。
+   * 两形态共用（键名注释要求）：
+   *  - **整页空态**：FavoritesPage.emptyState() / HistoryPage.emptyState()
+   *    作为标题行（配 PROFILE_EMPTY_*_DESC 描述行）；
+   *  - **区块内空态**：HomePage.sectionEmptyHint() 作为单行轻提示，其上方
+   *    区块标题已由 HOME_RECENT_HISTORY_TITLE / HOME_FAVORITES_TITLE 承担。
+   * 约束：合并后为跨页共享键，任一页面需独立措辞时应重新拆分，不得就地改写。
+   */
+  static readonly EMPTY_FAVORITES: string = '还没有收藏';
+  static readonly EMPTY_HISTORY: string = '还没有阅读记录';
   static readonly PROFILE_EMPTY_FAVORITES_DESC: string = '在知识详情页点击右上角星标即可收藏。';
-  static readonly PROFILE_EMPTY_HISTORY_TITLE: string = '暂无阅读记录';
   static readonly PROFILE_EMPTY_HISTORY_DESC: string = '打开任意知识详情页后会自动记录阅读足迹。';
   static readonly PROFILE_ERROR_TITLE: string = '数据加载失败';
 
@@ -84,9 +97,7 @@ export class AppStrings {
   /** 首页（HomePage） */
   static readonly HOME_WELCOME_DESC: string = '知识体系 · 学习路径 · 实践项目';
   static readonly HOME_RECENT_HISTORY_TITLE: string = '最近阅读';
-  static readonly HOME_EMPTY_HISTORY: string = '还没有阅读记录';
   static readonly HOME_FAVORITES_TITLE: string = '收藏概览';
-  static readonly HOME_EMPTY_FAVORITES: string = '还没有收藏';
   static readonly HOME_FAVORITES_COUNT: string = '已收藏 ';
   static readonly HOME_QUICK_ENTRY: string = '快捷入口';
 

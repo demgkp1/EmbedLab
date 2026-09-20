@@ -213,7 +213,7 @@ export struct HomePage {
         .width('100%')
 
       if (this.viewModel.recentHistory.length === 0) {
-        this.sectionEmptyHint(AppStrings.HOME_EMPTY_HISTORY)
+        this.sectionEmptyHint(AppStrings.EMPTY_HISTORY)
       } else {
         ForEach(this.viewModel.recentHistory, (item: KnowledgeMetadata) => {
           Column() {
@@ -249,7 +249,7 @@ export struct HomePage {
       .width('100%')
 
       if (this.viewModel.recentFavorites.length === 0) {
-        this.sectionEmptyHint(AppStrings.HOME_EMPTY_FAVORITES)
+        this.sectionEmptyHint(AppStrings.EMPTY_FAVORITES)
       } else {
         ForEach(this.viewModel.recentFavorites, (item: KnowledgeMetadata) => {
           Column() {

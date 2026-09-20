@@ -175,7 +175,7 @@ export struct FavoritesPage {
   @Builder
   emptyState() {
     Column({ space: AppDimens.SPACING_SM }) {
-      Text(AppStrings.PROFILE_EMPTY_FAVORITES_TITLE)
+      Text(AppStrings.EMPTY_FAVORITES)
         .fontSize(AppDimens.FONT_SIZE_SUBTITLE)
         .fontColor(AppColors.TEXT_PRIMARY)
         .textAlign(TextAlign.Center)

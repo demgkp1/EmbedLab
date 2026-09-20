@@ -175,7 +175,7 @@ export struct HistoryPage {
   @Builder
   emptyState() {
     Column({ space: AppDimens.SPACING_SM }) {
-      Text(AppStrings.PROFILE_EMPTY_HISTORY_TITLE)
+      Text(AppStrings.EMPTY_HISTORY)
         .fontSize(AppDimens.FONT_SIZE_SUBTITLE)
         .fontColor(AppColors.TEXT_PRIMARY)
         .textAlign(TextAlign.Center)
