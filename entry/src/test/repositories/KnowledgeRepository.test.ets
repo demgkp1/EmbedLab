@@ -1,10 +1,24 @@
 import { describe, beforeEach, it, expect } from '@ohos/hypium';
 import { ErrorCode } from '../../main/ets/models/common/ErrorCode';
-import { Result } from '../../main/ets/models/common/Result';
+import { Failure, Result } from '../../main/ets/models/common/Result';
 import { ContentBlock, KnowledgeItem } from '../../main/ets/models/knowledge/KnowledgeItem';
 import { KnowledgeMetadata } from '../../main/ets/models/knowledge/KnowledgeMetadata';
 import { RawFileAssetDataSource } from '../../main/ets/datasources/RawFileAssetDataSource';
 import { KnowledgeRepository } from '../../main/ets/repositories/KnowledgeRepository';
+
+/**
+ * 【暂未挂载说明 · Cleanup-4 收尾】
+ *
+ * 本文件当前未被 List.test.ets 挂载，原因：
+ *  - :31 super(null as object) 无法在 ArkTS 严格模式下通过编译，
+ *    需放宽 RawFileAssetDataSource 构造签名为可空（生产代码契约弱化），
+ *    或构造完整 ResourceManager mock（64 成员 interface），
+ *    两者成本均高于负向单测本身价值；
+ *  - 已登记 BACKLOG，待独立卡处理。
+ *
+ * 已保留的修复：失败分支的 `as Failure` 类型收窄
+ *      （纯类型改进，与 mock 无关，独立有效）。
+ */
 
 /** 测试用知识条目 id */
 const TEST_ID: string = 'test_id';
@@ -146,9 +160,12 @@ export default function knowledgeRepositoryTest() {
       mock.failRead = true;
       const failed: Result<KnowledgeItem> = await repository.getKnowledgeItem(TEST_ID);
       expect(failed.success).assertFalse();
-      if (!failed.success) {
-        expect(failed.code).assertEqual(ErrorCode.FILE_NOT_FOUND);
-      }
+      // 显式类型收窄（Cleanup-4 修复）：ArkTS 在 `if (!x.success)` 分支内**未**将
+      // Result<T> 收窄为 Failure，直接访问 .code 会报
+      // "Property 'code' does not exist on type 'Success<KnowledgeItem>'"。
+      // 故此处按工程既定模式做「已判别后的类型对齐」断言。
+      const failure: Failure = failed as Failure;
+      expect(failure.code).assertEqual(ErrorCode.FILE_NOT_FOUND);
 
       // 失败不应被缓存：恢复正常后再次调用应重新触底
       mock.failRead = false;

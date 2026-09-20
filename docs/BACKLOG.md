@@ -8,9 +8,36 @@ Last Update: 2026-09-17
 
 ---
 
+## P0（最严重 · 虚假绿灯，直接误导判断）
+
+- [ ] **测试代码三重验证盲区**
+      **盲区 1 · 不被 lint**：`code-linter.json5` 的 `ignore` 显式排除
+            `**/src/test/**/*` 与 `**/src/ohosTest/**/*`。
+            实证：全工程 `check lint`（含 `--format json` 完整报告）中
+            三个测试文件**零命中**，测试代码从未被静态检查。
+      **盲区 2 · 不被主构建编译**：`assembleHap`（`CompileArkTS`）**只编译 main**，
+            不编译 `entry/src/test/`。故主 HAP 构建成功**不代表**测试代码可编译。
+      **盲区 3（最危险）· 虚假绿灯**：`UnitTestArkTS` 在 `entry/.test` 缺失时
+            **空跑并报 BUILD SUCCESSFUL**。实证：本次收尾复跑时该 task
+            仅耗时 673 ms，产出 `.tsbuildinfo`（91330 B）对 4 个测试文件
+            **全部未命中** —— 即它根本没编译测试代码，却给出成功信号。
+      **后果（已实际发生）**：Cleanup-4 因误信 `assembleHap` 的假通过，
+            前后延误 **2 轮**交付；期间还一度错误地宣称
+            「卡片描述的编译错误不存在」。这是本工程目前最危险的验证陷阱。
+      **建议（独立卡评估）**：
+        1. 放开 `code-linter.json5` 的 ignore 范围，让测试代码纳入静态检查；
+        2. 排查/规避 `UnitTestArkTS` 的假绿灯机制（须 `entry/.test` 存在
+           且输入变更时才会真编译）；
+        3. **文档明确记录**：验证测试代码编译的唯一可靠方式是
+           DevEco Studio 的 Run `List.test`（Local Test）；
+           任何 CLI 构建的成功输出**均不可作为**测试代码的验证依据。
+      来源：Cleanup-4 第一段探查 + 第二段交付报告未决依赖 T1（架构师升级为 P0）。
+
+---
+
 ## P1（阻塞后续开发）
 
-当前无 P1 项 —— Milestone 3.4-fix3 已使收藏 / 历史的跨页面刷新链路全覆盖（K1~K4 通过）。
+当前无 P1 项。
 
 ---
 
@@ -96,6 +123,150 @@ Last Update: 2026-09-17
       M3.5-d 已真机验证通过，留白不影响观感，**无需**升级到候选 C
       （加"点击查看大图"提示行）。
       来源：M3.5-d 交付报告 + 架构师真机验证结论。
+
+---
+
+## 近期完成与遗留登记（Cleanup-4 补登记）
+
+> 登记说明：本节由 Cleanup-4 补登记，补齐此前未登记的各卡进度。
+> 来源均为各卡交付报告中**实际出现过**的结论；无交付报告依据的条目已标注
+> 「来源待架构师确认」，请架构师核实或删除，以符合本文件「禁止推测性扩充」约定。
+
+### 已完成（保留追溯）
+
+- [x] **Cleanup-2 空态文案统一与同值键合并** ✅
+      措辞统一：`PROFILE_EMPTY_HISTORY_TITLE` 由「暂无阅读记录」改为「还没有阅读记录」。
+      同值键合并：`PROFILE_EMPTY_FAVORITES_TITLE` + `HOME_EMPTY_FAVORITES` → `EMPTY_FAVORITES`；
+                  `PROFILE_EMPTY_HISTORY_TITLE` + `HOME_EMPTY_HISTORY` → `EMPTY_HISTORY`。
+      空态键总数 11 → 9；`*_DESC` 两键保留。
+      范围：AppStrings / FavoritesPage / HistoryPage / HomePage 共 4 文件。
+      附带清理：`entry/.preview` 陈旧预览缓存（291 文件 / 7.19 MB，已 gitignore）。
+      验收：`check lint` Errors 0；`assembleHap` BUILD SUCCESSFUL。
+
+- [x] **Cleanup-3 level 联合类型约束 + 运行期校验** ✅
+      收窄：`KnowledgeMetadata.level` 由 `string` 改为 `KnowledgeLevel`
+            （`'Basic' | 'Medium' | 'Hard'`，字符串字面量联合类型，非 enum）。
+      校验：`RawFileAssetDataSource` 新增 `isLevel` 白名单（对齐既有 `isBlockType` 先例），
+            非法值抛 `JSON_INVALID`；保持 `parseKnowledgeIndex` 全有或全无语义。
+      范围：KnowledgeMetadata / RawFileAssetDataSource 共 2 文件；
+            因联合类型收窄传导出 2 处空态哨兵编译错误，经扩权修复
+            KnowledgeCard / KnowledgeDetailPage 的 `level: '' as KnowledgeLevel`。
+      来源：C-1 D3 登记 → Cleanup-3 第一段探查 + 第二段交付报告（含熔断上报 + 扩权）。
+
+- [x] **C-1 Learn 难度筛选** ✅（tag v1.6.0-mvp）
+      新增难度筛选维度，与既有分类筛选并置，二者为「与」关系。
+      范围：LearnViewModel（新增 `selectedLevel` / `levelList()` / `selectLevel()`，
+            改写 `visibleList()` 为双条件）/ LearnPage（并置第二条筛选栏 + 空态分流）/
+            CategoryBar（参数重命名 `categories`→`options`、`onCategorySelected`→`onSelected`，
+            `ForEach` key 改为 `${index}-${item}` 避免双栏撞名）/ AppStrings（+2 键）。
+      数据实况：index.json 34 章 level 分布 Basic 9 / Medium 15 / Hard 10。
+      来源：C-1-Explore 探查报告 + C-1-Impl 交付报告。
+
+- [x] **UI-Polish-1 筛选栏维度标签** ✅（tag v1.6.1-mvp）
+      两条筛选栏左侧各加小字标签（「分类」/「难度」），解决「两排首项都是『全部』」
+      无法区分维度的可用性缺口。
+      范围：LearnPage（Row 包裹 + Text 标签）/ AppStrings（+2 键，`LEARN_FILTER_*_LABEL`）。
+
+- [x] **Cleanup-4 index.json level 校验（核心价值，已落地）** ✅
+      校验：`docs/tools/append_index.mjs` 新增 `LEVEL_WHITELIST` +
+            `collectInvalidLevels()`，在 `main()` 内于**任何写盘之前**对
+            `index.items` 做**全量**校验（覆盖存量 + 新增，D5 裁决），
+            非法即 `throw` → 复用 `run_pipeline.mjs` CRITICAL 熔断语义。
+            补齐了「meta 侧 / details 侧有校验、唯独随包发布的 index.json 无校验」的缺口。
+      实证：校验函数 5 项独立用例 PASS（真实 34 条零非法 / 注入小写 basic 精确捕获 /
+            undefined·null·数字全捕获 / 缺 id 标记 / 全合法不误报）；
+            `node --check` 语法通过。
+      治理：BACKLOG 补登记 Cleanup-2/3/4 + C-1 + UI-Polish-1 + D1 文档偏差等条目。
+      关注点：校验集合多处重复（`append_index.mjs LEVEL_WHITELIST` /
+            `verify_chapter.mjs:46 LEVELS` / `check_meta.mjs:39` 与
+            `run_pipeline.mjs:61` 内联数组），见下方待收敛项。
+
+- [x] **Cleanup-4 负向单测与测试挂载（已回退）** ⛔
+      回退内容：
+        - 删除 `entry/src/test/datasources/RawFileAssetDataSource.test.ets`；
+        - `List.test.ets` 回退为仅挂载 `localUnitTest`；
+        - `KnowledgeRepository.test.ets` 保留文件但**不挂载**（文件头已加说明注释）。
+      回退原因：mock `ResourceManager`（64 成员 interface）无合理成本方案，
+            详见上方「测试套件因 mock 成本过高而暂未挂载」条目。
+      保留的部分修复：`KnowledgeRepository.test.ets` 的 `as Failure` 类型收窄
+            （纯类型改进，与 mock 无关，独立有效）。
+      代价（如实记录）：运行期 level 白名单的负向验证**未取得**；
+            但构建期防线（append_index.mjs 全量校验）已建立且有 5 项实证。
+      来源：Cleanup-4 收尾指令（方案 3）。
+
+### 待处理 / 待评估
+
+- [ ] **测试套件因 mock 成本过高而暂未挂载**
+      现状：`entry/src/test/repositories/KnowledgeRepository.test.ets`（6 个用例）
+            与已删除的 `entry/src/test/datasources/RawFileAssetDataSource.test.ets`
+            均**不在** `List.test.ets` 挂载范围内，故其用例不会被执行。
+      根因：两者都需要一个 `resourceManager.ResourceManager` 实例，而它是
+            **64 个成员的 interface**（SDK `@ohos.resourceManager.d.ts:487`），
+            ArkTS 严格模式下：
+              - `as unknown as` 不可用（ArkTS 禁 `unknown`，工程零先例）；
+              - hamock `mockObject` 不可用（源码 `MockKit.ts:228-241` 只复制
+                传入对象**已有**的函数成员，无法凭空合成 64 个方法；
+                且返回类型为 `Object`，仍过不了参数类型检查）；
+              - 手写 64 个 stub 成本高于负向单测本身价值。
+      候选方案（待独立卡裁决）：
+            ① 放宽 `RawFileAssetDataSource` 构造签名为可空
+               （测试场景本就不使用 resourceMgr，参数如实声明比断言欺骗更诚实）；
+            ② 由脚本从 SDK 声明机械生成 64 方法 stub 文件（不手写、可复核）；
+            ③ 改用其他 mock 策略 / 交由 DevEco 的 mock-config 机制处理。
+      来源：Cleanup-4 收尾指令方案 3（回退负向单测）+ 交付报告未决依赖。
+
+- [ ] **架构文档 level 类型精度偏差**
+      `EmbedLab_Project_Architecture.md:225`（「level: 字符串，难度等级（Basic / Medium / Hard）」）
+      与 `:239`（「level: 字符串，难度等级」）仍描述为 `string`，
+      而实现已于 Cleanup-3 收窄为 `KnowledgeLevel` 联合类型。
+      处置：需架构师裁决「实现细节收紧（不必改文档）」还是「架构变更（须先改文档）」。
+      约束：该文档为 Architecture Frozen，禁止 Agent 修改。
+      来源：Cleanup-3 第一段 D1 + 第二段交付报告未决依赖 D1。
+
+- [ ] **`check_meta.mjs` 为孤立脚本（无任何调用点）**
+      现状：`docs/tools/check_meta.mjs` 含 meta 合规检查（字段集合 / id / title /
+            category / level 白名单 / tags / summary），但全工程 grep 确认
+            **无任何脚本或配置调用它**，不在 `run_pipeline.mjs` 的 `runChild` 链内。
+      与其功能重叠者：`run_pipeline.mjs:44-66 validateMeta`（阶段 1 前置校验）。
+      待评估：① 接入 pipeline 作为独立检查步骤；② 确认冗余后删除。
+      来源：Cleanup-4 第一段证据 1 / 证据 2。
+
+- [ ] **level 白名单字面量三处重复，待收敛**
+      重复点：`docs/tools/append_index.mjs`（Cleanup-4 新增 `LEVEL_WHITELIST`）/
+              `docs/tools/verify_chapter.mjs:46`（`LEVELS`）/
+              `docs/tools/check_meta.mjs:39` + `docs/tools/run_pipeline.mjs:61`（内联数组）。
+      现状：四处各自硬编码同一集合，新增难度档位时需同步改多处，易漏改
+            （Cleanup-3 已在 `KnowledgeLevel` 与 `isLevel` 之间建立同样的同步约束，
+             现扩展为「源码 + 4 处脚本」共 6 个落点）。
+      处置建议：**独立卡**处理，需新建共享常量模块并触及多个 pipeline 脚本；
+            `verify_chapter.mjs` 的 v2.1 规则为 FROZEN（`docs/pipeline/AUDIT.md:69`），
+            触碰前须再次裁决。
+      来源：Cleanup-4 第一段风险 R4 + 第二段交付报告未决依赖。
+
+- [ ] **ProfilePage 概览卡不刷新 bug**
+      现象与复现条件**未经我验证**，本卡仅按人类架构师指令登记。
+      来源待架构师确认（未在既有交付报告中出现过，建议补充现象、复现步骤与影响面）。
+      登记依据：Cleanup-4 第二段指令 D4 指定登记项。
+
+- [ ] **UI-Immersion-1 提交进入 main 的流程偏差**
+      实况：提交 `02b895b`（"feat: NavDestination title bar material"）的提交信息
+            自述 **"R2 not passed"**（即真机验证未通过），但该提交已快进合并入 `main`。
+      冲突：与既定规矩「main 仅接受已通过真机验证的合并」不一致。
+      代码现状：`KnowledgeDetailPage` 的 `systemMaterial` 实现仍在包内；
+            因 R2 判定无可见效果，其可见性取决于后续沉浸式布局立项。
+      待处置：由架构师决定 ① 保留并降级为「待布局配合」；② 从 main 回退；
+            并明确「未验证即入 main」的例外是否需要补记流程说明。
+      登记依据：Cleanup-4 第二段指令 D4 指定登记项；
+            提交信息与合并事实来自本会话 `git log` / `git reflog` 实况。
+
+### 来源待架构师确认（本卡按指令登记，但缺交付报告依据）
+
+- [ ] **上面两项带「来源待架构师确认 / 登记依据：Cleanup-4 指令」标注的条目**
+      说明：`docs/BACKLOG.md` 维护约定第 3 条要求「禁止写入任何未在交付报告中
+            实际出现过的条目」。其中「ProfilePage 概览卡不刷新 bug」在既有交付报告
+            中**未出现过**（UI-Immersion-1 真机验证报告未回传），
+            故如实标注其来源为任务卡指令而非交付报告。
+      请架构师：确认保留并补充依据，或从本文件删除。
 
 ---
 

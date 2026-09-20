@@ -14,6 +14,46 @@
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 
+/**
+ * level 取值白名单（Cleanup-4 追加，非 v2.1 变更）。
+ *
+ * 背景：index.json 是本工程唯一随 App 打包发布的知识索引资产，但此前
+ *      全链路无任何脚本校验其 level 取值 —— meta 侧有 run_pipeline.validateMeta
+ *      与 check_meta.mjs 把关，details 侧有 verify_chapter.mjs 的 LEVELS 把关，
+ *      唯独 index.json 只被「复制写入」（见下方 added 构造）而无校验。
+ *      配合 App 侧 Cleanup-3 的 KnowledgeLevel 联合类型 + DataSource.isLevel，
+ *      本校验补齐「构建期前置拦截」这一环（C3 裁决）。
+ * 契约：与 entry/src/main/ets/models/knowledge/KnowledgeMetadata.ets 的
+ *      KnowledgeLevel 联合类型、以及 RawFileAssetDataSource.isLevel 保持同一集合；
+ *      新增难度档位时三处必须同步修改。
+ */
+const LEVEL_WHITELIST = ['Basic', 'Medium', 'Hard'];
+
+/**
+ * 校验 index.items 全量条目的 level 取值（Cleanup-4 追加，非 v2.1 变更）。
+ *
+ * 设计取舍（D5 裁决：全量校验）：
+ *  - 不区分「新追加」与「存量」，一律校验 —— 存量条目同样随包发布，
+ *    同样受 KnowledgeLevel 约束，漏检会导致 App 侧整库 ERROR 态。
+ *  - 本函数只做判定与错误收集，不修改 items、不改变调用方的控制流；
+ *    失败时由调用方抛出，复用 run_pipeline.mjs 既有的 CRITICAL 熔断语义。
+ * @param {object[]} items index.items 数组
+ * @returns {string[]} 非法条目描述数组；全部合法时为空数组
+ */
+function collectInvalidLevels(items) {
+  const invalid = [];
+  for (const item of items) {
+    if (!item || typeof item.id !== 'string') {
+      invalid.push('<缺少 id 的条目>');
+      continue;
+    }
+    if (!LEVEL_WHITELIST.includes(item.level)) {
+      invalid.push(`${item.id}=${JSON.stringify(item.level)}`);
+    }
+  }
+  return invalid;
+}
+
 /** 从标题中提取章节号；无法提取时排在最后 */
 function extractChapterNo(title) {
   const s = String(title || '').trim();
@@ -63,6 +103,15 @@ function main() {
   const index = JSON.parse(before);
   if (!Array.isArray(index.items)) {
     throw new Error('index.json 结构异常: items 不是数组');
+  }
+
+  // Cleanup-4 追加（非 v2.1 变更）：level 白名单全量校验。
+  // 位置说明：置于任何写盘动作之前，非法数据绝不落盘。
+  //      本步同时覆盖「本轮新增条目」与「存量条目」（D5 裁决），
+  //      且早于下方 push —— 新增条目的非法 level 在此先被捕获。
+  const invalidLevels = collectInvalidLevels(index.items);
+  if (invalidLevels.length > 0) {
+    throw new Error(`index.json 存在 level 非法条目（合法值: ${LEVEL_WHITELIST.join(' / ')}）: ${invalidLevels.join(', ')}`);
   }
 
   const originalCount = index.items.length;
