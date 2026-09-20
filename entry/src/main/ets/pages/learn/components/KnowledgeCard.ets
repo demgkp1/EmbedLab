@@ -1,6 +1,6 @@
 import { AppColors } from '../../../constants/AppColors';
 import { AppDimens } from '../../../constants/AppDimens';
-import { KnowledgeMetadata } from '../../../models/knowledge/KnowledgeMetadata';
+import { KnowledgeLevel, KnowledgeMetadata } from '../../../models/knowledge/KnowledgeMetadata';
 
 /**
  * 知识卡片组件。
@@ -16,7 +16,10 @@ export struct KnowledgeCard {
     id: '',
     title: '',
     category: '',
-    level: '',
+    // 空态哨兵对象：仅在 @Prop 默认值 / 兜底路径使用，永不进入渲染路径。
+    // 联合类型收窄后 '' 不再合法，此处为已知契约的类型对齐断言。
+    // 若未来此对象被意外渲染，须改为可空类型 + build() 判空分支（结构性重构）。
+    level: '' as KnowledgeLevel,
     tags: [],
     summary: ''
   };

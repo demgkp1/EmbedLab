@@ -4,7 +4,7 @@ import { ErrorCode } from '../models/common/ErrorCode';
 import { Failure, Result, Success } from '../models/common/Result';
 import { ContentBlock, KnowledgeItem } from '../models/knowledge/KnowledgeItem';
 import { KnowledgeIndex } from '../models/knowledge/KnowledgeIndex';
-import { KnowledgeMetadata } from '../models/knowledge/KnowledgeMetadata';
+import { KnowledgeLevel, KnowledgeMetadata } from '../models/knowledge/KnowledgeMetadata';
 
 /**
  * 静态资产数据版本配置模型（对应 database/schema_version.json）。
@@ -254,11 +254,25 @@ export class RawFileAssetDataSource {
       error.message = 'metadata entry misses required fields';
       return undefined;
     }
+    // Cleanup-3：level 取值白名单校验（对齐 isBlockType 先例）。
+    // 说明：readString 只保证「存在且为 string」，不保证取值属于约定的 3 种难度；
+    //      错拼（如 'basic' 小写）在此被拦截为 JSON_INVALID，禁止进入 UI 层。
+    //      由于 parseKnowledgeIndex 采用「任一条目失败即整体失败」语义（C1 裁决），
+    //      单个非法 level 会使整个索引加载失败并让 Learn 页进入 ERROR 态 —— 属预期行为。
+    const levelText: string = level;
+    if (!RawFileAssetDataSource.isLevel(levelText)) {
+      error.code = ErrorCode.JSON_INVALID;
+      error.message = `metadata entry has invalid level: ${levelText}`;
+      return undefined;
+    }
+    // 经 isLevel 白名单判定后，取值必属于 3 种难度之一，此处为「已校验类型对齐」，
+    // 与 isRecord 后的 `as Record<string, Object>` 属同一既定模式（非未校验断言）。
+    const levelValue: KnowledgeLevel = levelText as KnowledgeLevel;
     const metadata: KnowledgeMetadata = {
       id: id,
       title: title,
       category: category,
-      level: level,
+      level: levelValue,
       tags: tags,
       summary: summary
     };
@@ -297,11 +311,17 @@ export class RawFileAssetDataSource {
     if (contentBlocks === undefined) {
       return undefined;
     }
+    // Cleanup-3：level 已收窄为 KnowledgeLevel 联合类型（KnowledgeItem 继承自
+    // KnowledgeMetadata），但 readString 的返回类型为 string | undefined，
+    // ArkTS 不对「已判非 undefined」做跨语句收窄，故此处需显式对齐类型。
+    // 详情侧的取值合法性由 parseMetadata 的同名校验保障（索引先于详情加载）；
+    // 本卡授权范围不含 parseKnowledgeItem 的独立取值校验，不做重复校验以免越权。
+    const levelValue: KnowledgeLevel = level as KnowledgeLevel;
     const item: KnowledgeItem = {
       id: id,
       title: title,
       category: category,
-      level: level,
+      level: levelValue,
       tags: tags,
       summary: summary,
       images: images,
@@ -397,6 +417,20 @@ export class RawFileAssetDataSource {
   private static isBlockType(value: string): boolean {
     return value === 'header' || value === 'text' || value === 'image'
       || value === 'code' || value === 'warning';
+  }
+
+  /**
+   * 判定字符串是否为合法的 3 种知识难度之一（Cleanup-3）。
+   *
+   * 与 isBlockType 同构：取值白名单判定，不抛异常、不改 error 出参，
+   * 由调用方决定失败时的 ErrorCode 与消息。
+   * 契约同步：本方法与 KnowledgeMetadata.KnowledgeLevel 联合类型是同一份契约的
+   *      两个落点（运行期 / 编译期），新增难度档位时必须同步修改。
+   * @param value 待判定的 level 字符串
+   * @returns 属于 Basic / Medium / Hard 之一时为 true
+   */
+  private static isLevel(value: string): boolean {
+    return value === 'Basic' || value === 'Medium' || value === 'Hard';
   }
 
   /** 将 JSON 文本解析为可按键索引的对象，非对象结构一律判定为 JSON_INVALID。 */

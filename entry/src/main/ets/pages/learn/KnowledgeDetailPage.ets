@@ -6,6 +6,7 @@ import { AppStrings } from '../../constants/AppStrings';
 import { UIStatus } from '../../models/common/UIStatus';
 import { ContentBlock, KnowledgeItem } from '../../models/knowledge/KnowledgeItem';
 import { KnowledgeDetailParams } from '../../models/knowledge/KnowledgeDetailParams';
+import { KnowledgeLevel } from '../../models/knowledge/KnowledgeMetadata';
 import { KnowledgeDetailViewModel } from '../../viewmodels/KnowledgeDetailViewModel';
 import { GeekCodeBlock } from './components/GeekCodeBlock';
 import { ImageViewerOverlay } from './components/ImageViewerOverlay';
@@ -491,7 +492,10 @@ export struct KnowledgeDetailPage {
       id: '',
       title: '',
       category: '',
-      level: '',
+      // 空态哨兵对象：仅在 @Prop 默认值 / 兜底路径使用，永不进入渲染路径。
+      // 联合类型收窄后 '' 不再合法，此处为已知契约的类型对齐断言。
+      // 若未来此对象被意外渲染，须改为可空类型 + build() 判空分支（结构性重构）。
+      level: '' as KnowledgeLevel,
       tags: [],
       summary: '',
       images: [],
