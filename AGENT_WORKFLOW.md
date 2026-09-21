@@ -215,3 +215,30 @@
 或改用 hvigor daemon 模式（daemon 启动时会注入该路径）。
 
 来源：Profile-Attribution-Correction 卡 A 交付报告。
+
+---
+
+## 11. 工具链行为陷阱
+
+### 1. `hvigorw` 对未知参数静默忽略
+
+- **实测**：`hvigorw assembleHap --modules entry@ohosTest`（`hvigorw` **无** `--modules`）
+  → 参数被忽略，**静默执行完整 default target 的 `assembleHap`**。
+- **风险**：误传参数不会报错，会跑错任务且无提示。
+- **正确用法**：`module@target` 语法属 **`devecocli build`**（见其 `--help` 的
+  `--modules <modules...>` 与 `--product`），**不属 `hvigorw`**。
+- **来源**：TestBlind-Spot-Verify。
+
+### 2. `devecocli build` 与 `hvigorw` 的行为差异
+
+- `devecocli build` 会先跑 **`ohpm install`** + **`hvigor sync`**，再调 hvigor。
+- 直接 `hvigorw` **不会**执行上述两步。
+- **来源**：TestBlind-Spot-Verify。
+
+### 3. `.test` 目录落点
+
+- **实测落点**为 `entry/.test/default/intermediates/src/ohosTest/ets/testability/`
+  （探查报告曾按插件源码字面量推测为 `entry/.test/testability/`，**实测修正**）。
+- 该目录由 `GenerateOhosTestTemplate` / `GenerateUnitTestTemplate` 类任务生成；
+  已被 `entry/.gitignore` 的 `/.test` 规则忽略（`entry/.gitignore:6`）。
+- **来源**：TestBlind-Spot-Verify。

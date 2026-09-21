@@ -96,6 +96,12 @@ Last Update: 2026-09-17
       建议：独立卡在真机上直接观察 HomePage「收藏概览」计数是否跟随。
       来源：Profile-Overview-Fix-Explore 证据 9 + 本轮根因修正。
 
+- [ ] **hvigorw 对未知参数静默忽略**
+      误传参数不会报错，会静默执行默认任务。
+      `--modules` 不存在于 `hvigorw`，属 `devecocli build`。
+      影响：命令拼错时无提示，可能跑错目标。
+      来源：TestBlind-Spot-Verify。
+
 ---
 
 ## P2（建议 3.5 或近期处理）
@@ -201,6 +207,12 @@ Last Update: 2026-09-17
       M3.5-d 已真机验证通过，留白不影响观感，**无需**升级到候选 C
       （加"点击查看大图"提示行）。
       来源：M3.5-d 交付报告 + 架构师真机验证结论。
+
+- [ ] **ohosTest target 构建产生 color.json 冲突告警**
+      `entry/src/main/resources/base/element/color.json` 与
+      `entry/.test/.../ohosTest/resources/base/element/color.json`
+      对 `start_window_background` 重复声明（WARN，不阻断）。
+      来源：TestBlind-Spot-Verify。
 
 ---
 
