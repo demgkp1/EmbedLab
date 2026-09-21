@@ -9,11 +9,6 @@ import { AppStrings } from '../constants/AppStrings';
 
 const MODULE_TAG: string = 'ProfileViewModel';
 
-/** 展示形态：收藏 */
-const TAB_FAVORITES: number = 0;
-/** 展示形态：历史 */
-const TAB_HISTORY: number = 1;
-
 /**
  * 「我的」页 ViewModel。
  *
@@ -33,8 +28,6 @@ const TAB_HISTORY: number = 1;
  */
 @Observed
 export class ProfileViewModel {
-  /** 当前展示形态（收藏 / 历史） */
-  selectedTab: number = TAB_FAVORITES;
   /** 当前 UI 状态（LOADING / SUCCESS / EMPTY / ERROR） */
   uiStatus: UIStatus = UIStatus.LOADING;
   /** 收藏对应的展示实体（顺序与 UserStore.favorites 一致） */
@@ -91,22 +84,6 @@ export class ProfileViewModel {
     const store: UserStore = UserStore.getInstance();
     this.favoriteItems = ProfileViewModel.mapByIds(store.favorites, pool);
     this.historyItems = ProfileViewModel.mapByIds(store.history, pool);
-  }
-
-  /** 切换展示形态（用户意图入口）。 */
-  selectTab(tab: number): void {
-    this.selectedTab = tab;
-    Logger.debug(MODULE_TAG, `tab switched to ${tab}`);
-  }
-
-  /** 当前形态下应展示的实体数组。 */
-  visibleItems(): KnowledgeMetadata[] {
-    return this.selectedTab === TAB_HISTORY ? this.historyItems : this.favoriteItems;
-  }
-
-  /** 当前形态下是否为空（用于空态渲染）。 */
-  isEmpty(): boolean {
-    return this.visibleItems().length === 0;
   }
 
   /** 元数据内存池（首次批量加载后缓存，供 refreshFromStore 复用） */

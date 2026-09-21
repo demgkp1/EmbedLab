@@ -101,21 +101,12 @@ class TitleMaterialModifier implements AttributeModifier<NavDestinationAttribute
  * 约束：
  *  - 严禁直接调用 Repository，一切数据与错误映射收敛在 KnowledgeDetailViewModel。
  *  - 严禁在 build() 内修改状态；状态变更只发生在生命周期与事件回调。
- *  - 严禁阻塞主线程：加载为异步 Promise，配合 refreshFlag 哨兵触发重绘。
  *  - 保留 NavDestination 原生返回箭头（严禁 hideTitleBar(true)），由系统接管 pop。
  */
 @Component
 export struct KnowledgeDetailPage {
   /** 页面级 ViewModel */
   @State viewModel: KnowledgeDetailViewModel = new KnowledgeDetailViewModel();
-
-  /**
-   * 重绘哨兵。
-   * 说明：ArkUI 的 @State 不深层监听类实例内部属性变化，异步加载完成后翻转本布尔值
-   *      以强制驱动 build() 重执行。仅可在生命周期与事件回调中翻转。
-   */
-  @State refreshFlag: boolean = false;
-
   /** 当前知识 id（onReady 提取后保存，供重试使用） */
   private currentId: string = '';
   /** 标题栏文案（onReady 提取，未传则回退通用标题） */
@@ -246,7 +237,6 @@ export struct KnowledgeDetailPage {
       return;
     }
     this.viewModel.loadDetail(this.currentId).then(() => {
-      this.refreshFlag = !this.refreshFlag;
       // 仅在加载成功（SUCCESS 态）时记录一次阅读足迹；
       // 足迹由 ViewModel 调度 UserRepository 持久化，成功后才更新 UserStore。
       if (this.viewModel.uiStatus === UIStatus.SUCCESS) {

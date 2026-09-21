@@ -87,31 +87,6 @@ Last Update: 2026-09-17
       建议：不作为紧急项；如需统一，用独立卡评估改写为 `@ObjectLink` + 子组件。
       来源：Profile-Overview-Fix-Explore 证据 3/5/7 + 后续插桩修正。
 
-- [ ] **`refreshFlag` 哨兵为全工程死代码（6 处，可清理）**
-      现象：`refreshFlag` 在 **6 个页面**均为「只写不读」——
-            `HomePage`（写 5）/ `ProfilePage`（写 5，**本轮已删**）/
-            `LearnPage`（写 1）/ `FavoritesPage`（写 3）/ `HistoryPage`（写 3）/
-            `KnowledgeDetailPage`（写 1），**读取点全工程为 0**。
-            在 ArkUI 中，仅写入而从不被 build() 读取的状态变量不会成为渲染依赖，
-            故它从未真正驱动过任何重绘。
-      处置：`ProfilePage` 的已于本轮清除（连同 5 处赋值与字段声明）。
-            其余 5 个页面**未授权改动**，待独立卡清理。
-      风险：低（删除不影响行为，但需真机回归确认）。
-      来源：本轮冗余代码审计（`grep refreshFlag` 全工程扫描）。
-
-- [ ] **ProfileViewModel 存在 3 个孤儿方法 + 1 个孤儿字段（Profile-R 遗留）**
-      现象（全工程 + docs 扫描，**零外部调用点**）：
-            · `selectTab(tab)`（:97）—— 无调用方
-            · `visibleItems()`（:103）—— 仅被 `isEmpty()` 调用
-            · `isEmpty()`（:108）—— 无调用方
-            · `selectedTab`（:37）—— 仅被上述两者读取
-            · 连带 `TAB_FAVORITES` / `TAB_HISTORY` 两个模块级常量（:13 / :15）
-      成因：Profile-R 重构把「收藏 / 历史双 Tab + 页内列表」拆到
-            FavoritesPage / HistoryPage 二级页后，这组 Tab 选择逻辑失去消费者。
-      处置：**本卡未动** —— `ProfileViewModel.ets` 在冻结文件清单内且本轮未授权。
-            待授权后整体移除（含 2 个常量），属零风险纯删除。
-      来源：本轮冗余代码审计。
-
 - [ ] **HomePage 收藏概览的刷新表现待实测**
       现象：`HomePage.ets:245` 直接读 `this.viewModel.favoriteCount`，
             而 `HomeViewModel.ets:41` 的 `favoriteCount` 是普通字段。
@@ -421,6 +396,36 @@ Last Update: 2026-09-17
             处置后 `assembleHap` 仍 BUILD SUCCESSFUL。
       遗留：4 图后续「补引用 / 保留 / 清理」三选一，已另行登记于 P2。
       来源：M35_DIAGNOSE.md 第 4 节建议 4 → A-2 执行 → A-3.5 同步登记。
+- [x] **`refreshFlag` 哨兵为全工程死代码** ✅（Cleanup-B 已清理 7 页）
+      关闭理由：Cleanup-B 已清理 7 页 `refreshFlag`（含 `ProfilePage`）。
+            现况：`.ets` 全工程归零，仅 `UserStore.ets:18` 注释保留。
+      原状：`refreshFlag` 在 6 个页面均为「只写不读」（`HomePage` 写 5 /
+            `ProfilePage` 写 5 / `LearnPage` 写 1 / `FavoritesPage` 写 3 /
+            `HistoryPage` 写 3 / `KnowledgeDetailPage` 写 1），读取点全工程为 0；
+            仅写入而从不被 `build()` 读取的状态变量不构成渲染依赖，从未驱动过重绘。
+      处置：7 页的字段声明、绑定注释与全部赋值点一并移除
+            （`HomePage` -9 / `LearnPage` -10 / `KnowledgeDetailPage` -10 /
+            `FavoritesPage` -6 / `HistoryPage` -6 行）。
+      验收：全工程 grep `refreshFlag` 于 `.ets` 仅剩 `UserStore.ets:18` 注释；
+            `check lint` Errors 0；`assembleHap` BUILD SUCCESSFUL。
+      来源：本轮冗余代码审计（`grep refreshFlag` 全工程扫描）→ Cleanup-B 执行。
+
+- [x] **`ProfileViewModel` 孤儿符号簇** ✅（Cleanup-B 已清理）
+      关闭理由：Cleanup-B 已清理。实际为 4 符号（`selectTab` /
+            `visibleItems` / `isEmpty` / `selectedTab`）+ 2 常量
+            （`TAB_FAVORITES` / `TAB_HISTORY`），构成内部互引死簇。
+      原状（全工程 + docs 扫描，零外部调用点）：
+            · `selectTab(tab)` —— 无调用方
+            · `visibleItems()` —— 仅被 `isEmpty()` 调用
+            · `isEmpty()` —— 无调用方
+            · `selectedTab` —— 仅被上述两者读写
+            · 连带 `TAB_FAVORITES` / `TAB_HISTORY` 两个模块级常量
+      成因：Profile-R 重构把「收藏 / 历史双 Tab + 页内列表」拆到
+            `FavoritesPage` / `HistoryPage` 二级页后，这组 Tab 选择逻辑失去消费者。
+      处置：整簇一次性移除（`ProfileViewModel.ets` -23 行，纯删除零插入）。
+      验收：6 符号于 `.ets`/`.ts` 全仓 grep 归零；`assembleHap` BUILD SUCCESSFUL
+            且零「找不到符号」报错（证明无外部引用遗漏）。
+      来源：本轮冗余代码审计 → Cleanup-B 执行（扩权后整簇删除）。
 
 ---
 

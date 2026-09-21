@@ -31,9 +31,6 @@ export struct FavoritesPage {
   /** 页面级 ViewModel（复用 ProfileViewModel，仅读取 favoriteItems） */
   @State viewModel: ProfileViewModel = new ProfileViewModel();
 
-  /** 重绘哨兵：@State 不深层监听类实例内部属性，装配完成后翻转以强制驱动 build()。 */
-  @State refreshFlag: boolean = false;
-
   /** 收藏版本号（状态驱动刷新） */
   @StorageLink(AppStorageKeys.FAVORITES_VERSION)
   @Watch('onFavoritesChanged')
@@ -51,13 +48,11 @@ export struct FavoritesPage {
   /** 从知识详情页返回时触发：仅重算、不重取元数据。 */
   onPageShow(): void {
     this.viewModel.refreshFromStore();
-    this.refreshFlag = !this.refreshFlag;
   }
 
   /** 收藏变化：列表即时同步。 */
   onFavoritesChanged(): void {
     this.viewModel.refreshFromStore();
-    this.refreshFlag = !this.refreshFlag;
     Logger.debug(MODULE_TAG, `favorites changed, count=${this.viewModel.favoriteItems.length}`);
   }
 
@@ -69,7 +64,6 @@ export struct FavoritesPage {
   /** 首次加载：一次性批量取元数据并装配。 */
   private loadItems(): void {
     this.viewModel.loadDisplayItems().then(() => {
-      this.refreshFlag = !this.refreshFlag;
     });
   }
 

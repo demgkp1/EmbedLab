@@ -42,10 +42,6 @@ const LEARN_TAB_INDEX: number = 1;
 export struct HomePage {
   /** 页面级 ViewModel */
   @State viewModel: HomeViewModel = new HomeViewModel();
-
-  /** 重绘哨兵：@State 不深层监听类实例内部属性，装配完成后翻转以强制驱动 build()。 */
-  @State refreshFlag: boolean = false;
-
   /**
    * 根 Tabs 当前下标（@Provide('rootTabIndex') ↔ @Consume 双向同步）。
    * 写入即驱动 RootTabContainer 的 Tabs 切换（其 index 已用 $$ 双向绑定），
@@ -70,27 +66,23 @@ export struct HomePage {
   /** 从其他页面返回本页时触发：仅重算、不重取元数据。 */
   onPageShow(): void {
     this.viewModel.refreshFromStore();
-    this.refreshFlag = !this.refreshFlag;
   }
 
   /** 收藏版本变化：收藏数与前 3 条即时同步。 */
   onFavoritesChanged(): void {
     this.viewModel.refreshFromStore();
-    this.refreshFlag = !this.refreshFlag;
     Logger.debug(MODULE_TAG, `favorites changed, count=${this.viewModel.favoriteCount}`);
   }
 
   /** 历史版本变化：最近阅读即时同步。 */
   onHistoryChanged(): void {
     this.viewModel.refreshFromStore();
-    this.refreshFlag = !this.refreshFlag;
     Logger.debug(MODULE_TAG, `history changed, recent=${this.viewModel.recentHistory.length}`);
   }
 
   /** 首次加载：一次性批量取元数据并装配。 */
   private loadItems(): void {
     this.viewModel.loadDisplayItems().then(() => {
-      this.refreshFlag = !this.refreshFlag;
     });
   }
 
@@ -133,7 +125,6 @@ export struct HomePage {
   onRootTabChanged(): void {
     if (this.rootTabIndex === HOME_TAB_INDEX) {
       this.viewModel.refreshFromStore();
-      this.refreshFlag = !this.refreshFlag;
       Logger.debug(MODULE_TAG, 'refresh on tab activated');
     }
   }

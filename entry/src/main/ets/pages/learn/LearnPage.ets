@@ -41,15 +41,6 @@ export struct LearnPage {
   @State viewModel: LearnViewModel = new LearnViewModel();
 
   /**
-   * 重绘哨兵。
-   * 说明：ArkUI 的 @State 不会深层监听类实例的内部属性变化（即使该类被 @Observed 修饰，
-   *      作为嵌套成员时仍无法保证触发重绘）。因此在异步加载完成后翻转本布尔值，
-   *      以状态变更强制驱动 build() 重新执行，确保四态与列表真实刷新。
-   * 注意：仅可在生命周期与事件回调中翻转，严禁在 build() 内修改。
-   */
-  @State refreshFlag: boolean = false;
-
-  /**
    * 收藏 ID 快照。
    * 说明：UserStore 为 @Observed 单例，但 @State 不深层监听其内部属性变化，
    *      故在生命周期/事件回调中读取一次并存入页面自身的 @State 数组，
@@ -112,7 +103,6 @@ export struct LearnPage {
   /** 触发数据加载（生命周期与重试按钮共用入口）。 */
   private loadData(): void {
     this.viewModel.loadKnowledgeList().then(() => {
-      this.refreshFlag = !this.refreshFlag;
     });
   }
 

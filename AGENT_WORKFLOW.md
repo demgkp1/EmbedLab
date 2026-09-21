@@ -169,3 +169,49 @@
   纠正另记于 `docs/BACKLOG.md`。
 - **意义**：本工程 AI 协作机制**健康运转的正面示范** —— 无需人类指出，Agent 即自我
   识别并纠正了自身的过度归因，且未把未验证假设升级为更强断言。
+
+### 5. 交付前必做 CLI 环境检查
+
+- 编码后的轨道一自检（lint / assembleHap）在开始前，须**先确认 hvigor 运行环境**：
+  `PackageHap` 裸调 `java`，仅设 `JAVA_HOME` 不足，PATH 上必须能解析 `java`
+  （否则报 `spawn java ENOENT`）。取证与正确配置见**第 10 章**。
+
+### 6. 禁用 PowerShell here-string 手工拼接文本做锚点
+
+- **已两次踩同一坑**（Profile-Attribution-Correction 卡 A、Cleanup-B）：两次均因用
+  PowerShell here-string **手工重打原文**作为替换锚点，导致 ——
+  ① **块尾换行被剥**（`.TrimEnd()` 吃掉块**尾**换行 → 与下一行**拼接成一行**；
+     本条的写盘过程即**第 3 次复现**：块**首**空行被剥，导致 `### 6.` 标题贴到上一行，
+     由「四项后置校验」当场捕获）；
+  ② **行尾风格被改**（整文件 CRLF 被转成 LF）；
+  ③ **整行被误丢**（重打时漏行 → 句子断裂、语义反转）；另有一次给原本**无末行换行**的
+  文件补上换行，产生未授权 diff。
+- **已加防线（两层）**：
+  ① **锚点唯一性断言**：写盘前以 `[regex]::Escape($anchor)` + `MatchCollection.Count`
+     断言命中数 **== 1**，否则 `throw` 中止、**不写盘**；
+  ② **四项后置校验**：写盘后必查 —— **行尾一致性**（`CRLF` 计数 vs `bareLF` 是否为 0）、
+     **双空行扫描**、**标题前空行校验**、**删除行归属审计**（`git diff` 逐 `-` 行核对
+     是否均属授权符号）。
+- **建议做法（强制）**：
+  1. 锚点**必须从磁盘提取**（`[IO.File]::ReadAllLines($p)[$i]`），**不得手工重打**；
+  2. 写盘前**断言锚点唯一**；
+  3. 写盘后**四项后置校验全绿**方可通过；
+  4. 涉及"删除整行"的操作，优先用 `edit` 工具（行尾自动保持），
+     避免自行 `WriteAllLines` 改变末行换行。
+- **来源**：Cleanup-B 过程事故自曝（3 起，均已修复）。
+
+---
+
+## 10. CLI 环境取证（v1.7.1）
+
+**【v1.7.1 取证】`PackageHap` 的 PATH 依赖**
+
+`PackageHap` 阶段**裸调 `java`，不走 `JAVA_HOME`**。
+若 PATH 上无 `java`，会在 `PackageHap` 报 `spawn java ENOENT`
+（即使 `java.exe -version` 在绝对路径下正常）。
+
+**正确配置**：除 `JAVA_HOME` 外，需将
+`E:\app\DevEco Studio\jbr\bin` 加入 PATH。
+或改用 hvigor daemon 模式（daemon 启动时会注入该路径）。
+
+来源：Profile-Attribution-Correction 卡 A 交付报告。
