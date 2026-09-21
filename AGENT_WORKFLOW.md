@@ -257,3 +257,26 @@
 - 该目录由 `GenerateOhosTestTemplate` / `GenerateUnitTestTemplate` 类任务生成；
   已被 `entry/.gitignore` 的 `/.test` 规则忽略（`entry/.gitignore:6`）。
 - **来源**：TestBlind-Spot-Verify。
+
+### 4. codelinter 形参名交叉陷阱
+
+- `getCheckFiles(T, S)` 语义为 `(dirs, files)`，
+  但内部调用 `this.getFullCheckFiles(S, T)` —— **顺序交换**。
+- `getFullCheckFiles(T, S)` 语义为 `(files, dirs)` —— 名字与内容**交叉**。
+- 后果：按形参名阅读代码会得出"`T` 是遍历起点"的结论，**实际不是**。
+- 来源：Lint-Entry-Chain-Probe（D5）。
+
+### 5. 幽灵项与"未扫"是两件独立事项
+
+- `$TEMP/<ts>_check_file `（尾随空格）的 NTFS 幽灵项导致
+  **读不到 linter 的运行时候选清单**。
+- 但**不能**据此推断"test 未被 lint 扫描"——两者证据链未连通。
+- 幽灵项的后果仅是"运行时取证受阻"，与"扫没扫"是两个问题。
+- 来源：Lint-Entry-Chain-Probe（D5）· 自我纠正记录。
+
+### 6. 实验探针 struct 名必须唯一
+
+- 在 ArkTS 工程内创建多探针做对照实验时，
+  各探针的 `struct` 名**必须唯一**（如 `AProbeD6` / `PProbeD6`）。
+- 同名结构可能导致编译器合并，使实验失效。
+- 来源：Lint-Path-Depth-Experiment（D6）。

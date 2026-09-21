@@ -33,6 +33,31 @@ Last Update: 2026-09-17
            任何 CLI 构建的成功输出**均不可作为**测试代码的验证依据。
       来源：Cleanup-4 第一段探查 + 第二段交付报告未决依赖 T1（架构师升级为 P0）。
 
+- [ ] **lint 覆盖 test 在当前工具链下不可解（用户侧无配置入口）**
+      经 D2~D6 五卡探查确证：`devecocli check lint` 对
+      `entry/src/test/**` 与 `entry/src/ohosTest/**` 的排除
+      **不在** `code-linter.json5`（ignore 两行对直接文件不匹配，见 P1），
+      **不在** modulePaths / inModule / collectCheckResourceFile / isNotInFiles
+      （代码层四项过滤均已排查）。
+      D6 实验（单变量三轮对照 + 阳性对照）证明：
+      test 目录下 1/2/3 段深度的 `.ets` 均不产生诊断，
+      同规则同内容置于 `entry/src/main/` 下必产生诊断。
+      结论：**目录级排除、深度无关、与 ignore 两行无关**。
+      实际拦阻点（可能在引擎层：arkPerfCheck / eslintAgent / performanceAgent）
+      **未定位**，且在工作区外，用户不可改。
+      影响：无法通过配置让 lint 覆盖 test 代码。
+      来源：Lint-Filter-Probe（D2）~ Lint-Path-Depth-Experiment（D6）。
+
+- [ ] **test 代码受 0 重门禁（P0 三重盲区的深化）**
+      在既有 P0「测试代码三重验证盲区」基础上，D2~D6 进一步确证：
+      · 门禁 1「lint」—— 不可解（见上条）
+      · 门禁 2「编译」—— `assembleHap` 只驱动 default target，
+        不编译 `entry/src/test/`；`ohosTest` target 需显式驱动
+        （`devecocli build --modules entry@ohosTest` 可编译 ohosTest）
+      · 门禁 3「执行」—— `UnitTestArkTS` 假绿灯未验证（详见原 P0 条）
+      结论：test 代码当前无任何自动门禁。
+      来源：Lint-Filter-Probe（D2）~ Lint-Path-Depth-Experiment（D6）。
+
 ---
 
 ## P1（阻塞后续开发）
@@ -110,6 +135,17 @@ Last Update: 2026-09-17
       「lint 对 test 过滤不由 `code-linter.json5` 的 ignore 决定」**推理基础被推翻**。
       现况：ignore 是否生效、test 代码是否本就零诊断——**未区分，待受控实验**。
       来源：Lint-Filter-Probe（D2）。
+
+- [ ] **ignore 两行对 `src/test/*.ets` 直接文件实际不匹配**
+      `"**/src/test/**/*"` 与 `"**/src/ohosTest/**/*"` 在本工程的
+      GlobMatch 实现（连续 `*` 折叠为单个 `.*`）下生成的模式为
+      `.*/src/test/.*/.*`（无锚定），要求 `test/` 之后**至少还有两段路径**。
+      故 `src/test/X.ets`（1 段）与 `src/test/sub/X.ets`（2 段）
+      实际均不被这两条 ignore 匹配。
+      **注意**：这两条 ignore 的失效不是 test 未被 lint 的原因
+      （见 P0 条：真正原因是工具链层面的目录级排除）；
+      本条仅记录 ignore 配置自身的语义偏差。
+      来源：Lint-Block-Point-Probe（D4）N1。
 
 ---
 
@@ -229,6 +265,60 @@ Last Update: 2026-09-17
       例：`"**/src/ohosTest/**/*"` → `/.*\/src\/ohosTest\/.*/`（无锚定）。
       影响：ignore / files 模式写法不能与标准 glob 互换。
       来源：Lint-Filter-Probe（D2）。
+
+- [ ] **Code Linter DEFAULT_CONFIG 与本工程 ignore 逐字相同**
+      `codelinter/index.js` 内建的 `DEFAULT_CONFIG.ignore` 与本工程
+      `code-linter.json5` 的 ignore 数组**逐字相同**。
+      `isDefaultConfig` 深比较；`generateDefaultConfig()` 仅在项目无配置时落盘。
+      来源：Lint-Filter-Probe（D2）N2。
+
+- [ ] **`ROOT_FILE_IGNORE_PATTERNS` 为死常量（无使用点）**
+      `codelinter/index.js` 中定义但全 bundle 无消费点。
+      避免误将其当作实际过滤源。
+      来源：Lint-Filter-Probe（D2）N3。
+
+- [ ] **Code Linter 的 GlobMatch 非标准 glob（补充实例）**
+      既有条目记录其转换算法；本条补充具体影响：
+      · `"**/src/test/**/*"` → `.*/src/test/.*/.*`（不匹配 `src/test/X.ets`）
+      · `"**/src/ohosTest/**/*"` → `.*/src/ohosTest/.*/.*`（同理）
+      · `"**/*.ets"` → `.*/.*\.ets$`（匹配，因以扩展名结尾被加锚定）
+      来源：Lint-Block-Point-Probe（D4）N1。
+
+- [ ] **`projectBuildFile` 优先读 `.hvigor/outputs/sync/output.json`**
+      `parseProjectBuildProfile` 先尝试读 `.hvigor/outputs/sync/output.json`
+      的 `ohos-project.PROFILE_OPT`，命中则直接返回；
+      仅在未命中时才解析 `build-profile.json5`。
+      来源：Lint-Block-Point-Probe（D4）N2。
+
+- [ ] **codelinter 的 `--targets` 经环境变量传入（非 CLI 参数）**
+      `Options` 构造函数：`this._targets = process.env.targets`。
+      来源：Lint-Block-Point-Probe（D4）N3。
+
+- [ ] **`--dir` 在未设 `--isTooManyFiles true` 时被当作 JSON 数组解析**
+      `getCustomCheckPaths(dir, isTooManyFiles)`：
+      `isTooManyFiles === 'true'` 时读文件 + `JSON.parse`；
+      否则直接把 `dir` 当 JSON 字符串解析。
+      来源：Lint-Block-Point-Probe（D4）N4。
+
+- [ ] **`devecocli` 顶层无 `clean` 子命令**
+      `devecocli --help` 列出的 15 个顶层命令中无清理类命令。
+      清理能力在子命令：`devecocli build clean`。
+      实测 `devecocli clean` 报 `unknown command 'clean'`。
+      来源：Lint-Block-Point-Probe（D4）N5。
+
+- [ ] **codelinter 把清单写 `$TEMP/<ts>_check_file `（尾随空格）**
+      `Options` 构造：`_checkFileJsonPath = resolve(tmpdir(), `${Date.now()}_check_file `)`。
+      该命名在 Windows / NTFS 下形成元数据幽灵项：
+      可被 `GetFiles` 枚举，但 `FileInfo.Exists = False`、
+      `ReadAllBytes` 抛异常（4 种读法全失败，281,853 次尝试 0 成功）。
+      **与"test 未被 lint 扫描"无关**（两件独立事项，证据链未连通）。
+      来源：Lint-Entry-Chain-Probe（D5）。
+
+- [ ] **`modulePaths` = 模块根（`entry/`）而非 `entry/src/main/`**
+      `getAllModulePaths` 遍历 `projectBuildFile.modules[].srcPath`
+      （本工程为 `./entry`）拼接路径 + `path.sep`。
+      故 `inModule` 判定范围为整个模块根，比直觉更宽。
+      来源：Lint-Block-Point-Probe（D4）N7。
 
 ---
 
