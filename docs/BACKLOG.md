@@ -102,6 +102,15 @@ Last Update: 2026-09-17
       影响：命令拼错时无提示，可能跑错目标。
       来源：TestBlind-Spot-Verify。
 
+- [ ] **`filesChecked` 语义修正 —— 上一卡 C 类推断被推翻**
+      `devecocli check lint` 的 `Files checked` = **有诊断条目的文件去重计数**
+      （源码证据：`dist/cli.js` 的 `NR()` / `qd()` 收集 `issue.filePath`），
+      **不是"扫描到的文件数"**。
+      影响：TestBlind-Spot-Verify 的 C 类推断 #9
+      「lint 对 test 过滤不由 `code-linter.json5` 的 ignore 决定」**推理基础被推翻**。
+      现况：ignore 是否生效、test 代码是否本就零诊断——**未区分，待受控实验**。
+      来源：Lint-Filter-Probe（D2）。
+
 ---
 
 ## P2（建议 3.5 或近期处理）
@@ -213,6 +222,13 @@ Last Update: 2026-09-17
       `entry/.test/.../ohosTest/resources/base/element/color.json`
       对 `start_window_background` 重复声明（WARN，不阻断）。
       来源：TestBlind-Spot-Verify。
+
+- [ ] **Code Linter 的 GlobMatch 非标准 glob**
+      `GlobMatch.globToRegex` 为朴素转换（`*` → `.*`，转义特殊字符），
+      **仅当模式以 `.扩展名` 结尾时才加 `$` 锚定**。
+      例：`"**/src/ohosTest/**/*"` → `/.*\/src\/ohosTest\/.*/`（无锚定）。
+      影响：ignore / files 模式写法不能与标准 glob 互换。
+      来源：Lint-Filter-Probe（D2）。
 
 ---
 
